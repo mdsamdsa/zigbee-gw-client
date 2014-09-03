@@ -8,9 +8,11 @@ var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
+var ByteBuffer = require('bytebuffer');
 
 var TcpServerClient = require('./tcp_client');
 var DS = require('./data_structures');
+var Protocol = require('./protocol.js');
 
 function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, ota_port) {
     this.nwk_host = nwk_host;
@@ -21,6 +23,7 @@ function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_hos
     this.ota_port = ota_port;
 
     this.state = 0;
+    this.waiting_for_confirmation = false;
 
     this.nwk_server = new TcpServerClient('NWK_MGR', this.nwk_host, this.nwk_port);
     this.gateway_server = new TcpServerClient('GATEWAY', this.gateway_host, this.gateway_port);
@@ -86,15 +89,93 @@ SocketInterface.prototype.ota_server_connected = function() {
 };
 
 SocketInterface.prototype.init_state_machine = function(timed_out, arg) {
-    if (!this.nwk_server.connected)
-    {
+    if (!this.nwk_server.connected) {
         this.state = 4;
     }
-    else if ((!timed_out) || (this.state == 0))
-    {
+    else if ((!timed_out) || (this.state == 0)) {
         this.state++;
     }
     logger.info('Init state ' + this.state);
+    switch(this.state) {
+        case 1:
+            if(!this.waiting_for_confirmation) {
+                //this.nwk_send_info_request();
+            }
+            else{
+                this.state = 0;
+            }
+    }
+};
+
+SocketInterface.prototype.get_server = function(index) {
+    switch(index) {
+        case Const.ServerID.SI_SERVER_ID_NWK_MGR:
+            return this.nwk_server;
+        case Const.ServerID.SI_SERVER_ID_GATEWAY:
+            return this.gateway_server;
+        case Const.ServerID.SI_SERVER_ID_OTA:
+            return this.ota_server;
+        default:
+            return undefined;
+    }
+};
+
+SocketInterface.prototype.is_server_ready = function(index) {
+    var server = this.get_server(index);
+    if (typeof server == "undefined")
+        return false;
+    else
+        return server.connected;
+}
+
+SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
+    var server;
+    if (pkt.header.subsystem == Protocol.NWKMgr.zStackNwkMgrSysId_t.RPC_SYS_PB_NWK_MGR) {
+        server = this.nwk_server;
+    } else if (pkt.header.subsystem == Protocol.GatewayMgr.zStackGwSysId_t.RPC_SYS_PB_GW) {
+        server = this.gateway_server;
+    } else if (pkt.header.subsystem == Protocol.OTAMgr.ZStackOTASysIDs.RPC_SYS_PB_OTA_MGR) {
+        server = this.ota_server;
+    } else {
+        logger.warn('Unknown subsystem ID ' + pkt.header.subsystem + ' Following packet discarded: ');
+        //ui_print_packet_to_log(pkt, "not sent: ", BOLD);
+        return -1;
+    }
+
+    if (!server.connected) {
+        logger.info('Please wait while connecting to server')
+        return -1;
+    }
+
+    if (waiting_for_confirmation) {
+        logger.info('BUSY - please wait for previous operation to complete');
+        return -1;
+    }
+
+    var buffer = new ByteBuffer();
+    buffer.writeUint16(pkt.header.len + 4)
+        .writeUint8(pkt.header.subsystem)
+        .writeUint8(pkt.header.cmdId)
+        .append(pkt.packet).flip();
+
+    server.socket.write(buffer.toBinary());
+
+    //ui_print_packet_to_log(pkt, 'sent to ' + server.name + ' ', BOLD);
+
+    this.confirmation_cb = cb;
+    this.confirmation_arg = arg;
+
+    logger.info('BUSY');
+    this.waiting_for_confirmation = true;
+
+    /*tu_set_timer(&confirmation_wait_timer, server->confirmation_timeout_interval, false, confirmation_timeout_handler, NULL);
+
+    if (server->confirmation_timeout_interval != STANDARD_CONFIRMATION_TIMEOUT)
+    {
+        server->confirmation_timeout_interval = STANDARD_CONFIRMATION_TIMEOUT;
+    }*/
+
+    return 0;
 };
 
 module.exports = SocketInterface;

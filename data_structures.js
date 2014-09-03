@@ -1,10 +1,5 @@
 'use strict';
 
-var module_name = module.filename.slice(module.filename.lastIndexOf(require('path').sep)+1, module.filename.length -3);
-
-var log4js = require('log4js');
-var logger = log4js.getLogger(module_name);
-
 var data_structures = {};
 
 data_structures.network_status = {
