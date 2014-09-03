@@ -37,6 +37,8 @@ function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_hos
     this.nwk_server.on('disconnected', this.nwk_server_disconnected.bind(this));
     this.gateway_server.on('connected', this.gateway_server_connected.bind(this));
     this.ota_server.on('connected', this.ota_server_connected.bind(this));
+
+    this.Engines = require('./engines')(this);
 }
 util.inherits(SocketInterface, EventEmitter);
 
@@ -62,7 +64,7 @@ SocketInterface.prototype.nwk_server_connected = function() {
     logger.info('nwk_server_connected');
     this.nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.init_state_machine_timer = setTimeout(function() {
-        this.init_state_machine();
+        this.init_state_machine(false, null);
     }.bind(this), Const.Timeouts.INIT_STATE_MACHINE_STARTUP_DELAY);
 };
 
@@ -99,7 +101,7 @@ SocketInterface.prototype.init_state_machine = function(timed_out, arg) {
     switch(this.state) {
         case 1:
             if(!this.waiting_for_confirmation) {
-                //this.nwk_send_info_request();
+                this.Engines.network_info.nwk_send_info_request();
             }
             else{
                 this.state = 0;
@@ -124,9 +126,8 @@ SocketInterface.prototype.is_server_ready = function(index) {
     var server = this.get_server(index);
     if (typeof server == "undefined")
         return false;
-    else
-        return server.connected;
-}
+    return server.connected;
+};
 
 SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
     var server;
@@ -143,24 +144,25 @@ SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
     }
 
     if (!server.connected) {
-        logger.info('Please wait while connecting to server')
+        logger.info('Please wait while connecting to server');
         return -1;
     }
 
-    if (waiting_for_confirmation) {
+    if (this.waiting_for_confirmation) {
         logger.info('BUSY - please wait for previous operation to complete');
         return -1;
     }
 
     var buffer = new ByteBuffer();
-    buffer.writeUint16(pkt.header.len + 4)
+    buffer.littleEndian = true;
+    buffer.writeUint16(pkt.header.len)
         .writeUint8(pkt.header.subsystem)
         .writeUint8(pkt.header.cmdId)
         .append(pkt.packet).flip();
 
     server.socket.write(buffer.toBinary());
 
-    //ui_print_packet_to_log(pkt, 'sent to ' + server.name + ' ', BOLD);
+    this.print_packet_to_log(pkt, buffer, 'sent to ' + server.name + ': ');
 
     this.confirmation_cb = cb;
     this.confirmation_arg = arg;
@@ -176,6 +178,11 @@ SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
     }*/
 
     return 0;
+};
+
+SocketInterface.prototype.print_packet_to_log = function(pkt, buffer, str) {
+    logger.info(str + 'len=' + pkt.header.len + ', cmdId=' + pkt.header.cmdId + ', subsystem=' + pkt.header.subsystem);
+    logger.debug('Raw: ' + buffer.toHex());
 };
 
 module.exports = SocketInterface;

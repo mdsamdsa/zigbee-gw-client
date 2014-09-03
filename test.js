@@ -1,4 +1,3 @@
-var fs = require('fs');
 var net = require('net');
 var ProtoBuf = require('protobufjs');
 var ByteBuffer = require('bytebuffer');
@@ -16,14 +15,14 @@ buffer.writeUint16(command.toBuffer().length)
     .writeUint8(command.cmdId)
     .append(command.toBuffer()).flip();
 
-console.log(buffer);
+console.log(buffer.toBuffer());
 
-var socket = net.createConnection(2540, '192.168.7.2');
+var socket = net.createConnection(2540, '192.168.90.28');
 
 socket.on('connect', function() {
     console.log('connect');
     socket.write(buffer.toBinary());
-    socket.end();
+    //socket.end();
 });
 
 socket.on('data', function(chunk) {
