@@ -3,7 +3,7 @@
 var module_name = module.filename.slice(module.filename.lastIndexOf(require('path').sep)+1, module.filename.length -3);
 
 var INITIAL_CONFIRMATION_TIMEOUT = 5000;
-var STANDARD_CONFIRMATION_TIMEOUT = 1000;
+//var STANDARD_CONFIRMATION_TIMEOUT = 1000;
 var INIT_STATE_MACHINE_STARTUP_DELAY = 1000;
 
 var ZIGBEE_NETWORK_STATE_UNAVAILABLE = 0;
@@ -18,17 +18,19 @@ var EventEmitter = require('events').EventEmitter;
 var TcpServerClient = require('./tcp_client');
 var DS = require('./data_structures');
 
-function SocketInterface(host, nwk_port, gateway_port, ota_port) {
-    this.host = host;
+function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, ota_port) {
+    this.nwk_host = nwk_host;
     this.nwk_port = nwk_port;
+    this.gateway_host = gateway_host;
     this.gateway_port = gateway_port;
+    this.ota_host = ota_host;
     this.ota_port = ota_port;
 
     this.state = 0;
 
-    this.nwk_server = new TcpServerClient('NWK_MGR', this.host, this.nwk_port);
-    this.gateway_server = new TcpServerClient('GATEWAY', this.host, this.gateway_port);
-    this.ota_server = new TcpServerClient('OTA', this.host, this.ota_port);
+    this.nwk_server = new TcpServerClient('NWK_MGR', this.nwk_host, this.nwk_port);
+    this.gateway_server = new TcpServerClient('GATEWAY', this.gateway_host, this.gateway_port);
+    this.ota_server = new TcpServerClient('OTA', this.ota_host, this.ota_port);
 
     this.nwk_server.on('error', this.tcp_server_error);
     this.gateway_server.on('error', this.tcp_server_error);
