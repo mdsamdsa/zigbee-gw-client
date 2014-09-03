@@ -9,4 +9,4 @@ var socket_interface = new SocketInterface('192.168.90.28', 2540, '192.168.90.28
 
 socket_interface.init();
 
-setTimeout(socket_interface.deinit.bind(socket_interface),3000);
+setTimeout(socket_interface.deinit.bind(socket_interface),8000);

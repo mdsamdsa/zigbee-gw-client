@@ -24,6 +24,7 @@ TcpServerConnection.prototype.connect = function() {
     logger.info(this.name + ' connect');
     this.socket = net.connect(this.port, this.host);
     this.socket.setTimeout(this.connectTimeout);
+    this.socket.unref();
     this.reconnect = true;
 
     this.socket.on('connect', function() {
