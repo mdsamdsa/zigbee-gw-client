@@ -4,6 +4,7 @@
     "dependencies": {
         "protobufjs": "*",
         "bytebuffer": "*",
-        "log4js": "*"
+        "log4js": "*",
+        "nconf": "*"
     }
 }

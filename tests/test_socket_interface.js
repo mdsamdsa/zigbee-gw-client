@@ -5,7 +5,16 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 var log4js = require('log4js');
 var SocketInterface = require('../socket_interface');
 
-var socket_interface = new SocketInterface('192.168.90.28', 2540, '192.168.90.28', 2541, '192.168.90.28', 2525);
+var config = require('../config.js');
+
+var socket_interface = new SocketInterface(
+    config.get('servers:nwk:host'),
+    config.get('servers:nwk:port'),
+    config.get('servers:gateway:host'),
+    config.get('servers:gateway:port'),
+    config.get('servers:ota:host'),
+    config.get('servers:ota:port')
+);
 
 socket_interface.init();
 
