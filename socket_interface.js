@@ -2,13 +2,7 @@
 
 var module_name = module.filename.slice(module.filename.lastIndexOf(require('path').sep)+1, module.filename.length -3);
 
-var INITIAL_CONFIRMATION_TIMEOUT = 5000;
-//var STANDARD_CONFIRMATION_TIMEOUT = 1000;
-var INIT_STATE_MACHINE_STARTUP_DELAY = 1000;
-
-var ZIGBEE_NETWORK_STATE_UNAVAILABLE = 0;
-//#define ZIGBEE_NETWORK_STATE_INITIALIZING 1
-//#define ZIGBEE_NETWORK_STATE_READY        2
+var Const = require('./constants');
 
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
@@ -63,10 +57,10 @@ SocketInterface.prototype.tcp_server_error = function(error) {
 
 SocketInterface.prototype.nwk_server_connected = function() {
     logger.info('nwk_server_connected');
-    this.nwk_server.confirmation_timeout_interval = INITIAL_CONFIRMATION_TIMEOUT;
+    this.nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.init_state_machine_timer = setTimeout(function() {
         this.init_state_machine();
-    }.bind(this), INIT_STATE_MACHINE_STARTUP_DELAY);
+    }.bind(this), Const.Timeouts.INIT_STATE_MACHINE_STARTUP_DELAY);
 };
 
 SocketInterface.prototype.nwk_server_disconnected = function() {
@@ -74,7 +68,7 @@ SocketInterface.prototype.nwk_server_disconnected = function() {
     clearTimeout(this.init_state_machine_timer);
     this.init_state_machine_timer = undefined;
     this.init_state_machine(false, null);
-    DS.network_status.state = ZIGBEE_NETWORK_STATE_UNAVAILABLE;
+    DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
 };
 
 SocketInterface.prototype.init_state_machine = function() {
@@ -83,12 +77,12 @@ SocketInterface.prototype.init_state_machine = function() {
 
 SocketInterface.prototype.gateway_server_connected = function() {
     logger.info('gateway_server_connected');
-    this.gateway_server.confirmation_timeout_interval = INITIAL_CONFIRMATION_TIMEOUT;
+    this.gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
 };
 
 SocketInterface.prototype.ota_server_connected = function() {
     logger.info('ota_server_connected');
-    this.ota_server.confirmation_timeout_interval = INITIAL_CONFIRMATION_TIMEOUT;
+    this.ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
 };
 
 SocketInterface.prototype.init_state_machine = function(timed_out, arg) {

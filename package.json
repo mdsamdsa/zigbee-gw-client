@@ -5,6 +5,7 @@
         "protobufjs": "*",
         "bytebuffer": "*",
         "log4js": "*",
-        "nconf": "*"
+        "nconf": "*",
+        "enum": "*"
     }
 }
