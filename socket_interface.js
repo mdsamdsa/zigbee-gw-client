@@ -10,8 +10,9 @@ var EventEmitter = require('events').EventEmitter;
 var Const = require('./constants');
 var DS = require('./data_structures');
 var TcpServerClient = require('./tcp_client');
-var Protocol = require('./protocol.js');
-var Common = require('./common.js');
+var Protocol = require('./protocol');
+var Common = require('./common');
+var Idle = require('./idle');
 
 function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, ota_port) {
     this.nwk_host = nwk_host;
@@ -104,10 +105,6 @@ SocketInterface.prototype.nwk_server_packet = function(pkt) {
     }
 };
 
-SocketInterface.prototype.init_state_machine = function() {
-    this.init_state_machine(false, null);
-};
-
 SocketInterface.prototype.gateway_server_connected = function() {
     logger.info('gateway_server_connected');
     this.gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
@@ -128,12 +125,26 @@ SocketInterface.prototype.init_state_machine = function(timed_out, arg) {
     logger.info('Init state ' + this.state);
     switch(this.state) {
         case 1:
+            Idle.register_idle_callback(this.init_state_machine.bind(this));
             if(!this.waiting_for_confirmation) {
                 this.Engines.network_info.nwk_send_info_request();
             }
-            else{
+            else {
                 this.state = 0;
             }
+            break;
+        case 2:
+            this.Engines.device_list.device_send_local_info_request();
+            break;
+        case 3:
+            this.Engines.device_list.device_send_list_request();
+            break;
+        case 4:
+            Idle.unregister_idle_callback();
+            this.state = 0;
+            break;
+        default:
+            break;
     }
 };
 
@@ -210,10 +221,7 @@ SocketInterface.prototype.confirmation_receive_handler = function(pkt) {
         this.confirmation_processing_cb(pkt, this.confirmation_processing_arg);
     }
 
-    /*if (IDLE_CB != NULL)
-    {
-        IDLE_CB(false, IDLE_CB_ARG);
-    }*/
+    Idle.do_idle_callback(false);
 };
 
 SocketInterface.prototype.confirmation_timeout_handler = function() {
@@ -222,10 +230,7 @@ SocketInterface.prototype.confirmation_timeout_handler = function() {
     this.waiting_for_confirmation = false;
     this.confirmation_processing_cb = undefined;
 
-    /*if (IDLE_CB != NULL)
-    {
-        IDLE_CB(true, IDLE_CB_ARG);
-    }*/
+    Idle.do_idle_callback(true);
 };
 
 module.exports = SocketInterface;
