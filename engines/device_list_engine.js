@@ -72,6 +72,38 @@ device_list.device_process_local_info_response = function (pkt, arg) {
     //ui_refresh_display();
 };
 
+device_list.device_process_change_indication = function(pkt) {
+    if (pkt.header.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND) {
+        return;
+    }
+
+    logger.info('device_process_change_indication: Received NWK_ZIGBEE_DEVICE_IND');
+
+    try {
+        var msg = Protocol.NWKMgr.NwkZigbeeDeviceInd.decode(pkt.packet);
+    }
+    catch(err) {
+        logger.warn('device_process_change_indication: Error Could not unpack msg');
+        return;
+    }
+
+    /* Update device info in the device list */
+
+    var index = DS.device_table.get_index_entry(msg.deviceInfo);
+    DS.device_table.update_device_table_entry(msg.deviceInfo);
+
+    if (index != -1) {
+        logger.info('device_process_change_indication: Found existing entry');
+    } else {
+        logger.info('device_process_change_indication: Adding new entry');
+    }
+    if (msg.deviceInfo.deviceStatus == Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_REMOVED) {
+        logger.info('device_process_change_indication: Device removed');
+    }
+
+    //ui_refresh_display();
+};
+
 device_list.device_send_list_request = function() {
     var msg = new Protocol.NWKMgr.NwkGetDeviceListReq();
     var buf = msg.toBuffer();
