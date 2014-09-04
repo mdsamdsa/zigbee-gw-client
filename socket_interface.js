@@ -8,7 +8,6 @@ var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
-var ByteBuffer = require('bytebuffer');
 
 var TcpServerClient = require('./tcp_client');
 var DS = require('./data_structures');
@@ -153,16 +152,7 @@ SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
         return -1;
     }
 
-    var buffer = new ByteBuffer();
-    buffer.littleEndian = true;
-    buffer.writeUint16(pkt.header.len)
-        .writeUint8(pkt.header.subsystem)
-        .writeUint8(pkt.header.cmdId)
-        .append(pkt.packet).flip();
-
-    server.socket.write(buffer.toBinary());
-
-    this.print_packet_to_log(pkt, buffer, 'sent to ' + server.name + ': ');
+    server.send(pkt);
 
     this.confirmation_cb = cb;
     this.confirmation_arg = arg;
@@ -178,11 +168,6 @@ SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
     }*/
 
     return 0;
-};
-
-SocketInterface.prototype.print_packet_to_log = function(pkt, buffer, str) {
-    logger.info(str + 'len=' + pkt.header.len + ', cmdId=' + pkt.header.cmdId + ', subsystem=' + pkt.header.subsystem);
-    logger.debug('Raw: ' + buffer.toHex());
 };
 
 module.exports = SocketInterface;

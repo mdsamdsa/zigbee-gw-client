@@ -6,6 +6,7 @@
         "bytebuffer": "*",
         "log4js": "*",
         "nconf": "*",
-        "enum": "*"
+        "enum": "*",
+        "dissolve": "*"
     }
 }
