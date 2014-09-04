@@ -1,12 +1,14 @@
 'use strict';
 
+var Const = require('./constants');
+
 var data_structures = {};
 
 data_structures.network_status = {
-    channel: 0,
+    nwk_channel: 0,
     pan_id: 0,
     ext_pan_id: 0,
-    state: 0
+    state: Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE
 };
 
 /*typedef struct {

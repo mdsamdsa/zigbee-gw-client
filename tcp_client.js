@@ -124,7 +124,6 @@ TcpServerConnection.prototype._handleIncomingData = function(_pkt) {
 
     Common.print_packet_to_log(logger, 'received from ' + this.name + ': ', pkt, buffer);
     this.emit('packet', pkt);
-    //console.log(Protocol.NWKMgr.NwkGetLocalDeviceInfoCnf.decode(pkt.packet));
 };
 
 TcpServerConnection.prototype.send = function(pkt) {

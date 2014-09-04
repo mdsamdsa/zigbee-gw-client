@@ -2,15 +2,14 @@
 
 var module_name = module.filename.slice(module.filename.lastIndexOf(require('path').sep)+1, module.filename.length -3);
 
-var Const = require('./constants');
-
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
-var TcpServerClient = require('./tcp_client');
+var Const = require('./constants');
 var DS = require('./data_structures');
+var TcpServerClient = require('./tcp_client');
 var Protocol = require('./protocol.js');
 
 function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, ota_port) {
@@ -34,7 +33,10 @@ function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_hos
 
     this.nwk_server.on('connected', this.nwk_server_connected.bind(this));
     this.nwk_server.on('disconnected', this.nwk_server_disconnected.bind(this));
+    this.nwk_server.on('packet', this.nwk_server_packet.bind(this));
+
     this.gateway_server.on('connected', this.gateway_server_connected.bind(this));
+
     this.ota_server.on('connected', this.ota_server_connected.bind(this));
 
     this.Engines = require('./engines')(this);
@@ -73,6 +75,23 @@ SocketInterface.prototype.nwk_server_disconnected = function() {
     this.init_state_machine_timer = undefined;
     this.init_state_machine(false, null);
     DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
+};
+
+SocketInterface.prototype.nwk_server_packet = function(packet) {
+    switch(packet.header.cmdId) {
+        case Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF:
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_SYSTEM_RESET_CNF:
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_ZIGBEE_POWER_MODE_CNF:
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_LOCAL_DEVICE_INFO_CNF:
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_CNF:
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_NWK_KEY_CNF:
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF:
+            this.confirmation_receive_handler(packet);
+            break;
+        default:
+            Logger.warn('Unsupported incoming command id from nwk manager server (cmd_id ' + packet.header.cmdId + ')');
+            break;
+    };
 };
 
 SocketInterface.prototype.init_state_machine = function() {
@@ -168,6 +187,22 @@ SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
     }*/
 
     return 0;
+};
+
+SocketInterface.prototype.confirmation_receive_handler = function(pkt) {
+    this.waiting_for_confirmation = false;
+    //tu_kill_timer(&confirmation_wait_timer);
+    //ui_print_status(0, "");
+
+    if (!(typeof this.confirmation_cb ==  "undefined")) {
+        //UI_PRINT_LOG("Calling confirmation callback");
+        this.confirmation_cb(pkt, this.confirmation_arg);
+    }
+
+    /*if (IDLE_CB != NULL)
+    {
+        IDLE_CB(false, IDLE_CB_ARG);
+    }*/
 };
 
 module.exports = SocketInterface;
