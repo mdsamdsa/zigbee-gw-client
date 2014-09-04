@@ -11,6 +11,7 @@ var Const = require('./constants');
 var DS = require('./data_structures');
 var TcpServerClient = require('./tcp_client');
 var Protocol = require('./protocol.js');
+var Common = require('./common.js');
 
 function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, ota_port) {
     this.nwk_host = nwk_host;
@@ -77,8 +78,8 @@ SocketInterface.prototype.nwk_server_disconnected = function() {
     DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
 };
 
-SocketInterface.prototype.nwk_server_packet = function(packet) {
-    switch(packet.header.cmdId) {
+SocketInterface.prototype.nwk_server_packet = function(pkt) {
+    switch(pkt.header.cmdId) {
         case Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF:
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_SYSTEM_RESET_CNF:
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_ZIGBEE_POWER_MODE_CNF:
@@ -86,12 +87,21 @@ SocketInterface.prototype.nwk_server_packet = function(packet) {
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_CNF:
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_NWK_KEY_CNF:
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF:
-            this.confirmation_receive_handler(packet);
+            this.confirmation_receive_handler(pkt);
+            break;
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND:
+            //device_process_change_indication(pkt);
+            break;
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_READY_IND:
+            this.Engines.network_info.nwk_process_ready_ind(pkt);
+            break;
+        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_BINDING_ENTRY_RSP_IND:
+            //comm_device_binding_entry_request_rsp_ind(pkt);
             break;
         default:
-            Logger.warn('Unsupported incoming command id from nwk manager server (cmd_id ' + packet.header.cmdId + ')');
+            Logger.warn('Unsupported incoming command id from nwk manager server (cmd_id ' + pkt.header.cmdId + ')');
             break;
-    };
+    }
 };
 
 SocketInterface.prototype.init_state_machine = function() {
@@ -157,7 +167,7 @@ SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
         server = this.ota_server;
     } else {
         logger.warn('Unknown subsystem ID ' + pkt.header.subsystem + ' Following packet discarded: ');
-        //ui_print_packet_to_log(pkt, "not sent: ", BOLD);
+        Common.print_packet_to_log(logger, 'not sent: ', pkt, buffer);
         return -1;
     }
 
@@ -173,35 +183,48 @@ SocketInterface.prototype.send_packet = function(pkt, cb, arg) {
 
     server.send(pkt);
 
-    this.confirmation_cb = cb;
-    this.confirmation_arg = arg;
+    this.confirmation_processing_cb = cb;
+    this.confirmation_processing_arg = arg;
 
-    logger.info('BUSY');
+    //ui_print_status(0, "BUSY");
     this.waiting_for_confirmation = true;
 
-    /*tu_set_timer(&confirmation_wait_timer, server->confirmation_timeout_interval, false, confirmation_timeout_handler, NULL);
+    this.confirmation_wait_timer = setTimeout(
+        this.confirmation_timeout_handler.bind(this),
+        server.confirmation_timeout_interval.value);
 
-    if (server->confirmation_timeout_interval != STANDARD_CONFIRMATION_TIMEOUT)
-    {
-        server->confirmation_timeout_interval = STANDARD_CONFIRMATION_TIMEOUT;
-    }*/
+    if (server.confirmation_timeout_interval != Const.Timeouts.STANDARD_CONFIRMATION_TIMEOUT) {
+        server.confirmation_timeout_interval = Const.Timeouts.STANDARD_CONFIRMATION_TIMEOUT;
+    }
 
     return 0;
 };
 
 SocketInterface.prototype.confirmation_receive_handler = function(pkt) {
     this.waiting_for_confirmation = false;
-    //tu_kill_timer(&confirmation_wait_timer);
+    clearTimeout(this.confirmation_wait_timer);
     //ui_print_status(0, "");
 
-    if (!(typeof this.confirmation_cb ==  "undefined")) {
-        //UI_PRINT_LOG("Calling confirmation callback");
-        this.confirmation_cb(pkt, this.confirmation_arg);
+    if (!(typeof this.confirmation_processing_cb ==  "undefined")) {
+        logger.info('Calling confirmation callback');
+        this.confirmation_processing_cb(pkt, this.confirmation_processing_arg);
     }
 
     /*if (IDLE_CB != NULL)
     {
         IDLE_CB(false, IDLE_CB_ARG);
+    }*/
+};
+
+SocketInterface.prototype.confirmation_timeout_handler = function() {
+    logger.warn('TIMEOUT waiting for confirmation');
+    //ui_print_status(UI_STATUS_NOTIFICATION_TIMEOUT, "Operation timed out");
+    this.waiting_for_confirmation = false;
+    this.confirmation_processing_cb = undefined;
+
+    /*if (IDLE_CB != NULL)
+    {
+        IDLE_CB(true, IDLE_CB_ARG);
     }*/
 };
 

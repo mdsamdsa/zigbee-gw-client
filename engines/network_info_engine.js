@@ -11,6 +11,31 @@ var Protocol = require('../protocol.js');
 
 var network_info = {};
 
+network_info.nwk_process_ready_ind = function(pkt) {
+    if (pkt.header.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_READY_IND) {
+        return;
+    }
+
+    logger.info('nwk_process_ready_ind: Received NWK_ZIGBEE_NWK_READY_IND');
+
+    try {
+        var msg = Protocol.NWKMgr.NwkZigbeeNwkReadyInd.decode(pkt.packet);
+    }
+    catch(err) {
+        logger.warn('nwk_process_ready_ind: Error: Could not unpack msg');
+        return;
+    }
+
+    DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_READY;
+    DS.network_status.nwk_channel = msg.nwkChannel;
+    DS.network_status.pan_id = msg.panId;
+    DS.network_status.ext_pan_id = msg.extPanId;
+    DS.network_status.permit_remaining_time = 0x0;
+    DS.network_status.num_pending_attribs = 0x0;
+
+    //ui_refresh_display();
+};
+
 network_info.nwk_send_info_request = function() {
     var msg = new Protocol.NWKMgr.NwkZigbeeNwkInfoReq();
     var buf = msg.toBuffer();
@@ -25,20 +50,9 @@ network_info.nwk_send_info_request = function() {
     logger.info('nwk_send_info_request: Sending NWK_ZIGBEE_NWK_INFO_REQ');
 
     this.si.send_packet(pkt, network_info.nwk_process_info_cnf);
-
-    /*
-        if (si_send_packet(pkt, (confirmation_processing_cb_t)&nwk_process_info_cnf, NULL) != 0)
-        {
-            UI_PRINT_LOG("nwk_send_info_request: Error: Could not send msg");
-        }
-
-        free(pkt);
-    }*/
 };
 
 network_info.nwk_process_info_cnf = function(pkt, arg) {
-    //NwkZigbeeNwkInfoCnf *msg = NULL;
-
     if (pkt.header.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_CNF) {
         return;
     }
@@ -68,6 +82,7 @@ network_info.nwk_process_info_cnf = function(pkt, arg) {
     else {
         DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_INITIALIZING;
     }
+
     //ui_refresh_display();
 };
 
