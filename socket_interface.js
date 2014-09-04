@@ -38,8 +38,10 @@ function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_hos
     this.nwk_server.on('packet', this.nwk_server_packet.bind(this));
 
     this.gateway_server.on('connected', this.gateway_server_connected.bind(this));
+    this.gateway_server.on('packet', this.gateway_server_packet.bind(this));
 
     this.ota_server.on('connected', this.ota_server_connected.bind(this));
+    this.ota_server.on('packet', this.ota_server_packet.bind(this));
 
     this.Engines = require('./engines')(this);
 }
@@ -91,7 +93,7 @@ SocketInterface.prototype.nwk_server_packet = function(pkt) {
             this.confirmation_receive_handler(pkt);
             break;
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND:
-            //device_process_change_indication(pkt);
+            this.Engines.device_list.device_process_change_indication(pkt);
             break;
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_READY_IND:
             this.Engines.network_info.nwk_process_ready_ind(pkt);
@@ -110,9 +112,25 @@ SocketInterface.prototype.gateway_server_connected = function() {
     this.gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
 };
 
+SocketInterface.prototype.gateway_server_packet = function(pkt) {
+    switch(pkt.header.cmdId) {
+        default:
+            Logger.warn('Unsupported incoming command id from gateway server (cmd_id ' + pkt.header.cmdId + ')');
+            break;
+    }
+};
+
 SocketInterface.prototype.ota_server_connected = function() {
     logger.info('ota_server_connected');
     this.ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
+};
+
+SocketInterface.prototype.ota_server_packet = function(pkt) {
+    switch(pkt.header.cmdId) {
+        default:
+            Logger.warn('Unsupported incoming command id from ota server (cmd_id ' + pkt.header.cmdId + ')');
+            break;
+    }
 };
 
 SocketInterface.prototype.init_state_machine = function(timed_out, arg) {

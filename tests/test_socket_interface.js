@@ -18,4 +18,4 @@ var socket_interface = new SocketInterface(
 
 socket_interface.init();
 
-setTimeout(socket_interface.deinit.bind(socket_interface),8000);
+setTimeout(socket_interface.deinit.bind(socket_interface),80000);
