@@ -81,8 +81,19 @@ SocketInterface.prototype.nwk_server_disconnected = function() {
     DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
 };
 
+SocketInterface.prototype.gateway_server_connected = function() {
+    logger.info('gateway_server_connected');
+    this.gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
+};
+
+SocketInterface.prototype.ota_server_connected = function() {
+    logger.info('ota_server_connected');
+    this.ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
+};
+
 SocketInterface.prototype.nwk_server_packet = function(pkt) {
-    switch(pkt.header.cmdId) {
+    server_packet(this.nwk_server, pkt);
+    /*switch(pkt.header.cmdId) {
         case Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF:
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_SYSTEM_RESET_CNF:
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_ZIGBEE_POWER_MODE_CNF:
@@ -104,33 +115,28 @@ SocketInterface.prototype.nwk_server_packet = function(pkt) {
         default:
             Logger.warn('Unsupported incoming command id from nwk manager server (cmd_id ' + pkt.header.cmdId + ')');
             break;
-    }
-};
-
-SocketInterface.prototype.gateway_server_connected = function() {
-    logger.info('gateway_server_connected');
-    this.gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
+    }*/
 };
 
 SocketInterface.prototype.gateway_server_packet = function(pkt) {
-    switch(pkt.header.cmdId) {
+    server_packet(this.gateway_server, pkt);
+/*    switch(pkt.header.cmdId) {
         default:
             Logger.warn('Unsupported incoming command id from gateway server (cmd_id ' + pkt.header.cmdId + ')');
             break;
-    }
-};
-
-SocketInterface.prototype.ota_server_connected = function() {
-    logger.info('ota_server_connected');
-    this.ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
+    }*/
 };
 
 SocketInterface.prototype.ota_server_packet = function(pkt) {
-    switch(pkt.header.cmdId) {
+    server_packet(this.ota_server, pkt);
+/*    switch(pkt.header.cmdId) {
         default:
             Logger.warn('Unsupported incoming command id from ota server (cmd_id ' + pkt.header.cmdId + ')');
             break;
-    }
+    }*/
+};
+
+SocketInterface.prototype.ota_server_packet = function(server, pkt) {
 };
 
 SocketInterface.prototype.init_state_machine = function(timed_out, arg) {
