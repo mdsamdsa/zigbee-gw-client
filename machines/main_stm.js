@@ -8,67 +8,92 @@ var machina = require('machina');
 
 var Const = require('../constants');
 var DS = require('../data_structures');
-var Protocol = require('../protocol.js');
 
 function MainSTM(si) {
     this.si = si;
     this.fsm = new machina.Fsm({
-        initialState: "offline",
+        initialState: 'offline',
         states : {
             'online' : {
                 _onEnter: function() {
-                  logger.info('online')
+                  logger.info('online');
                 },
                 'server.disconnected': function() {
                     this.transition('offline');
                 }
             },
             'offline' : {
+                _onEnter: function() {
+                    logger.info('offline');
+                    DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
+                },
                 'server.connected': function() {
+                    this.transition('retry');
+                }
+            },
+            'retry': {
+                _onEnter: function() {
+                    logger.info('retry');
                     setTimeout(
                         function() {
-                            this.si.Engines.network_info.send_nwk_info_request();
+                            this.handle('retry')
                         }.bind(this),
                         Const.Timeouts.INIT_STATE_MACHINE_STARTUP_DELAY
                     );
+                },
+                'server.disconnected': function() {
+                    this.transition('offline');
+                },
+                'retry': function() {
                     this.transition('wait_nwk_info_cnf');
                 }
             },
             'wait_nwk_info_cnf': {
+                _onEnter: function() {
+                    logger.info('wait_nwk_info_cnf');
+                    if (this.si.Engines.network_info.send_nwk_info_request() < 0) {
+                        this.transition('retry');
+                    }
+                },
                 'server.disconnected': function() {
                     this.transition('offline');
                 },
                 'server.timeout': function() {
-                    setTimeout(
-                        function() {
-                            this.si.Engines.network_info.send_nwk_info_request();
-                        }.bind(this),
-                        Const.Timeouts.INIT_STATE_MACHINE_STARTUP_DELAY
-                    );
+                    this.transition('retry');
                 },
                 'server.nwk_info_cnf': function() {
-                    this.si.Engines.device_list.send_get_local_device_info_request();
                     this.transition('wait_get_local_device_info_cnf');
                 }
             },
             'wait_get_local_device_info_cnf': {
+                _onEnter: function() {
+                    logger.info('wait_get_local_device_info_cnf');
+                    if (this.si.Engines.device_list.send_get_local_device_info_request() < 0) {
+                        this.transition('retry');
+                    }
+                },
                 'server.disconnected': function() {
                     this.transition('offline');
                 },
                 'server.timeout': function() {
-                    this.si.Engines.device_list.send_get_local_device_info_request();
+                    this.transition('retry');
                 },
                 'server.get_local_device_info_cnf': function() {
-                    this.si.Engines.device_list.send_get_device_list_request();
                     this.transition('wait_get_device_list_cnf');
                 }
             },
             'wait_get_device_list_cnf': {
+                _onEnter: function() {
+                    logger.info('wait_get_device_list_cnf');
+                    if (this.si.Engines.device_list.send_get_device_list_request() < 0) {
+                        this.transition('retry');
+                    }
+                },
                 'server.disconnected': function() {
                     this.transition('offline');
                 },
                 'server.timeout': function() {
-                    this.si.Engines.device_list.send_get_device_list_request();
+                    this.transition('retry');
                 },
                 'server.get_device_list_cnf': function() {
                     this.transition('online');
@@ -91,14 +116,6 @@ MainSTM.prototype.init = function() {
 
 MainSTM.prototype.deinit = function() {
 
-};
-
-MainSTM.prototype.nwk_connected = function() {
-    logger.info('nwk_connected');
-};
-
-MainSTM.prototype.nwk_disconnected = function() {
-    logger.info('nwk_disconnected');
 };
 
 module.exports = MainSTM;

@@ -99,7 +99,7 @@ device_list.send_get_device_list_request = function() {
 
     logger.info('send_get_device_list_request: Sending NWK_GET_DEVICE_LIST_REQ');
 
-    this.si.send_packet(pkt, device_list.process_get_device_list_cnf);
+    return this.si.send_packet(pkt, device_list.process_get_device_list_cnf);
 };
 
 device_list.send_get_local_device_info_request = function() {
@@ -115,7 +115,7 @@ device_list.send_get_local_device_info_request = function() {
 
     logger.info('send_get_local_device_info_request: Sending NWK_GET_LOCAL_DEVICE_INFO_REQ');
 
-    this.si.send_packet(pkt, device_list.process_get_local_device_info_cnf);
+    return this.si.send_packet(pkt, device_list.process_get_local_device_info_cnf);
 };
 
 module.exports = function(si) {

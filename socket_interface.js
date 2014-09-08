@@ -8,7 +8,6 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
 var Const = require('./constants');
-var DS = require('./data_structures');
 var TcpServerClient = require('./tcp_client');
 var Protocol = require('./protocol');
 var Common = require('./common');
@@ -78,17 +77,10 @@ SocketInterface.prototype.tcp_server_error = function(error) {
 SocketInterface.prototype.nwk_server_connected = function() {
     logger.info('nwk_server_connected');
     this.nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
-    /*this.init_state_machine_timer = setTimeout(function() {
-        this.init_state_machine(false, null);
-    }.bind(this), Const.Timeouts.INIT_STATE_MACHINE_STARTUP_DELAY);*/
 };
 
 SocketInterface.prototype.nwk_server_disconnected = function() {
     logger.info('nwk_server_disconnected');
-    /*clearTimeout(this.init_state_machine_timer);
-    this.init_state_machine_timer = undefined;
-    this.init_state_machine(false, null);
-    DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;*/
 };
 
 SocketInterface.prototype.gateway_server_connected = function() {
@@ -179,21 +171,6 @@ SocketInterface.prototype.nwk_server_packet = function(pkt) {
             msg_decoder = Protocol.NWKMgr.NwkSetBindingEntryRspInd;
             msg_type = MsgType.ind;
             break;
-/*        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF:
-            this.confirmation_receive_handler(pkt);
-            break;
-        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND:
-            msg_decoder = Protocol.NWKMgr.NwkZigbeeGenericRspInd;
-            //this.Engines.device_list.process_zigbee_device_ind(pkt);
-            break;
-        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_READY_IND:
-            msg_decoder = Protocol.NWKMgr.;
-            //this.Engines.network_info.process_nwk_ready_ind(pkt);
-            break;
-        case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_BINDING_ENTRY_RSP_IND:
-            msg_decoder = Protocol.NWKMgr.;
-            //comm_device_binding_entry_request_rsp_ind(pkt);
-            break;*/
         default:
             Logger.warn('Unsupported incoming command id from nwk manager server (cmd_id ' + pkt.header.cmdId + ')');
             return;
@@ -386,40 +363,6 @@ SocketInterface.prototype.server_message = function(server, msg, msg_type, msg_n
     }
 };
 
-
-SocketInterface.prototype.init_state_machine = function(timed_out, arg) {
-    if (!this.nwk_server.connected) {
-        this.state = 4;
-    }
-    else if ((!timed_out) || (this.state == 0)) {
-        this.state++;
-    }
-    logger.info('Init state ' + this.state);
-    switch(this.state) {
-        case 1:
-            //Idle.register_idle_callback(this.init_state_machine.bind(this));
-            if(!this.waiting_for_confirmation) {
-                this.Engines.network_info.send_nwk_info_request();
-            }
-            else {
-                this.state = 0;
-            }
-            break;
-        case 2:
-            this.Engines.device_list.send_get_local_device_info_request();
-            break;
-        case 3:
-            this.Engines.device_list.send_get_device_list_request();
-            break;
-        case 4:
-            //Idle.unregister_idle_callback();
-            this.state = 0;
-            break;
-        default:
-            break;
-    }
-};
-
 SocketInterface.prototype.get_server = function(index) {
     switch(index) {
         case Const.ServerID.SI_SERVER_ID_NWK_MGR:
@@ -456,12 +399,12 @@ SocketInterface.prototype.send_packet = function(pkt, cb_cnf, arg_cnf, cb_timeou
 
     if (!server.connected) {
         logger.info('Please wait while connecting to server');
-        return -1;
+        return -2;
     }
 
     if (this.waiting_for_confirmation) {
         logger.info('BUSY - please wait for previous operation to complete');
-        return -2;
+        return -3;
     }
 
     server.send(pkt);
