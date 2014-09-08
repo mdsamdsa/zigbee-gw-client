@@ -51,6 +51,7 @@ function MainSTM(si) {
             'wait_nwk_info_cnf': {
                 _onEnter: function() {
                     logger.info('wait_nwk_info_cnf');
+                    //noinspection JSPotentiallyInvalidUsageOfThis
                     if (this.si.Engines.network_info.send_nwk_info_request() < 0) {
                         this.transition('retry');
                     }
@@ -68,6 +69,7 @@ function MainSTM(si) {
             'wait_get_local_device_info_cnf': {
                 _onEnter: function() {
                     logger.info('wait_get_local_device_info_cnf');
+                    //noinspection JSPotentiallyInvalidUsageOfThis
                     if (this.si.Engines.device_list.send_get_local_device_info_request() < 0) {
                         this.transition('retry');
                     }
@@ -85,6 +87,7 @@ function MainSTM(si) {
             'wait_get_device_list_cnf': {
                 _onEnter: function() {
                     logger.info('wait_get_device_list_cnf');
+                    //noinspection JSPotentiallyInvalidUsageOfThis
                     if (this.si.Engines.device_list.send_get_device_list_request() < 0) {
                         this.transition('retry');
                     }
