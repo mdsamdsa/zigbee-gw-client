@@ -18,25 +18,15 @@ device_list.gateway_self_addr = {
     groupaddr: undefined
 };
 
-device_list.device_process_list_response = function(pkt, arg) {
-    if (pkt.header.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF) {
-        return;
-    }
-
-    logger.info('device_process_list_response: Received NWK_GET_DEVICE_LIST_CNF');
-
-    try {
-        var msg = Protocol.NWKMgr.NwkGetDeviceListCnf.decode(pkt.packet);
-    }
-    catch(err) {
-        logger.warn('device_process_list_response: Error Could not unpack msg');
+device_list.process_get_device_list_cnf = function(msg) {
+    if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF) {
+        logger.warn('process_get_device_list_cnf: Expected NWK_GET_DEVICE_LIST_CNF');
         return;
     }
 
     if (msg.status == Protocol.NWKMgr.nwkStatus_t.STATUS_SUCCESS) {
-        logger.info('device_process_list_response: Status SUCCESS.');
-
-        logger.info('device_process_list_response: Total Devices ' + msg.deviceList.length);
+        logger.info('process_get_device_list_cnf: Status SUCCESS.');
+        logger.info('process_get_device_list_cnf: Total Devices ' + msg.deviceList.length);
 
         for (var i = 0; i < msg.deviceList.length; i++) {
             DS.device_table.update_device_table_entry(msg.deviceList[i]);
@@ -45,24 +35,16 @@ device_list.device_process_list_response = function(pkt, arg) {
         //ui_refresh_display();
     }
     else {
-        logger.info('device_process_list_response: Error: Status FAILURE.');
+        logger.info('process_get_device_list_cnf: Error: Status FAILURE.');
     }
 };
 
-device_list.device_process_local_info_response = function (pkt, arg) {
-    if (pkt.header.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_LOCAL_DEVICE_INFO_CNF) {
+device_list.process_get_local_device_info_cnf = function (msg) {
+    if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_LOCAL_DEVICE_INFO_CNF) {
+        logger.warn('process_get_local_device_info_cnf: Expected NWK_GET_LOCAL_DEVICE_INFO_CNF');
         return;
     }
-
-    logger.info('device_process_local_info_response: Received NWK_GET_LOCAL_DEVICE_INFO_CNF');
-
-    try {
-        var msg = Protocol.NWKMgr.NwkGetLocalDeviceInfoCnf.decode(pkt.packet);
-    }
-    catch(err) {
-        logger.warn('device_process_local_info_response: Error Could not unpack msg');
-        return;
-    }
+    logger.info('process_get_local_device_info_cnf');
 
     device_list.gateway_self_addr.ieee_addr = msg.deviceInfoList.ieeeAddress;
     device_list.gateway_self_addr.endpoint = GATEWAY_MANAGEMENT_ENDPOINT;
@@ -72,18 +54,18 @@ device_list.device_process_local_info_response = function (pkt, arg) {
     //ui_refresh_display();
 };
 
-device_list.device_process_change_indication = function(pkt) {
+device_list.process_zigbee_device_ind = function(pkt) {
     if (pkt.header.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND) {
         return;
     }
 
-    logger.info('device_process_change_indication: Received NWK_ZIGBEE_DEVICE_IND');
+    logger.info('process_zigbee_device_ind: Received NWK_ZIGBEE_DEVICE_IND');
 
     try {
         var msg = Protocol.NWKMgr.NwkZigbeeDeviceInd.decode(pkt.packet);
     }
     catch(err) {
-        logger.warn('device_process_change_indication: Error Could not unpack msg');
+        logger.warn('process_zigbee_device_ind: Error Could not unpack msg');
         return;
     }
 
@@ -93,18 +75,18 @@ device_list.device_process_change_indication = function(pkt) {
     DS.device_table.update_device_table_entry(msg.deviceInfo);
 
     if (index != -1) {
-        logger.info('device_process_change_indication: Found existing entry');
+        logger.info('process_zigbee_device_ind: Found existing entry');
     } else {
-        logger.info('device_process_change_indication: Adding new entry');
+        logger.info('process_zigbee_device_ind: Adding new entry');
     }
     if (msg.deviceInfo.deviceStatus == Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_REMOVED) {
-        logger.info('device_process_change_indication: Device removed');
+        logger.info('process_zigbee_device_ind: Device removed');
     }
 
     //ui_refresh_display();
 };
 
-device_list.device_send_list_request = function() {
+device_list.send_get_device_list_request = function() {
     var msg = new Protocol.NWKMgr.NwkGetDeviceListReq();
     var buf = msg.toBuffer();
     var len = buf.length;
@@ -115,12 +97,12 @@ device_list.device_send_list_request = function() {
     pkt.header.cmdId = msg.cmdId;
     pkt.packet = buf;
 
-    logger.info('device_send_list_request: Sending NWK_GET_DEVICE_LIST_REQ');
+    logger.info('send_get_device_list_request: Sending NWK_GET_DEVICE_LIST_REQ');
 
-    this.si.send_packet(pkt, device_list.device_process_list_response);
+    this.si.send_packet(pkt, device_list.process_get_device_list_cnf);
 };
 
-device_list.device_send_local_info_request = function() {
+device_list.send_get_local_device_info_request = function() {
     var msg = new Protocol.NWKMgr.NwkGetLocalDeviceInfoReq();
     var buf = msg.toBuffer();
     var len = buf.length;
@@ -131,9 +113,9 @@ device_list.device_send_local_info_request = function() {
     pkt.header.cmdId = msg.cmdId;
     pkt.packet = buf;
 
-    logger.info('device_send_local_device_info_request: Sending NWK_GET_LOCAL_DEVICE_INFO_REQ');
+    logger.info('send_get_local_device_info_request: Sending NWK_GET_LOCAL_DEVICE_INFO_REQ');
 
-    this.si.send_packet(pkt, device_list.device_process_local_info_response);
+    this.si.send_packet(pkt, device_list.process_get_local_device_info_cnf);
 };
 
 module.exports = function(si) {

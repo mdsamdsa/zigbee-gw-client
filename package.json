@@ -8,6 +8,7 @@
         "nconf": "*",
         "enum": "*",
         "dissolve": "*",
-        "sprintfjs": "*"
+        "sprintfjs": "*",
+        "machina": "*"
     }
 }
