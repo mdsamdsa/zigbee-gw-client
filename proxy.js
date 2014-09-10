@@ -17,7 +17,7 @@ var MsgType = {
     ind: 2
 };
 
-function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, ota_port) {
+function GatewayProxy(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, ota_port) {
     this.nwk_host = nwk_host;
     this.nwk_port = nwk_port;
     this.gateway_host = gateway_host;
@@ -45,63 +45,55 @@ function SocketInterface(nwk_host, nwk_port, gateway_host, gateway_port, ota_hos
     this.nwk_server.on('packet', this.nwk_server_packet.bind(this));
     this.gateway_server.on('packet', this.gateway_server_packet.bind(this));
     this.ota_server.on('packet', this.ota_server_packet.bind(this));
-
-    this.Engines = require('./engines')(this);
-
-
-    var MainStm = require('./machines/main_stm');
-    this.main_stm = new MainStm(this);
 }
-util.inherits(SocketInterface, EventEmitter);
+util.inherits(GatewayProxy, EventEmitter);
 
-SocketInterface.prototype.init = function() {
+GatewayProxy.prototype.init = function() {
     logger.info('init');
     this.nwk_server.connect();
     this.gateway_server.connect();
     this.ota_server.connect();
-    this.main_stm.init();
 };
 
-SocketInterface.prototype.deinit = function() {
+GatewayProxy.prototype.deinit = function() {
     logger.info('deinit');
-    this.main_stm.deinit();
     this.nwk_server.disconnect();
     this.gateway_server.disconnect();
     this.ota_server.disconnect();
 };
 
-SocketInterface.prototype.tcp_server_error = function(error) {
+GatewayProxy.prototype.tcp_server_error = function(error) {
     logger.info(this.name + ' tcp_server_error: ' + error);
 };
 
-SocketInterface.prototype.nwk_server_connected = function() {
+GatewayProxy.prototype.nwk_server_connected = function() {
     logger.info('nwk_server_connected');
     this.nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
 };
 
-SocketInterface.prototype.nwk_server_disconnected = function() {
+GatewayProxy.prototype.nwk_server_disconnected = function() {
     logger.info('nwk_server_disconnected');
 };
 
-SocketInterface.prototype.gateway_server_connected = function() {
+GatewayProxy.prototype.gateway_server_connected = function() {
     logger.info('gateway_server_connected');
     this.gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
 };
 
-SocketInterface.prototype.gateway_server_disconnected = function() {
+GatewayProxy.prototype.gateway_server_disconnected = function() {
     logger.info('gateway_server_disconnected');
 };
 
-SocketInterface.prototype.ota_server_connected = function() {
+GatewayProxy.prototype.ota_server_connected = function() {
     logger.info('ota_server_connected');
     this.ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
 };
 
-SocketInterface.prototype.ota_server_disconnected = function() {
+GatewayProxy.prototype.ota_server_disconnected = function() {
     logger.info('ota_server_disconnected');
 };
 
-SocketInterface.prototype.nwk_server_packet = function(pkt) {
+GatewayProxy.prototype.nwk_server_packet = function(pkt) {
     var msg_decoder;
     var msg_type;
     var msg_name;
@@ -186,7 +178,7 @@ SocketInterface.prototype.nwk_server_packet = function(pkt) {
     this.server_message(this.nwk_server, msg, msg_type, msg_name);
 };
 
-SocketInterface.prototype.gateway_server_packet = function(pkt) {
+GatewayProxy.prototype.gateway_server_packet = function(pkt) {
     var msg_decoder;
     var msg_type;
     var msg_name;
@@ -310,7 +302,7 @@ SocketInterface.prototype.gateway_server_packet = function(pkt) {
     this.server_message(this.gateway_server, msg, msg_type, msg_name);
 };
 
-SocketInterface.prototype.ota_server_packet = function(pkt) {
+GatewayProxy.prototype.ota_server_packet = function(pkt) {
     var msg_decoder;
     var msg_type;
     var msg_name;
@@ -350,7 +342,7 @@ SocketInterface.prototype.ota_server_packet = function(pkt) {
     this.server_message(this.ota_server, msg, msg_type, msg_name);
 };
 
-SocketInterface.prototype.server_message = function(server, msg, msg_type, msg_name) {
+GatewayProxy.prototype.server_message = function(server, msg, msg_type, msg_name) {
     switch (msg_type) {
         case MsgType.cnf:
             this.confirmation_receive_handler(msg);
@@ -363,7 +355,7 @@ SocketInterface.prototype.server_message = function(server, msg, msg_type, msg_n
     }
 };
 
-SocketInterface.prototype.get_server = function(index) {
+/*GatewayProxy.prototype.get_server = function(index) {
     switch(index) {
         case Const.ServerID.SI_SERVER_ID_NWK_MGR:
             return this.nwk_server;
@@ -374,16 +366,16 @@ SocketInterface.prototype.get_server = function(index) {
         default:
             return undefined;
     }
-};
+};*/
 
-SocketInterface.prototype.is_server_ready = function(index) {
+/*GatewayProxy.prototype.is_server_ready = function(index) {
     var server = this.get_server(index);
     if (typeof server == "undefined")
         return false;
     return server.connected;
-};
+};*/
 
-SocketInterface.prototype.send_packet = function(pkt, cb_cnf, arg_cnf, cb_timeout, arg_timeout) {
+GatewayProxy.prototype.send_packet = function(pkt, cb_cnf, arg_cnf, cb_timeout, arg_timeout) {
     var server;
     if (pkt.header.subsystem == Protocol.NWKMgr.zStackNwkMgrSysId_t.RPC_SYS_PB_NWK_MGR) {
         server = this.nwk_server;
@@ -428,7 +420,7 @@ SocketInterface.prototype.send_packet = function(pkt, cb_cnf, arg_cnf, cb_timeou
     return 0;
 };
 
-SocketInterface.prototype.confirmation_receive_handler = function(msg) {
+GatewayProxy.prototype.confirmation_receive_handler = function(msg) {
     this.waiting_for_confirmation = false;
     clearTimeout(this.confirmation_wait_timer);
     //ui_print_status(0, "");
@@ -442,7 +434,7 @@ SocketInterface.prototype.confirmation_receive_handler = function(msg) {
     this.confirmation_processing_cb_timeout = undefined;
 };
 
-SocketInterface.prototype.confirmation_timeout_handler = function() {
+GatewayProxy.prototype.confirmation_timeout_handler = function() {
     this.waiting_for_confirmation = false;
 
     logger.warn('TIMEOUT waiting for confirmation');
@@ -460,4 +452,4 @@ SocketInterface.prototype.confirmation_timeout_handler = function() {
     this.emit('timeout');
 };
 
-module.exports = SocketInterface;
+module.exports = GatewayProxy;

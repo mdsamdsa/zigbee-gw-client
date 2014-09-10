@@ -9,8 +9,9 @@ var machina = require('machina');
 var Const = require('../constants');
 var DS = require('../data_structures');
 
-function MainSTM(si) {
-    this.si = si;
+function MainSTM(proxy, engines) {
+    this.proxy = proxy;
+    this.engines = engines;
     this.fsm = new machina.Fsm({
         initialState: 'offline',
         states : {
@@ -52,7 +53,7 @@ function MainSTM(si) {
                 _onEnter: function() {
                     logger.info('wait_nwk_info_cnf');
                     //noinspection JSPotentiallyInvalidUsageOfThis
-                    if (this.si.Engines.network_info.send_nwk_info_request() < 0) {
+                    if (this.engines.network_info.send_nwk_info_request() < 0) {
                         this.transition('retry');
                     }
                 },
@@ -70,7 +71,7 @@ function MainSTM(si) {
                 _onEnter: function() {
                     logger.info('wait_get_local_device_info_cnf');
                     //noinspection JSPotentiallyInvalidUsageOfThis
-                    if (this.si.Engines.device_list.send_get_local_device_info_request() < 0) {
+                    if (this.engines.device_list.send_get_local_device_info_request() < 0) {
                         this.transition('retry');
                     }
                 },
@@ -88,7 +89,7 @@ function MainSTM(si) {
                 _onEnter: function() {
                     logger.info('wait_get_device_list_cnf');
                     //noinspection JSPotentiallyInvalidUsageOfThis
-                    if (this.si.Engines.device_list.send_get_device_list_request() < 0) {
+                    if (this.engines.device_list.send_get_device_list_request() < 0) {
                         this.transition('retry');
                     }
                 },
@@ -104,13 +105,14 @@ function MainSTM(si) {
             }
         }
     });
-    this.fsm.si = si;
-    this.si.nwk_server.on('connected', function() { this.fsm.handle('server.connected'); }.bind(this));
-    this.si.nwk_server.on('disconnected', function() { this.fsm.handle('server.disconnected'); }.bind(this));
-    this.si.on('timeout', function() { this.fsm.handle('server.timeout'); }.bind(this));
-    this.si.on('NWK_MGR:NWK_ZIGBEE_NWK_INFO_CNF', function() { this.fsm.handle('server.nwk_info_cnf'); }.bind(this));
-    this.si.on('NWK_MGR:NWK_GET_LOCAL_DEVICE_INFO_CNF', function() { this.fsm.handle('server.get_local_device_info_cnf'); }.bind(this));
-    this.si.on('NWK_MGR:NWK_GET_DEVICE_LIST_CNF', function() { this.fsm.handle('server.get_device_list_cnf'); }.bind(this));
+    this.fsm.proxy = proxy;
+    this.fsm.engines = engines;
+    this.proxy.nwk_server.on('connected', function() { this.fsm.handle('server.connected'); }.bind(this));
+    this.proxy.nwk_server.on('disconnected', function() { this.fsm.handle('server.disconnected'); }.bind(this));
+    this.proxy.on('timeout', function() { this.fsm.handle('server.timeout'); }.bind(this));
+    this.proxy.on('NWK_MGR:NWK_ZIGBEE_NWK_INFO_CNF', function() { this.fsm.handle('server.nwk_info_cnf'); }.bind(this));
+    this.proxy.on('NWK_MGR:NWK_GET_LOCAL_DEVICE_INFO_CNF', function() { this.fsm.handle('server.get_local_device_info_cnf'); }.bind(this));
+    this.proxy.on('NWK_MGR:NWK_GET_DEVICE_LIST_CNF', function() { this.fsm.handle('server.get_device_list_cnf'); }.bind(this));
 }
 
 MainSTM.prototype.init = function() {

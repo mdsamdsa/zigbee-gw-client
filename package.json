@@ -9,6 +9,9 @@
         "enum": "*",
         "dissolve": "*",
         "sprintfjs": "*",
-        "machina": "*"
+        "machina": "*",
+        "xml2js": "*",
+        "underscore": "*",
+        "async": "*"
     }
 }
