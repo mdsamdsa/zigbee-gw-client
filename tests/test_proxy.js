@@ -1,5 +1,6 @@
 'use strict';
 
+var GatewayProxy = require('../proxy');
 var config = require('../config.js');
 
 var proxy = new GatewayProxy(

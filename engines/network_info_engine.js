@@ -41,7 +41,7 @@ network_info.send_nwk_info_request = function() {
 
     logger.info('send_nwk_info_request: Sending NWK_ZIGBEE_NWK_INFO_REQ');
 
-    return this.si.send_packet(pkt, network_info.process_nwk_info_cnf);
+    return this.proxy.send_packet(pkt, network_info.process_nwk_info_cnf);
 };
 
 network_info.process_nwk_info_cnf = function(msg) {
@@ -68,7 +68,7 @@ network_info.process_nwk_info_cnf = function(msg) {
     //ui_refresh_display();
 };
 
-module.exports = function(si) {
-    network_info.si = si;
+module.exports = function(proxy) {
+    network_info.proxy = proxy;
     return network_info;
 };

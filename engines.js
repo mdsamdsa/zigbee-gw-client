@@ -2,10 +2,10 @@
 
 var path = require('path');
 
-module.exports = function(si) {
+module.exports = function(proxy) {
     var engines = {};
-    engines.si = si;
-    engines.network_info    = require(path.join(__dirname, 'engines/network_info_engine'))(si);
-    engines.device_list     = require(path.join(__dirname, 'engines/device_list_engine'))(si);
+    engines.proxy = proxy;
+    engines.network_info    = require(path.join(__dirname, 'engines/network_info_engine'))(proxy);
+    engines.device_list     = require(path.join(__dirname, 'engines/device_list_engine'))(proxy);
     return engines;
 };
