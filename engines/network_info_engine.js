@@ -6,7 +6,6 @@ var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 
 var Const = require('../constants');
-var DS = require('../data_structures');
 var Protocol = require('../protocol.js');
 
 var network_info = {};
@@ -18,12 +17,11 @@ network_info.process_nwk_ready_ind = function(msg) {
     }
     logger.info('process_nwk_ready_ind');
 
-    DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_READY;
-    DS.network_status.nwk_channel = msg.nwkChannel;
-    DS.network_status.pan_id = msg.panId;
-    DS.network_status.ext_pan_id = msg.extPanId;
-    DS.network_status.permit_remaining_time = 0x0;
-    DS.network_status.num_pending_attribs = 0x0;
+    network_info.pan.network.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_READY;
+    network_info.pan.network.nwk_channel = msg.nwkChannel;
+    network_info.pan.network.pan_id = msg.panId;
+    network_info.pan.network.ext_pan_id = msg.extPanId;
+    network_info.pan.network.permit_remaining_time = 0x0;
 
     //ui_refresh_display();
 };
@@ -52,15 +50,15 @@ network_info.process_nwk_info_cnf = function(msg) {
 
     // Update network info structure with received information
     if (msg.status == Protocol.NWKMgr.nwkNetworkStatus_t.NWK_UP) {
-        DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_READY;
-        DS.network_status.nwk_channel = msg.nwkChannel;
-        DS.network_status.pan_id = msg.panId;
-        DS.network_status.ext_pan_id = msg.extPanId;
+        network_info.pan.network.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_READY;
+        network_info.pan.network.nwk_channel = msg.nwkChannel;
+        network_info.pan.network.pan_id = msg.panId;
+        network_info.pan.network.ext_pan_id = msg.extPanId;
 
         logger.info('process_nwk_info_cnf: Network ready');
     }
     else {
-        DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_INITIALIZING;
+        network_info.pan.network.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_INITIALIZING;
 
         logger.info('process_nwk_info_cnf: Network down');
     }
@@ -68,7 +66,8 @@ network_info.process_nwk_info_cnf = function(msg) {
     //ui_refresh_display();
 };
 
-module.exports = function(proxy) {
+module.exports = function(proxy, pan) {
     network_info.proxy = proxy;
+    network_info.pan = pan;
     return network_info;
 };

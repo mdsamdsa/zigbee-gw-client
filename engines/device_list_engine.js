@@ -5,7 +5,6 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 
-var DS = require('../data_structures');
 var Protocol = require('../protocol.js');
 
 var device_list = {};
@@ -29,7 +28,7 @@ device_list.process_get_device_list_cnf = function(msg) {
         logger.info('process_get_device_list_cnf: Total Devices ' + msg.deviceList.length);
 
         for (var i = 0; i < msg.deviceList.length; i++) {
-            DS.device_table.update_device_table_entry(msg.deviceList[i]);
+            device_list.pan.update_device(msg.deviceList[i]);
         }
 
         //ui_refresh_display();
@@ -46,42 +45,23 @@ device_list.process_get_local_device_info_cnf = function (msg) {
     }
     logger.info('process_get_local_device_info_cnf');
 
-    device_list.gateway_self_addr.ieee_addr = msg.deviceInfoList.ieeeAddress;
+    device_list.gateway_self_addr.ieee_addr = msg.deviceInfo.ieeeAddress;
     device_list.gateway_self_addr.endpoint = GATEWAY_MANAGEMENT_ENDPOINT;
 
-    DS.device_table.update_device_table_entry(msg.deviceInfoList);
+    device_list.pan.update_device(msg.deviceInfo);
 
     //ui_refresh_display();
 };
 
-device_list.process_zigbee_device_ind = function(pkt) {
-    if (pkt.header.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND) {
+device_list.process_zigbee_device_ind = function(msg) {
+    if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND) {
+        logger.warn('process_zigbee_device_ind: Expected NWK_ZIGBEE_DEVICE_IND');
         return;
     }
-
-    logger.info('process_zigbee_device_ind: Received NWK_ZIGBEE_DEVICE_IND');
-
-    try {
-        var msg = Protocol.NWKMgr.NwkZigbeeDeviceInd.decode(pkt.packet);
-    }
-    catch(err) {
-        logger.warn('process_zigbee_device_ind: Error Could not unpack msg');
-        return;
-    }
+    logger.info('process_zigbee_device_ind');
 
     /* Update device info in the device list */
-
-    var index = DS.device_table.get_index_entry(msg.deviceInfo);
-    DS.device_table.update_device_table_entry(msg.deviceInfo);
-
-    if (index != -1) {
-        logger.info('process_zigbee_device_ind: Found existing entry');
-    } else {
-        logger.info('process_zigbee_device_ind: Adding new entry');
-    }
-    if (msg.deviceInfo.deviceStatus == Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_REMOVED) {
-        logger.info('process_zigbee_device_ind: Device removed');
-    }
+    device_list.pan.update_device(msg.deviceInfo);
 
     //ui_refresh_display();
 };
@@ -118,7 +98,8 @@ device_list.send_get_local_device_info_request = function() {
     return this.proxy.send_packet(pkt, device_list.process_get_local_device_info_cnf);
 };
 
-module.exports = function(proxy) {
+module.exports = function(proxy, pan) {
     device_list.proxy = proxy;
+    device_list.pan = pan;
     return device_list;
 };

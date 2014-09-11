@@ -7,10 +7,10 @@ var logger = log4js.getLogger(module_name);
 var machina = require('machina');
 
 var Const = require('../constants');
-var DS = require('../data_structures');
 
-function MainSTM(proxy, engines) {
+function MainSTM(proxy, pan, engines) {
     this.proxy = proxy;
+    this.pan = pan;
     this.engines = engines;
     this.fsm = new machina.Fsm({
         initialState: 'offline',
@@ -26,7 +26,7 @@ function MainSTM(proxy, engines) {
             'offline' : {
                 _onEnter: function() {
                     logger.info('offline');
-                    DS.network_status.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
+                    pan.network.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
                 },
                 'server.connected': function() {
                     this.transition('retry');
@@ -107,15 +107,16 @@ function MainSTM(proxy, engines) {
     });
     this.fsm.proxy = proxy;
     this.fsm.engines = engines;
+    this.fsm.pan = pan;
+}
+
+MainSTM.prototype.init = function() {
     this.proxy.nwk_server.on('connected', function() { this.fsm.handle('server.connected'); }.bind(this));
     this.proxy.nwk_server.on('disconnected', function() { this.fsm.handle('server.disconnected'); }.bind(this));
     this.proxy.on('timeout', function() { this.fsm.handle('server.timeout'); }.bind(this));
     this.proxy.on('NWK_MGR:NWK_ZIGBEE_NWK_INFO_CNF', function() { this.fsm.handle('server.nwk_info_cnf'); }.bind(this));
     this.proxy.on('NWK_MGR:NWK_GET_LOCAL_DEVICE_INFO_CNF', function() { this.fsm.handle('server.get_local_device_info_cnf'); }.bind(this));
     this.proxy.on('NWK_MGR:NWK_GET_DEVICE_LIST_CNF', function() { this.fsm.handle('server.get_device_list_cnf'); }.bind(this));
-}
-
-MainSTM.prototype.init = function() {
 
 };
 

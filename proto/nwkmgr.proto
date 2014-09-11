@@ -392,7 +392,7 @@ message NwkGetLocalDeviceInfoCnf
   // Response to NwkGetLocalDeviceInfoReq 
 
   required nwkMgrCmdId_t cmdId = 1 [default = NWK_GET_LOCAL_DEVICE_INFO_CNF];  // don't change this field
-  required nwkDeviceInfo_t deviceInfoList = 2;  
+  required nwkDeviceInfo_t deviceInfo = 2;
 }
 
 // NWK_ZIGBEE_NWK_READY_IND
