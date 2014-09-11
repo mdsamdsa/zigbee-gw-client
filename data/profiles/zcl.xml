@@ -86,11 +86,10 @@
             <attribute id="0x0007" name="PowerSource" type="enum8" mandatory="false">
                 <Range from="0x00" to="0xFF"/>
             </attribute>
-
             <!-- Basic Device Settings -->
-            <!-- <attribute id="0x0010" name="LocationDescription" type="string" access="rw" mandatory="false">
+            <attribute id="0x0010" name="LocationDescription" type="string" access="rw" mandatory="false">
                 <Range from="0" to="16"/>
-            </attribute> -->
+            </attribute>
             <attribute id="0x0011" name="PhysicalEnvironment" type="enum8" access="rw" default="0x00" mandatory="false">
                 <Range from="0x00" to="0xFF"/>
             </attribute>
@@ -139,7 +138,14 @@
             </attribute>
         </cluster>
 
-        <cluster id="0x0003" name="Identify"/>
+        <cluster id="0x0003" name="Identify">
+            <attribute id="0x000" name="IdentifyTime" type="uint16" access="rw" default="0x0000" mandatory="true">
+                <Range from="0x0000" to="0xFFFF"/>
+            </attribute>
+
+            <command id="0x00" name="Identify" mandatory="true"/>
+            <command id="0x01" name="Identify Query" mandatory="true"/>
+        </cluster>
 
         <cluster id="0x0004" name="Groups"/>
         <cluster id="0x0005" name="Scenes"/>
@@ -153,7 +159,7 @@
         </cluster>
 
         <cluster id="0x0007" name="On/Off Switch Configuration">
-            <attribute id="0x0000" name="SwitchType" type="enum">
+            <attribute id="0x0000" name="SwitchType" type="enum" access="r">
                 <Range from="0x00" to="0x01"/>
             </attribute>
             <attribute id="0x0010" name="SwitchActions" type="enum8" access="rw" default="0x00">

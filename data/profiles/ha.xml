@@ -1,395 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <profiles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ha.xsd">
-	<profile id="0x0104" name="Home Automation Profile">
-
-		<!--
-			Imports ZigBee Cluster Library to get cluster definitions used below
-		-->
-
-		<xi:include href="/xml/zigbee/zcl.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-		<device id="0x0000" name="On/Off Switch">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Identify" />
-				<clusterRef name="On/Off Switch Configuration" />
-			</server>
-			<client>
-				<clusterRef name="On/Off" />
-			</client>
-		</device>
-
-		<device id="0x0001" name="Level Control Switch">
-			<server>
-				<clusterRef name="On/Off Switch Configuration" />
-			</server>
-			<client>
-				<clusterRef name="On/Off" />
-				<clusterRef name="Level Control" />
-			</client>
-		</device>
-
-		<device id="0x0002" name="On/Off Output">
-			<server>
-				<clusterRef name="On/Off" />
-				<clusterRef name="Scenes" />
-				<clusterRef name="Groups" />
-			</server>
-		</device>
-
-		<device id="0x0009" name="Mains Power Outlet">
-			<server>
-				<clusterRef name="On/Off" />
-				<clusterRef name="Scenes" />
-				<clusterRef name="Groups" />
-			</server>
-		</device>
-
-		<device id="0x0006" name="Remote Control" />
-
-		<!-- 2013-07-18 - ES - Seen from Wulian WL-ZRFC-01 -->
-		<device id="0x00f2" name="Wireless IR Transmitter"/>
-
-		<device id="0x0100" name="On/Off Light" />
-		<device id="0x0102" name="Color Light"> <!-- Seen by tcave -->
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="On/Off Switch Configuration" />
-				<clusterRef name="Level Control" />
-				<clusterRef name="Color Control" />
-				<clusterRef name="Scenes" />
-				<clusterRef name="Groups" />
-			</server>
-		</device>
-		<device id="0x0105" name="Color Dimmable Switch"> <!-- Seen by james -->
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="On/Off Switch Configuration" />
-				<clusterRef name="Level Control" />
-				<clusterRef name="Color Control" />
-				<clusterRef name="Scenes" />
-				<clusterRef name="Groups" />
-			</server>
-		</device>
-		<device id="0x0103" name="On/Off Light Switch">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="On/Off Switch Configuration" />
-			</server>
-			<client>
-				<clusterRef name="On/Off" />
-			</client>
-		</device>
-		<device id="0x0106" name="Light Sensor">
-			<server>
-				<clusterRef name="Illuminance measurement" />
-			</server>
-		</device>
-		<device id="0x0107" name="Occupancy Sensor">
-			<server>
-				<clusterRef name="Occupancy sensing" />
-				<clusterRef name="On/Off" /> <!-- Not in spec, but present in Cleode (and others?)-->
-			</server>
-		</device>
-		<device id="0x0200" name="Shade">
-			<server>
-				<clusterRef name="Shade Configuration" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Level Control" />
-				<clusterRef name="Scenes" />
-				<clusterRef name="Groups" />
-			</server>
-		</device>
-
-		<device id="0x0008" name="Range Extender">
-			<server>
-			</server>
-		</device>
-
-		<device id="0x0201" name="Shade Controller">
-			<client>
-				<clusterRef name="On/Off" />
-				<clusterRef name="Level Control" />
-				<clusterRef name="Shade Configuration" />
-				<clusterRef name="Scenes" />
-				<clusterRef name="Identify" />
-			</client>
-		</device>
-		<device id="0x0300" name="Heating/Cooling Unit" />
-		<device id="0x0302" name="Temperature Sensor">
-			<server>
-				<clusterRef name="Temperature Measurement" />
-			</server>
-		</device>
-
-		<device id="0x0402" name="IAS Zone">
-			<server>
-				<clusterRef name="IAS Zone" />
-			</server>
-		</device>
-
-		<!--  Indesit CECED applicances -->
-
-		<device id="0x0A00" name="White Goods">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A01" name="Dishwasher">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A02" name="Tumble Dryer">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A03" name="Washer Dryer">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A04" name="Washing Machine">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A05" name="Hobs">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A06" name="Induction Hobs">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A07" name="Oven">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-		<device id="0x0A08" name="Electrical Oven">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-
-		<device id="0x0A09" name="Refrigerator Freezer">
-			<server>
-				<clusterRef name="Basic" />
-				<clusterRef name="Identify" />
-				<clusterRef name="Groups" />
-				<clusterRef name="On/Off" />
-				<clusterRef name="Appliance Identification" />
-				<clusterRef name="Appliance Control" />
-				<clusterRef name="Appliance Events and Alerts" />
-				<clusterRef name="Indesit Bridge" />
-				<clusterRef name="Simple Metering" mandatory="false" />
-				<clusterRef name="Applicance Statistics" mandatory="false" />
-				<clusterRef name="Alarms" mandatory="false" />
-				<clusterRef name="Temperature Measurement" mandatory="false" />
-			</server>
-			<client>
-				<clusterRef name="Power Levelling" mandatory="false" />
-			</client>
-		</device>
-	</profile>
-
-	<profile id="0xC044" name="4Noks Profile">
-
-		<!--
-			Imports ZigBee Cluster Library to get cluster definitions used below
-		-->
-		<xi:include href="/xml/zigbee/zcl.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-		<device id="0x000C" name="On/Off Push Button">
-			<server>
-				<clusterRef name="On/Off Switch Configuration" />
-			</server>
-			<client>
-				<clusterRef name="On/Off" />
-			</client>
-		</device>
-
-
-		<device id="0x0501" name="SmartPlug">
-			<server>
-				<clusterRef name="On/Off Switch Configuration" />
-				<clusterRef name="Simple Metering 4Noks" />
-				<clusterRef name="On/Off" />
-			</server>
-		</device>
-	</profile>
-	<profile id="0xC045" name="Telecom Italia">
-
-		<!--
-			Imports ZigBee Cluster Library to get cluster definitions used below
-		-->
-		<xi:include href="/xml/zigbee/zcl.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-		<device id="0x0000" name="Overload Manager">
-			<server>
-				<clusterRef name="On/Off Switch Configuration" />
-				<clusterRef name="Simple Metering" />
-			</server>
-			<client>
-				<clusterRef name="On/Off" />
-			</client>
-		</device>
-
-		<device id="0x0000" name="Toggle">
-			<server>
-				<clusterRef name="On/Off" />
-			</server>
-			<client>
-				<clusterRef name="Simple Metering" />
-			</client>
-		</device>
-		<device id="0x0000" name="Standby Manager">
-			<server>
-				<clusterRef name="On/Off" />
-			</server>
-			<client>
-				<clusterRef name="Simple Metering" />
-			</client>
-		</device>
-	</profile>
+    <profile id="0x0104" name="Home Automation Profile">
+        <xi:include href="zcl.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+        <device id="0x0000" name="On/Off Switch">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off Switch Configuration" mandatory="false"/>
+            </server>
+            <client>
+                <clusterRef name="On/Off" mandatory="true"/>
+            </client>
+        </device>
+        <device id="0x0001" name="Level Control Switch">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off Switch Configuration" mandatory="false"/>
+            </server>
+            <client>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+            </client>
+        </device>
+        <device id="0x0002" name="On/Off Output">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0003" name="Level Controllable Output">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0004" name="Scene Selector">
+            <client>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </client>
+        </device>
+        <device id="0x0005" name="Configuration Tool"/>
+        <device id="0x0006" name="Remote Control"/>
+        <device id="0x0007" name="Combined Interface"/>
+        <device id="0x0008" name="Range Extender"/>
+        <device id="0x0009" name="Mains Power Outlet">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x000A" name="Door Lock"/>
+        <device id="0x000B" name="Door Lock Controller"/>
+        <device id="0x000C" name="Simple Sensor"/>
+        <device id="0x0100" name="On/Off Light">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </server>
+            <client>
+                <clusterRef name="Occupancy sensing" mandatory="false"/>
+            </client>
+        </device>
+        <device id="0x0101" name="Dimmable Light">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0102" name="Color Dimmable Light">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Color Control" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0103" name="On/Off Light Switch">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off Switch Configuration" mandatory="false"/>
+            </server>
+            <client>
+                <clusterRef name="On/Off" mandatory="true"/>
+            </client>
+        </device>
+        <device id="0x0104" name="Dimmer Switch">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off Switch Configuration" mandatory="false"/>
+            </server>
+            <client>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+            </client>
+        </device>
+        <device id="0x0105" name="Color Dimmer Switch">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off Switch Configuration" mandatory="false"/>
+            </server>
+            <client>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Color Control" mandatory="true"/>
+            </client>
+        </device>
+        <device id="0x0106" name="Light Sensor">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="Illuminance measurement" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0107" name="Occupancy Sensor">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="Occupancy sensing" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0200" name="Shade">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="Shade Configuration" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0201" name="Shade Controller">
+            <client>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+            </client>
+        </device>
+        <device id="0x0202" name="Window Covering Device"/>
+        <device id="0x0203" name="Window Covering Controller"/>
+        <device id="0x0300" name="Heating/Cooling Unit"/>
+        <device id="0x0301" name="Thermostat"/>
+        <device id="0x0302" name="Temperature Sensor">
+            <server>
+                <clusterRef name="Temperature Measurement"/>
+            </server>
+        </device>
+        <device id="0x0303" name="Pump"/>
+        <device id="0x0304" name="Pump Controller"/>
+        <device id="0x0305" name="Pressure Sensor"/>
+        <device id="0x0306" name="Flow Sensor"/>
+        <device id="0x0400" name="IAS Control and Indicating Equipment"/>
+        <device id="0x0401" name="IAS Ancillary Control Equipment"/>
+        <device id="0x0402" name="IAS Zone">
+            <server>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="IAS Zone" mandatory="true"/>
+            </server>
+        </device>
+        <device id="0x0403" name="IAS Warning Device"/>
+    </profile>
 </profiles>
