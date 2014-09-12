@@ -5,28 +5,37 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 var machina = require('machina');
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
 
 var Const = require('../constants');
+
+util.inherits(MainSTM, EventEmitter);
 
 function MainSTM(proxy, pan, engines) {
     this.proxy = proxy;
     this.pan = pan;
     this.engines = engines;
     this.fsm = new machina.Fsm({
-        initialState: 'offline',
+        initialState: 'dummy',
         states : {
-            'online' : {
+            'dummy': {
+
+            },
+            'online': {
                 _onEnter: function() {
-                  logger.info('online');
+                    logger.info('online');
+                    this.stm.emit('online');
                 },
                 'server.disconnected': function() {
                     this.transition('offline');
                 }
             },
-            'offline' : {
+            'offline': {
                 _onEnter: function() {
                     logger.info('offline');
                     pan.network.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_UNAVAILABLE;
+                    this.stm.emit('offline');
                 },
                 'server.connected': function() {
                     this.transition('retry');
@@ -108,6 +117,7 @@ function MainSTM(proxy, pan, engines) {
     this.fsm.proxy = proxy;
     this.fsm.engines = engines;
     this.fsm.pan = pan;
+    this.fsm.stm = this;
 }
 
 MainSTM.prototype.init = function() {
@@ -117,11 +127,11 @@ MainSTM.prototype.init = function() {
     this.proxy.on('NWK_MGR:NWK_ZIGBEE_NWK_INFO_CNF', function() { this.fsm.handle('server.nwk_info_cnf'); }.bind(this));
     this.proxy.on('NWK_MGR:NWK_GET_LOCAL_DEVICE_INFO_CNF', function() { this.fsm.handle('server.get_local_device_info_cnf'); }.bind(this));
     this.proxy.on('NWK_MGR:NWK_GET_DEVICE_LIST_CNF', function() { this.fsm.handle('server.get_device_list_cnf'); }.bind(this));
-
+    this.fsm.transition('offline');
 };
 
 MainSTM.prototype.deinit = function() {
-
+    this.fsm.transition('dummy');
 };
 
 module.exports = MainSTM;
