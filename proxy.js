@@ -307,22 +307,22 @@ GatewayProxy.prototype.ota_server_packet = function(pkt) {
     var msg_type;
     var msg_name;
     switch(pkt.header.cmdId) {
-        case Protocol.OTAMgr.ZIGBEE_GENERIC_CNF:
+        case Protocol.OTAMgr.otaMgrCmdId_t.ZIGBEE_GENERIC_CNF:
             msg_name = 'ZIGBEE_GENERIC_CNF';
             msg_decoder = Protocol.GatewayMgr.OtaZigbeeGenericCnf;
             msg_type = MsgType.cnf;
             break;
-        case Protocol.OTAMgr.ZIGBEE_GENERIC_RSP_IND:
+        case Protocol.OTAMgr.otaMgrCmdId_t.ZIGBEE_GENERIC_RSP_IND:
             msg_name = 'ZIGBEE_GENERIC_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.OtaZigbeeGenericRspInd;
             msg_type = MsgType.cnf;
             break;
-        case Protocol.OTAMgr.OTA_UPDATE_ENABLE_CNF:
+        case Protocol.OTAMgr.otaMgrCmdId_t.OTA_UPDATE_ENABLE_CNF:
             msg_name = 'OTA_UPDATE_ENABLE_CNF';
             msg_decoder = Protocol.GatewayMgr.OtaUpdateEnableCnf;
             msg_type = MsgType.cnf;
             break;
-        case Protocol.OTAMgr.OTA_UPDATE_DL_FINISHED_IND:
+        case Protocol.OTAMgr.otaMgrCmdId_t.OTA_UPDATE_DL_FINISHED_IND:
             msg_name = 'OTA_UPDATE_DL_FINISHED_IND';
             msg_decoder = Protocol.GatewayMgr.OtaUpdateDlFinishedInd;
             msg_type = MsgType.cnf;

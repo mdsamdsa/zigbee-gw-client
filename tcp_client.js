@@ -132,10 +132,11 @@ TcpServerConnection.prototype.send = function(pkt) {
     buffer.writeUint16(pkt.header.len)
         .writeUint8(pkt.header.subsystem)
         .writeUint8(pkt.header.cmdId)
-        .append(pkt.packet).flip();
+        .append(pkt.packet)
+        .flip();
 
     Common.print_packet_to_log(logger, 'sent to ' + this.name + ': ', pkt, buffer);
-    this.socket.write(buffer.toBinary());
+    this.socket.write(buffer.toBuffer());
 };
 
 TcpServerConnection.prototype.disconnect = function() {
