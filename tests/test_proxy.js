@@ -12,23 +12,6 @@ var MainStm = require('../machines/main_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol.js');
 
-/*var o = {};
-Object.defineProperty(o, 'gimmeFive', {
-    get: function() {
-        return 5;
-    },
-    configurable: true
-});
-console.log(o.gimmeFive);
-Object.defineProperty(o, 'gimmeFive', {
-    get: function() {
-        return 6;
-    }
-});
-console.log(o.gimmeFive);
-o.gimmeFive = 7;
-console.log(o.gimmeFive);*/
-
 Profiles.on('ready', function() {
     var proxy = new GatewayProxy(
         config.get('servers:nwk:host'),
@@ -99,5 +82,5 @@ Profiles.on('ready', function() {
         proxy.deinit();
         main_stm.deinit();
         setTimeout(function() {}, 500);
-    }, 8000);
+    }, 10000);
 });

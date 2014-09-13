@@ -16,7 +16,20 @@ function MainSTM(proxy, pan, engines) {
     this.proxy = proxy;
     this.pan = pan;
     this.engines = engines;
+    //noinspection JSUnusedGlobalSymbols
     this.fsm = new machina.Fsm({
+        proxy: proxy,
+        engines: engines,
+        pan: pan,
+        stm: this,
+        check_connect: function() {
+            //noinspection JSPotentiallyInvalidUsageOfThis
+            var ready = this.proxy.all_server_ready();
+            if (!ready) {
+                this.transition('offline');
+            }
+            return ready;
+        },
         initialState: 'dummy',
         states : {
             'dummy': {
@@ -24,8 +37,10 @@ function MainSTM(proxy, pan, engines) {
             },
             'online': {
                 _onEnter: function() {
-                    logger.info('online');
-                    this.stm.emit('online');
+                    if (this.check_connect()) {
+                        logger.info('online');
+                        this.stm.emit('online');
+                    }
                 },
                 'server.disconnected': function() {
                     this.transition('offline');
@@ -43,13 +58,15 @@ function MainSTM(proxy, pan, engines) {
             },
             'retry': {
                 _onEnter: function() {
-                    logger.info('retry');
-                    setTimeout(
-                        function() {
-                            this.handle('retry')
-                        }.bind(this),
-                        Const.Timeouts.INIT_STATE_MACHINE_STARTUP_DELAY
-                    );
+                    if (this.check_connect()) {
+                        logger.info('retry');
+                        setTimeout(
+                            function () {
+                                this.handle('retry')
+                            }.bind(this),
+                            Const.Timeouts.INIT_STATE_MACHINE_STARTUP_DELAY.value
+                        );
+                    }
                 },
                 'server.disconnected': function() {
                     this.transition('offline');
@@ -60,10 +77,12 @@ function MainSTM(proxy, pan, engines) {
             },
             'wait_nwk_info_cnf': {
                 _onEnter: function() {
-                    logger.info('wait_nwk_info_cnf');
-                    //noinspection JSPotentiallyInvalidUsageOfThis
-                    if (this.engines.network_info.send_nwk_info_request() < 0) {
-                        this.transition('retry');
+                    if (this.check_connect()) {
+                        logger.info('wait_nwk_info_cnf');
+                        //noinspection JSPotentiallyInvalidUsageOfThis
+                        if (this.engines.network_info.send_nwk_info_request() < 0) {
+                            this.transition('retry');
+                        }
                     }
                 },
                 'server.disconnected': function() {
@@ -78,10 +97,12 @@ function MainSTM(proxy, pan, engines) {
             },
             'wait_get_local_device_info_cnf': {
                 _onEnter: function() {
-                    logger.info('wait_get_local_device_info_cnf');
-                    //noinspection JSPotentiallyInvalidUsageOfThis
-                    if (this.engines.device_list.send_get_local_device_info_request() < 0) {
-                        this.transition('retry');
+                    if (this.check_connect()) {
+                        logger.info('wait_get_local_device_info_cnf');
+                        //noinspection JSPotentiallyInvalidUsageOfThis
+                        if (this.engines.device_list.send_get_local_device_info_request() < 0) {
+                            this.transition('retry');
+                        }
                     }
                 },
                 'server.disconnected': function() {
@@ -96,10 +117,12 @@ function MainSTM(proxy, pan, engines) {
             },
             'wait_get_device_list_cnf': {
                 _onEnter: function() {
-                    logger.info('wait_get_device_list_cnf');
-                    //noinspection JSPotentiallyInvalidUsageOfThis
-                    if (this.engines.device_list.send_get_device_list_request() < 0) {
-                        this.transition('retry');
+                    if (this.check_connect()) {
+                        logger.info('wait_get_device_list_cnf');
+                        //noinspection JSPotentiallyInvalidUsageOfThis
+                        if (this.engines.device_list.send_get_device_list_request() < 0) {
+                            this.transition('retry');
+                        }
                     }
                 },
                 'server.disconnected': function() {
@@ -114,15 +137,25 @@ function MainSTM(proxy, pan, engines) {
             }
         }
     });
-    this.fsm.proxy = proxy;
-    this.fsm.engines = engines;
-    this.fsm.pan = pan;
-    this.fsm.stm = this;
 }
 
+MainSTM.prototype._check_connect = function() {
+    if (this.proxy.all_server_ready()) {
+        this.fsm.handle('server.connected');
+    }
+};
+
+MainSTM.prototype._check_disconnect = function() {
+    this.fsm.handle('server.disconnected');
+};
+
 MainSTM.prototype.init = function() {
-    this.proxy.nwk_server.on('connected', function() { this.fsm.handle('server.connected'); }.bind(this));
-    this.proxy.nwk_server.on('disconnected', function() { this.fsm.handle('server.disconnected'); }.bind(this));
+    this.proxy.nwk_server.on('connected', this._check_connect.bind(this));
+    this.proxy.gateway_server.on('connected', this._check_connect.bind(this));
+    this.proxy.ota_server.on('connected', this._check_connect.bind(this));
+    this.proxy.nwk_server.on('disconnected', this._check_disconnect.bind(this));
+    this.proxy.gateway_server.on('disconnected', this._check_disconnect.bind(this));
+    this.proxy.ota_server.on('disconnected', this._check_disconnect.bind(this));
     this.proxy.on('timeout', function() { this.fsm.handle('server.timeout'); }.bind(this));
     this.proxy.on('NWK_MGR:NWK_ZIGBEE_NWK_INFO_CNF', function() { this.fsm.handle('server.nwk_info_cnf'); }.bind(this));
     this.proxy.on('NWK_MGR:NWK_GET_LOCAL_DEVICE_INFO_CNF', function() { this.fsm.handle('server.get_local_device_info_cnf'); }.bind(this));

@@ -60,6 +60,8 @@ GatewayProxy.prototype.deinit = function() {
     this.nwk_server.disconnect();
     this.gateway_server.disconnect();
     this.ota_server.disconnect();
+    clearTimeout(this.confirmation_wait_timer);
+    this.confirmation_wait_timer = undefined;
 };
 
 GatewayProxy.prototype.tcp_server_error = function(error) {
@@ -357,25 +359,29 @@ GatewayProxy.prototype.server_message = function(server, msg, msg_type, msg_name
 
 /*GatewayProxy.prototype.get_server = function(index) {
     switch(index) {
-        case Const.ServerID.SI_SERVER_ID_NWK_MGR:
+        case Const.ServerID.SERVER_ID_NWK_MGR:
             return this.nwk_server;
-        case Const.ServerID.SI_SERVER_ID_GATEWAY:
+        case Const.ServerID.SERVER_ID_GATEWAY:
             return this.gateway_server;
-        case Const.ServerID.SI_SERVER_ID_OTA:
+        case Const.ServerID.SERVER_ID_OTA_MGR:
             return this.ota_server;
         default:
             return undefined;
     }
-};*/
+};
 
-/*GatewayProxy.prototype.is_server_ready = function(index) {
+GatewayProxy.prototype.is_server_ready = function(index) {
     var server = this.get_server(index);
     if (typeof server == "undefined")
         return false;
     return server.connected;
 };*/
 
-GatewayProxy.prototype.send_packet = function(pkt, cb_cnf, arg_cnf, cb_timeout, arg_timeout) {
+GatewayProxy.prototype.all_server_ready = function() {
+  return this.nwk_server.connected && this.gateway_server.connected && this.ota_server.connected;
+};
+
+GatewayProxy.prototype.send_packet = function(pkt, cb_cnf, arg_cnf) {
     var server;
     if (pkt.header.subsystem == Protocol.NWKMgr.zStackNwkMgrSysId_t.RPC_SYS_PB_NWK_MGR) {
         server = this.nwk_server;
@@ -403,8 +409,6 @@ GatewayProxy.prototype.send_packet = function(pkt, cb_cnf, arg_cnf, cb_timeout, 
 
     this.confirmation_processing_cb_cnf = cb_cnf;
     this.confirmation_processing_arg_cnf = arg_cnf;
-    this.confirmation_processing_cb_timeout = cb_timeout;
-    this.confirmation_processing_arg_timeout = arg_timeout;
 
     //ui_print_status(0, "BUSY");
     this.waiting_for_confirmation = true;
@@ -423,6 +427,7 @@ GatewayProxy.prototype.send_packet = function(pkt, cb_cnf, arg_cnf, cb_timeout, 
 GatewayProxy.prototype.confirmation_receive_handler = function(msg) {
     this.waiting_for_confirmation = false;
     clearTimeout(this.confirmation_wait_timer);
+    this.confirmation_wait_timer = undefined;
     //ui_print_status(0, "");
 
     if (!(typeof this.confirmation_processing_cb_cnf ==  "undefined")) {
@@ -431,22 +436,21 @@ GatewayProxy.prototype.confirmation_receive_handler = function(msg) {
     }
 
     this.confirmation_processing_cb_cnf = undefined;
-    this.confirmation_processing_cb_timeout = undefined;
 };
 
 GatewayProxy.prototype.confirmation_timeout_handler = function() {
     this.waiting_for_confirmation = false;
+    this.confirmation_wait_timer = undefined;
 
     logger.warn('TIMEOUT waiting for confirmation');
     //ui_print_status(UI_STATUS_NOTIFICATION_TIMEOUT, "Operation timed out");
 
-    if (!(typeof this.confirmation_processing_cb_timeout ==  "undefined")) {
+    if (!(typeof this.confirmation_processing_cb_cnf ==  "undefined")) {
         logger.info('Calling timeout callback');
-        this.confirmation_processing_cb_timeout(this.confirmation_processing_arg_timeout);
+        this.confirmation_processing_cb_cnf('timeout', this.confirmation_processing_arg_cnf);
     }
 
     this.confirmation_processing_cb_cnf = undefined;
-    this.confirmation_processing_cb_timeout = undefined;
 
     logger.debug('emit: timeout');
     this.emit('timeout');

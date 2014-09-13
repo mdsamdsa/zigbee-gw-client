@@ -18,6 +18,10 @@ device_list.gateway_self_addr = {
 };
 
 device_list.process_get_device_list_cnf = function(msg) {
+    if (typeof msg == 'string') {
+        logger.warn('process_get_device_list_cnf: ' + msg);
+        return;
+    }
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF) {
         logger.warn('process_get_device_list_cnf: Expected NWK_GET_DEVICE_LIST_CNF');
         return;
@@ -39,6 +43,10 @@ device_list.process_get_device_list_cnf = function(msg) {
 };
 
 device_list.process_get_local_device_info_cnf = function (msg) {
+    if (typeof msg == 'string') {
+        logger.warn('process_get_local_device_info_cnf: ' + msg);
+        return;
+    }
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_LOCAL_DEVICE_INFO_CNF) {
         logger.warn('process_get_local_device_info_cnf: Expected NWK_GET_LOCAL_DEVICE_INFO_CNF');
         return;
@@ -66,7 +74,7 @@ device_list.process_zigbee_device_ind = function(msg) {
     //ui_refresh_display();
 };
 
-device_list.send_get_device_list_request = function() {
+device_list.send_get_device_list_request = function(callback) {
     var msg = new Protocol.NWKMgr.NwkGetDeviceListReq();
     var buf = msg.toBuffer();
     var len = buf.length;
@@ -79,10 +87,13 @@ device_list.send_get_device_list_request = function() {
 
     logger.info('send_get_device_list_request: Sending NWK_GET_DEVICE_LIST_REQ');
 
-    return this.proxy.send_packet(pkt, device_list.process_get_device_list_cnf);
+    if (typeof callback == 'undefined')
+        callback = device_list.process_get_device_list_cnf;
+
+    return this.proxy.send_packet(pkt, callback);
 };
 
-device_list.send_get_local_device_info_request = function() {
+device_list.send_get_local_device_info_request = function(callback) {
     var msg = new Protocol.NWKMgr.NwkGetLocalDeviceInfoReq();
     var buf = msg.toBuffer();
     var len = buf.length;
@@ -95,7 +106,10 @@ device_list.send_get_local_device_info_request = function() {
 
     logger.info('send_get_local_device_info_request: Sending NWK_GET_LOCAL_DEVICE_INFO_REQ');
 
-    return this.proxy.send_packet(pkt, device_list.process_get_local_device_info_cnf);
+    if (typeof callback == 'undefined')
+        callback = device_list.process_get_local_device_info_cnf;
+
+    return this.proxy.send_packet(pkt, callback);
 };
 
 module.exports = function(proxy, pan) {

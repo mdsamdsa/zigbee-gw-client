@@ -5,9 +5,9 @@ var Enum = require('enum');
 var Const = {};
 
 Const.ServerID = new Enum({
-    SI_SERVER_ID_NWK_MGR:   0,
-    SI_SERVER_ID_GATEWAY:   1,
-    SI_SERVER_ID_OTA:       2
+    SERVER_ID_NWK_MGR:   0,
+    SERVER_ID_GATEWAY:   1,
+    SERVER_ID_OTA_MGR:   2
 });
 
 Const.NetworkState = new Enum({
