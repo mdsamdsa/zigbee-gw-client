@@ -27,40 +27,32 @@ Profiles.on('ready', function() {
     var main_stm = new MainStm(proxy, pan, engines);
 
     proxy.on('NWK_MGR:NWK_ZIGBEE_DEVICE_IND', engines.device_list.process_zigbee_device_ind);
-    proxy.on('GATEWAY:ZIGBEE_GENERIC_CNF', function(msg) {
-        console.log((msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_SUCCESS)?'SUCCESS':'FAIL');
-    });
+
     proxy.on('GATEWAY:ZIGBEE_GENERIC_RSP_IND', function(msg) {
         console.log((msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_SUCCESS)?'SUCCESS':'FAIL');
     });
-    proxy.on('GATEWAY:GW_GET_GROUP_MEMBERSHIP_RSP_IND', function(msg) {
-        console.log('groups: ');
-        for(var i=0; i<msg.groupList.length; i++) {
-            console.log('g[' + i + '] = ' + msg.groupList[i]);
-        }
-    });
 
     main_stm.on('online', function() {
-        var msg = new Protocol.GatewayMgr.GwGetGroupMembershipReq();
+/*        var msg = new Protocol.GatewayMgr.GwGetGroupMembershipReq();
         msg.dstAddress = new Protocol.GatewayMgr.gwAddressStruct_t();
         msg.dstAddress.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
         msg.dstAddress.ieeeAddr = pan.devices[1].ieeeAddress;
         msg.dstAddress.endpointId = pan.devices[1]._endpoints[0].endpointId;
 
-        /*var msg = new Protocol.GatewayMgr.GwAddGroupReq();
+        var msg = new Protocol.GatewayMgr.GwAddGroupReq();
         msg.dstAddress = new Protocol.GatewayMgr.gwAddressStruct_t();
         msg.dstAddress.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
         msg.dstAddress.ieeeAddr = pan.devices[1].ieeeAddress;
         msg.dstAddress.endpointId = pan.devices[1]._endpoints[0].endpointId;
         msg.groupId = 0;
-        msg.groupName = 'z';*/
+        msg.groupName = 'z';
 
-        /*var msg = new Protocol.GatewayMgr.GwRemoveFromGroupReq();
+        var msg = new Protocol.GatewayMgr.GwRemoveFromGroupReq();
         msg.dstAddress = new Protocol.GatewayMgr.gwAddressStruct_t();
         msg.dstAddress.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
         msg.dstAddress.ieeeAddr = pan.devices[1].ieeeAddress;
         msg.dstAddress.endpointId = pan.devices[1]._endpoints[0].endpointId;
-        msg.groupId = 5;*/
+        msg.groupId = 5;
 
         var buf = msg.toBuffer();
         var len = buf.length;
@@ -73,7 +65,25 @@ Profiles.on('ready', function() {
 
         logger.info('send_get_group_membership_request: Sending GW_GET_GROUP_MEMBERSHIP_REQ');
 
-        return this.proxy.send_packet(pkt);
+        return this.proxy.send_packet(pkt);*/
+
+        var address = new Protocol.GatewayMgr.gwAddressStruct_t();
+        address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
+        address.ieeeAddr = pan.devices[1].ieeeAddress;
+        address.endpointId = pan.devices[1]._endpoints[0].endpointId;
+        engines.group_scene.send_get_group_membership_request(address, function(msg) {
+            if (engines.group_scene.process_get_group_membership_cnf(msg)) {
+                logger.info('sequenceNumber: ' + msg.sequenceNumber);
+                proxy.once('GATEWAY:' + msg.sequenceNumber, function(msg) {
+                    if (engines.group_scene.process_get_group_membership_rsp_ind(msg)) {
+                        logger.info('groups: ');
+                        for(var i=0; i<msg.groupList.length; i++) {
+                            logger.info('g[' + i + '] = ' + msg.groupList[i]);
+                        }
+                    }
+                });
+            }
+        });
     });
     main_stm.init();
     proxy.init();

@@ -20,11 +20,11 @@ device_list.gateway_self_addr = {
 device_list.process_get_device_list_cnf = function(msg) {
     if (typeof msg == 'string') {
         logger.warn('process_get_device_list_cnf: ' + msg);
-        return;
+        return false;
     }
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF) {
         logger.warn('process_get_device_list_cnf: Expected NWK_GET_DEVICE_LIST_CNF');
-        return;
+        return false;
     }
 
     if (msg.status == Protocol.NWKMgr.nwkStatus_t.STATUS_SUCCESS) {
@@ -34,22 +34,22 @@ device_list.process_get_device_list_cnf = function(msg) {
         for (var i = 0; i < msg.deviceList.length; i++) {
             device_list.pan.update_device(msg.deviceList[i]);
         }
-
-        //ui_refresh_display();
     }
     else {
         logger.info('process_get_device_list_cnf: Error: Status FAILURE.');
     }
+
+    return true;
 };
 
 device_list.process_get_local_device_info_cnf = function (msg) {
     if (typeof msg == 'string') {
         logger.warn('process_get_local_device_info_cnf: ' + msg);
-        return;
+        return false;
     }
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_LOCAL_DEVICE_INFO_CNF) {
         logger.warn('process_get_local_device_info_cnf: Expected NWK_GET_LOCAL_DEVICE_INFO_CNF');
-        return;
+        return false;
     }
     logger.info('process_get_local_device_info_cnf');
 
@@ -58,7 +58,7 @@ device_list.process_get_local_device_info_cnf = function (msg) {
 
     device_list.pan.update_device(msg.deviceInfo);
 
-    //ui_refresh_display();
+    return true;
 };
 
 device_list.process_zigbee_device_ind = function(msg) {
@@ -70,8 +70,6 @@ device_list.process_zigbee_device_ind = function(msg) {
 
     /* Update device info in the device list */
     device_list.pan.update_device(msg.deviceInfo);
-
-    //ui_refresh_display();
 };
 
 device_list.send_get_device_list_request = function(callback) {

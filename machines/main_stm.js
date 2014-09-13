@@ -84,8 +84,11 @@ function MainSTM(proxy, pan, engines) {
                             if (typeof msg == 'string') {
                                 this.handle('server.timeout');
                             } else {
-                                this.engines.network_info.process_nwk_info_cnf(msg);
-                                this.handle('server.nwk_info_cnf');
+                                if (this.engines.network_info.process_nwk_info_cnf(msg)) {
+                                    this.handle('server.nwk_info_cnf');
+                                } else {
+                                    this.handle('server.timeout');
+                                }
                             }
                         }.bind(this)) < 0) {
                             this.transition('retry');
@@ -111,8 +114,11 @@ function MainSTM(proxy, pan, engines) {
                             if (typeof msg == 'string') {
                                 this.handle('server.timeout');
                             } else {
-                                this.engines.device_list.process_get_local_device_info_cnf(msg);
-                                this.handle('server.get_local_device_info_cnf');
+                                if (this.engines.device_list.process_get_local_device_info_cnf(msg)) {
+                                    this.handle('server.get_local_device_info_cnf');
+                                } else {
+                                    this.handle('server.timeout');
+                                }
                             }
                         }.bind(this)) < 0) {
                             this.transition('retry');
@@ -138,8 +144,11 @@ function MainSTM(proxy, pan, engines) {
                             if (typeof msg == 'string') {
                                 this.handle('server.timeout');
                             } else {
-                                this.engines.device_list.process_get_device_list_cnf(msg);
-                                this.handle('server.get_device_list_cnf');
+                                if (this.engines.device_list.process_get_device_list_cnf(msg)) {
+                                    this.handle('server.get_device_list_cnf');
+                                } else {
+                                    this.handle('server.timeout');
+                                }
                             }
                         }.bind(this)) < 0) {
                             this.transition('retry');

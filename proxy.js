@@ -193,57 +193,57 @@ GatewayProxy.prototype.gateway_server_packet = function(pkt) {
         case Protocol.GatewayMgr.gwCmdId_t.ZIGBEE_GENERIC_RSP_IND:
             msg_name = 'ZIGBEE_GENERIC_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.GwZigbeeGenericRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.GW_GET_GROUP_MEMBERSHIP_RSP_IND:
             msg_name = 'GW_GET_GROUP_MEMBERSHIP_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.GwGetGroupMembershipRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.GW_GET_SCENE_MEMBERSHIP_RSP_IND:
             msg_name = 'GW_GET_SCENE_MEMBERSHIP_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.GwGetSceneMembershipRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.GW_SLEEPY_DEVICE_CHECK_IN_IND:
             msg_name = 'GW_SLEEPY_DEVICE_CHECK_IN_IND';
             msg_decoder = Protocol.GatewayMgr.GwSleepyDeviceCheckInInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
-        case Protocol.GatewayMgr.gwCmdId_t.GwAttributeChangeInd:
+        case Protocol.GatewayMgr.gwCmdId_t.GW_ATTRIBUTE_CHANGE_IND:
             msg_name = 'GW_ATTRIBUTE_CHANGE_IND';
-            msg_decoder = Protocol.GatewayMgr.NwkZigbeeGenericCnf;
-            msg_type = MsgType.cnf;
+            msg_decoder = Protocol.GatewayMgr.GwAttributeChangeInd;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.GW_GET_DEVICE_ATTRIBUTE_LIST_RSP_IND:
             msg_name = 'GW_GET_DEVICE_ATTRIBUTE_LIST_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.GwGetDeviceAttributeListRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.GW_READ_DEVICE_ATTRIBUTE_RSP_IND:
             msg_name = 'GW_READ_DEVICE_ATTRIBUTE_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.GwReadDeviceAttributeRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.GW_WRITE_DEVICE_ATTRIBUTE_RSP_IND:
             msg_name = 'GW_WRITE_DEVICE_ATTRIBUTE_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.GwWriteDeviceAttributeRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.GW_SET_ATTRIBUTE_REPORTING_RSP_IND:
             msg_name = 'GW_SET_ATTRIBUTE_REPORTING_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.GwSetAttributeReportingRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
-        case Protocol.GatewayMgr.gwCmdId_t.GwAttributeReportingInd:
+        case Protocol.GatewayMgr.gwCmdId_t.GW_ATTRIBUTE_REPORTING_IND:
             msg_name = 'GW_ATTRIBUTE_REPORTING_IND';
-            msg_decoder = Protocol.GatewayMgr.NwkZigbeeGenericCnf;
-            msg_type = MsgType.cnf;
+            msg_decoder = Protocol.GatewayMgr.GwAttributeReportingInd;
+            msg_type = MsgType.ind;
             break;
-        case Protocol.GatewayMgr.gwCmdId_t.GwZclFrameReceiveInd:
+        case Protocol.GatewayMgr.gwCmdId_t.GW_ZCL_FRAME_RECEIVE_IND:
             msg_name = 'GW_ZCL_FRAME_RECEIVE_IND';
-            msg_decoder = Protocol.GatewayMgr.NwkZigbeeGenericCnf;
-            msg_type = MsgType.cnf;
+            msg_decoder = Protocol.GatewayMgr.GwZclFrameReceiveInd;
+            msg_type = MsgType.ind;
             break;
         /*case Protocol.GatewayMgr.gwCmdId_t.GW_ALARM_IND:
         case Protocol.GatewayMgr.gwCmdId_t.DEV_ZONE_ENROLLMENT_REQ_IND:
@@ -260,32 +260,32 @@ GatewayProxy.prototype.gateway_server_packet = function(pkt) {
         case Protocol.GatewayMgr.gwCmdId_t.DEV_GET_LEVEL_RSP_IND:
             msg_name = 'DEV_GET_LEVEL_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.DevGetLevelRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.DEV_GET_ONOFF_STATE_RSP_IND:
             msg_name = 'DEV_GET_ONOFF_STATE_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.DevGetOnOffStateRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.DEV_GET_COLOR_RSP_IND:
             msg_name = 'DEV_GET_COLOR_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.DevGetColorRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.DEV_GET_TEMP_RSP_IND:
             msg_name = 'DEV_GET_TEMP_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.DevGetTempRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.DEV_GET_POWER_RSP_IND:
             msg_name = 'DEV_GET_POWER_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.DevGetPowerRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         case Protocol.GatewayMgr.gwCmdId_t.DEV_GET_HUMIDITY_RSP_IND:
             msg_name = 'DEV_GET_HUMIDITY_RSP_IND';
             msg_decoder = Protocol.GatewayMgr.DevGetHumidityRspInd;
-            msg_type = MsgType.cnf;
+            msg_type = MsgType.ind;
             break;
         /*case Protocol.GatewayMgr.gwCmdId_t.DEV_SET_DOOR_LOCK_RSP_IND:
         case Protocol.GatewayMgr.DEV_GET_DOOR_LOCK_STATE_RSP_IND:*/
@@ -352,6 +352,11 @@ GatewayProxy.prototype.server_message = function(server, msg, msg_type, msg_name
             this.emit(server.name + ':' + msg_name, msg);
             break;
         case MsgType.ind:
+            if (typeof msg.sequenceNumber == 'number') {
+                logger.debug('emit: ' + server.name + ':' + msg.sequenceNumber);
+                this.emit(server.name + ':' + msg.sequenceNumber, msg);
+            }
+            logger.debug('emit: ' + server.name + ':' + msg_name);
             this.emit(server.name + ':' + msg_name, msg);
             break;
     }

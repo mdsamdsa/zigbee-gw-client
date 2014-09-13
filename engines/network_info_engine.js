@@ -48,11 +48,11 @@ network_info.send_nwk_info_request = function(callback) {
 network_info.process_nwk_info_cnf = function(msg) {
     if (typeof msg == 'string') {
         logger.warn('process_nwk_info_cnf: ' + msg);
-        return;
+        return false;
     }
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_CNF) {
         logger.warn('process_nwk_info_cnf: Expected NWK_ZIGBEE_NWK_INFO_CNF');
-        return;
+        return false;
     }
 
     // Update network info structure with received information
@@ -70,6 +70,7 @@ network_info.process_nwk_info_cnf = function(msg) {
         logger.info('process_nwk_info_cnf: Network down');
     }
 
+    return true;
     //ui_refresh_display();
 };
 
