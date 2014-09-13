@@ -430,12 +430,12 @@ GatewayProxy.prototype.confirmation_receive_handler = function(msg) {
     this.confirmation_wait_timer = undefined;
     //ui_print_status(0, "");
 
-    if (!(typeof this.confirmation_processing_cb_cnf ==  "undefined")) {
+    if (!(typeof this.confirmation_processing_cb_cnf ==  'undefined')) {
         logger.info('Calling confirmation callback');
         this.confirmation_processing_cb_cnf(msg, this.confirmation_processing_arg_cnf);
+    } else {
+        logger.info('Callback not defined');
     }
-
-    this.confirmation_processing_cb_cnf = undefined;
 };
 
 GatewayProxy.prototype.confirmation_timeout_handler = function() {
@@ -445,12 +445,10 @@ GatewayProxy.prototype.confirmation_timeout_handler = function() {
     logger.warn('TIMEOUT waiting for confirmation');
     //ui_print_status(UI_STATUS_NOTIFICATION_TIMEOUT, "Operation timed out");
 
-    if (!(typeof this.confirmation_processing_cb_cnf ==  "undefined")) {
+    if (!(typeof this.confirmation_processing_cb_cnf ==  'undefined')) {
         logger.info('Calling timeout callback');
         this.confirmation_processing_cb_cnf('timeout', this.confirmation_processing_arg_cnf);
     }
-
-    this.confirmation_processing_cb_cnf = undefined;
 
     logger.debug('emit: timeout');
     this.emit('timeout');
