@@ -10,7 +10,7 @@ var EventEmitter = require('events').EventEmitter;
 var Dissolve = require('dissolve');
 var ByteBuffer = require('bytebuffer');
 
-var Common = require('./common.js');
+var Common = require('./common');
 
 function TcpServerConnection(name, host, port) {
     this.name = name;

@@ -10,7 +10,7 @@ var GatewayProxy = require('../proxy');
 var config = require('../config');
 var MainStm = require('../machines/main_stm');
 var PAN = require('../lib/profile/Pan');
-var Protocol = require('../protocol.js');
+var Protocol = require('../protocol');
 
 Profiles.on('ready', function() {
     var proxy = new GatewayProxy(
@@ -27,10 +27,6 @@ Profiles.on('ready', function() {
     var main_stm = new MainStm(proxy, pan, engines);
 
     proxy.on('NWK_MGR:NWK_ZIGBEE_DEVICE_IND', engines.device_list.process_zigbee_device_ind);
-
-    proxy.on('GATEWAY:ZIGBEE_GENERIC_RSP_IND', function(msg) {
-        console.log((msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_SUCCESS)?'SUCCESS':'FAIL');
-    });
 
     main_stm.on('online', function() {
 /*        var msg = new Protocol.GatewayMgr.GwGetGroupMembershipReq();
@@ -70,10 +66,12 @@ Profiles.on('ready', function() {
         var address = new Protocol.GatewayMgr.gwAddressStruct_t();
         address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
         address.ieeeAddr = pan.devices[1].ieeeAddress;
-        address.endpointId = pan.devices[1]._endpoints[0].endpointId;
+        address.endpointId = pan.devices[1].endpoints[0].endpointId;
+/*        address.addressType = Protocol.GatewayMgr.gwAddressType_t.GROUPCAST;
+        address.groupAddr = 0;*/
         engines.group_scene.send_get_group_membership_request(address, function(msg) {
             if (engines.group_scene.process_get_group_membership_cnf(msg)) {
-                logger.info('sequenceNumber: ' + msg.sequenceNumber);
+                //logger.info('sequenceNumber: ' + msg.sequenceNumber);
                 proxy.once('GATEWAY:' + msg.sequenceNumber, function(msg) {
                     if (engines.group_scene.process_get_group_membership_rsp_ind(msg)) {
                         logger.info('groups: ');
@@ -83,6 +81,16 @@ Profiles.on('ready', function() {
                     }
                 });
             }
+            engines.group_scene.send_add_group_request(address, 2, '', function(msg) {
+               if (engines.group_scene.process_add_group_cnf(msg)) {
+                   //logger.info('sequenceNumber: ' + msg.sequenceNumber);
+                   proxy.once('GATEWAY:' + msg.sequenceNumber, function(msg) {
+                       if (engines.group_scene.process_add_group_rsp_ind(msg)) {
+                           logger.info('status: ' + msg.status);
+                       }
+                   });
+               }
+            });
         });
     });
     main_stm.init();

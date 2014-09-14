@@ -6,7 +6,7 @@ var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 
 var Const = require('../constants');
-var Protocol = require('../protocol.js');
+var Protocol = require('../protocol');
 
 var network_info = {};
 

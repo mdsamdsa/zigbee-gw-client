@@ -5,7 +5,7 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 
-var Protocol = require('../protocol.js');
+var Protocol = require('../protocol');
 
 var device_list = {};
 
