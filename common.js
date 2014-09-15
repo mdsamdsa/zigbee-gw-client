@@ -44,4 +44,15 @@ Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
     return true;
 };
 
+Common.print_list = function(arr) {
+    var str = '';
+    for(var i=0; i<arr.length; i++) {
+        if (i > 0) {
+            str += ', ';
+        }
+        str += arr[i];
+    }
+    return str;
+};
+
 module.exports = Common;

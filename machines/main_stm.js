@@ -190,6 +190,7 @@ MainSTM.prototype.init = function() {
 };
 
 MainSTM.prototype.deinit = function() {
+    this.fsm.transition('offline');
     this.fsm.transition('dummy');
 };
 

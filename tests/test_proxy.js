@@ -9,6 +9,7 @@ var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
 var config = require('../config');
 var MainStm = require('../machines/main_stm');
+var GroupStm = require('../machines/group_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 
@@ -40,6 +41,7 @@ Profiles.on('ready', function() {
     var pan = new PAN(proxy);
     var engines = require('../engines')(proxy, pan);
     var main_stm = new MainStm(proxy, pan, engines);
+    var group_stm = new GroupStm(proxy, pan, engines, main_stm);
 
     proxy.on('NWK_MGR:NWK_ZIGBEE_DEVICE_IND', engines.device_list.process_zigbee_device_ind);
 
@@ -106,7 +108,7 @@ Profiles.on('ready', function() {
             });
         });*/
 
-        function q_send_get_group_membership_request(address) {
+/*        function q_send_get_group_membership_request(address) {
             var deferred = Q.defer();
             var res = engines.group_scene.send_get_group_membership_request(address, function(msg) {
                 deferred.resolve(msg);
@@ -159,8 +161,9 @@ Profiles.on('ready', function() {
             .then(q_process_get_group_membership_cnf)
             .then(q_process_get_group_membership_rsp_ind)
             .fail(function(err) { logger.info('err2: ' + err); })
-            .then(function() { logger.info('done2');}));
+            .then(function() { logger.info('done2');}));*/
     });
+    group_stm.init();
     main_stm.init();
     proxy.init();
 
