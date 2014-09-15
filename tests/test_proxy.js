@@ -12,6 +12,21 @@ var MainStm = require('../machines/main_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 
+var Q = require('q');
+
+function waitOne(sequenceNumber, timeOut) {
+    var deferred = Q.defer();
+    var timer = setTimeout(function() {
+            deferred.reject();
+        },
+        timeOut);
+    proxy.on('GATEWAY:' + sequenceNumber, function(msg) {
+        clearTimeout(timer);
+        deferred.resolve(msg);
+    });
+    return deferred;
+}
+
 Profiles.on('ready', function() {
     var proxy = new GatewayProxy(
         config.get('servers:nwk:host'),
@@ -63,15 +78,14 @@ Profiles.on('ready', function() {
 
         return this.proxy.send_packet(pkt);*/
 
-        var address = new Protocol.GatewayMgr.gwAddressStruct_t();
+/*        var address = new Protocol.GatewayMgr.gwAddressStruct_t();
         address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
         address.ieeeAddr = pan.devices[1].ieeeAddress;
         address.endpointId = pan.devices[1].endpoints[0].endpointId;
-/*        address.addressType = Protocol.GatewayMgr.gwAddressType_t.GROUPCAST;
-        address.groupAddr = 0;*/
+        //address.addressType = Protocol.GatewayMgr.gwAddressType_t.GROUPCAST;
+        //address.groupAddr = 0;
         engines.group_scene.send_get_group_membership_request(address, function(msg) {
             if (engines.group_scene.process_get_group_membership_cnf(msg)) {
-                //logger.info('sequenceNumber: ' + msg.sequenceNumber);
                 proxy.once('GATEWAY:' + msg.sequenceNumber, function(msg) {
                     if (engines.group_scene.process_get_group_membership_rsp_ind(msg)) {
                         logger.info('groups: ');
@@ -83,7 +97,6 @@ Profiles.on('ready', function() {
             }
             engines.group_scene.send_add_group_request(address, 2, '', function(msg) {
                if (engines.group_scene.process_add_group_cnf(msg)) {
-                   //logger.info('sequenceNumber: ' + msg.sequenceNumber);
                    proxy.once('GATEWAY:' + msg.sequenceNumber, function(msg) {
                        if (engines.group_scene.process_add_group_rsp_ind(msg)) {
                            logger.info('status: ' + msg.status);
@@ -91,7 +104,62 @@ Profiles.on('ready', function() {
                    });
                }
             });
-        });
+        });*/
+
+        function q_send_get_group_membership_request(address) {
+            var deferred = Q.defer();
+            var res = engines.group_scene.send_get_group_membership_request(address, function(msg) {
+                deferred.resolve(msg);
+            });
+            if (res < 0) {
+                deferred.reject(res);
+            }
+            return deferred.promise;
+        }
+
+        function q_process_get_group_membership_cnf(msg) {
+            var deferred = Q.defer();
+            if (engines.group_scene.process_get_group_membership_cnf(msg)) {
+                var timer = setTimeout(function() { deferred.reject('timeout'); }, 1000);
+                proxy.once('GATEWAY:' + msg.sequenceNumber, function(msg) {
+                    clearTimeout(timer);
+                    deferred.resolve(msg);
+                });
+            } else {
+                deferred.reject();
+            }
+            return deferred.promise;
+        }
+
+        function q_process_get_group_membership_rsp_ind(msg) {
+            if (engines.group_scene.process_get_group_membership_rsp_ind(msg)) {
+                logger.info('groups: ');
+                for (var i = 0; i < msg.groupList.length; i++) {
+                    logger.info('g[' + i + '] = ' + msg.groupList[i]);
+                }
+            }
+        }
+
+        var address1 = new Protocol.GatewayMgr.gwAddressStruct_t();
+        address1.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
+        address1.ieeeAddr = pan.devices[1].ieeeAddress;
+        address1.endpointId = pan.devices[1].endpoints[0].endpointId;
+        var address2 = new Protocol.GatewayMgr.gwAddressStruct_t();
+        address2.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
+        address2.ieeeAddr = pan.devices[1].ieeeAddress;
+        address2.endpointId = pan.devices[1].endpoints[1].endpointId;
+
+        Q.when(q_send_get_group_membership_request(address1))
+            .then(q_process_get_group_membership_cnf)
+            .then(q_process_get_group_membership_rsp_ind)
+            .fail(function(err) { logger.info('err1: ' + err); })
+            .then(function() { logger.info('done1');})
+            .then(
+        Q.when(q_send_get_group_membership_request(address2))
+            .then(q_process_get_group_membership_cnf)
+            .then(q_process_get_group_membership_rsp_ind)
+            .fail(function(err) { logger.info('err2: ' + err); })
+            .then(function() { logger.info('done2');}));
     });
     main_stm.init();
     proxy.init();
