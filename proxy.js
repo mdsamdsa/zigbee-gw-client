@@ -75,33 +75,45 @@ GatewayProxy.prototype._nwk_server_connected = function() {
     logger.info('_nwk_server_connected');
     this._nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('nwk_mgr:connected');
+    if (this.all_server_ready()) {
+        this.emit('connected');
+    }
 };
 
 GatewayProxy.prototype._nwk_server_disconnected = function() {
     logger.info('_nwk_server_disconnected');
     this.emit('nwk_mgr:disconnected');
+    this.emit('disconnected');
 };
 
 GatewayProxy.prototype._gateway_server_connected = function() {
     logger.info('_gateway_server_connected');
     this._gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('gateway:connected');
+    if (this.all_server_ready()) {
+        this.emit('connected');
+    }
 };
 
 GatewayProxy.prototype._gateway_server_disconnected = function() {
     logger.info('_gateway_server_disconnected');
     this.emit('gateway:disconnected');
+    this.emit('disconnected');
 };
 
 GatewayProxy.prototype._ota_server_connected = function() {
     logger.info('_ota_server_connected');
     this._ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('ota_mgr:connected');
+    if (this.all_server_ready()) {
+        this.emit('connected');
+    }
 };
 
 GatewayProxy.prototype._ota_server_disconnected = function() {
     logger.info('_ota_server_disconnected');
     this.emit('ota_mgr:disconnected');
+    this.emit('disconnected');
 };
 
 GatewayProxy.prototype._nwk_server_packet = function(pkt) {
@@ -142,7 +154,7 @@ GatewayProxy.prototype._nwk_server_packet = function(pkt) {
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_CNF:
             msg_name = 'NWK_ZIGBEE_NWK_INFO_CNF';
             msg_decoder = Protocol.NWKMgr.NwkZigbeeNwkInfoCnf;
-            //msg_type = MsgType.cnf;
+            msg_type = MsgType.cnf;
             break;
         case Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_NEIGHBOR_TABLE_RSP_IND:
             msg_name = 'NWK_GET_NEIGHBOR_TABLE_RSP_IND';
@@ -467,13 +479,15 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
     if (this._pkts.length > 0) {
         logger.info('Calling confirmation callback');
         var pkt = this._pkts.shift();
-        pkt.deferred.resolve(new when.TimeoutError('Timed out'));
+        pkt.deferred.reject(new when.TimeoutError('Timed out'));
     }else {
         logger.error('Callback not defined');
     }
 
     logger.debug('emit: timeout');
     this.emit('timeout');
+
+    this._try_send();
 };
 
 /*GatewayProxy.prototype.send_packet = function(pkt, cb_cnf, arg_cnf) {

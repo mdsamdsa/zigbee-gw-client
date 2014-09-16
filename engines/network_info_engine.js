@@ -5,26 +5,12 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 
+var when = require('when');
+
 var Const = require('../constants');
 var Protocol = require('../protocol');
 
 var network_info = {};
-
-network_info.process_nwk_ready_ind = function(msg) {
-    if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_READY_IND) {
-        logger.warn('process_nwk_ready_ind: Expected NWK_ZIGBEE_NWK_READY_IND');
-        return;
-    }
-    logger.info('process_nwk_ready_ind');
-
-    network_info.pan.network.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_READY;
-    network_info.pan.network.nwk_channel = msg.nwkChannel;
-    network_info.pan.network.pan_id = msg.panId;
-    network_info.pan.network.ext_pan_id = msg.extPanId;
-    network_info.pan.network.permit_remaining_time = 0x0;
-
-    //ui_refresh_display();
-};
 
 network_info.send_nwk_info_request = function() {
     var msg = new Protocol.NWKMgr.NwkZigbeeNwkInfoReq();
@@ -39,17 +25,13 @@ network_info.send_nwk_info_request = function() {
 
     logger.info('send_nwk_info_request: Sending NWK_ZIGBEE_NWK_INFO_REQ');
 
-    return this.proxy.send(pkt);
+    return network_info.proxy.send(pkt);
 };
 
 network_info.process_nwk_info_cnf = function(msg) {
-    if (typeof msg == 'string') {
-        logger.warn('process_nwk_info_cnf: ' + msg);
-        return false;
-    }
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_CNF) {
         logger.warn('process_nwk_info_cnf: Expected NWK_ZIGBEE_NWK_INFO_CNF');
-        return false;
+        return when.reject(new Error('process_nwk_info_cnf: Expected NWK_ZIGBEE_NWK_INFO_CNF'));
     }
 
     // Update network info structure with received information
@@ -67,8 +49,21 @@ network_info.process_nwk_info_cnf = function(msg) {
         logger.info('process_nwk_info_cnf: Network down');
     }
 
-    return true;
-    //ui_refresh_display();
+    return when.resolve(msg);
+};
+
+network_info.process_nwk_ready_ind = function(msg) {
+    if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_READY_IND) {
+        logger.warn('process_nwk_ready_ind: Expected NWK_ZIGBEE_NWK_READY_IND');
+        return;
+    }
+    logger.info('process_nwk_ready_ind');
+
+    network_info.pan.network.state = Const.NetworkState.ZIGBEE_NETWORK_STATE_READY;
+    network_info.pan.network.nwk_channel = msg.nwkChannel;
+    network_info.pan.network.pan_id = msg.panId;
+    network_info.pan.network.ext_pan_id = msg.extPanId;
+    network_info.pan.network.permit_remaining_time = 0x0;
 };
 
 module.exports = function(proxy, pan) {

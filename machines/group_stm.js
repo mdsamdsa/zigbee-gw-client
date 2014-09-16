@@ -60,7 +60,7 @@ function GroupSTM(proxy, pan, engines, main) {
                     } else {
                         if (this.problemEp.length != 0) {
                             this.problemEp = [];
-                            this.transition('delay');
+                            this.transition('wait');
                         } else {
                             this.transition('done');
                         }
@@ -84,7 +84,19 @@ function GroupSTM(proxy, pan, engines, main) {
                     setTimeout(
                         function () {
                             this.handle('to_check');
-                        }.bind(this), 100);
+                        }.bind(this), Const.Timeouts.GROUP_STM_NEXT_DELAY.value);
+                },
+                'to_check': function() {
+                    this.transition('check');
+                }
+            },
+            'wait': {
+                _onEnter: function() {
+                    logger.info('wait');
+                    setTimeout(
+                        function () {
+                            this.handle('to_check');
+                        }.bind(this), Const.Timeouts.GROUP_STM_CICLE_WAIT.value);
                 },
                 'to_check': function() {
                     this.transition('check');
@@ -110,7 +122,7 @@ function GroupSTM(proxy, pan, engines, main) {
                         clearTimeout(timer);
                         if (this.engines.group_scene.process_get_group_membership_rsp_ind(msg)) {
                             this.problemEp.pop();
-                            logger.info('groups: ' + Common.print_list(msg.groupList));
+                            logger.debug('groups: ' + Common.print_list(msg.groupList));
                             this.handle('to_check');
                         }
                     }.bind(this));

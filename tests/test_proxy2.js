@@ -28,15 +28,14 @@ Profiles.on('ready', function() {
     var engines = require('../engines')(proxy, pan);
     proxy.init();
 
-    proxy.on('nwk_mgr:connected', function() {
-        when.all(
-            engines.network_info.send_nwk_info_request()
-                .then(engines.network_info.process_nwk_info_cnf)
-                .catch(function(err) { logger.error(err); }),
-            engines.network_info.send_nwk_info_request()
-                .then(engines.network_info.process_nwk_info_cnf)
-                .catch(function(err) { logger.error(err); })
-        );
+    proxy.on('connected', function() {
+        engines.network_info.send_nwk_info_request()
+            .then(engines.network_info.process_nwk_info_cnf)
+            .then(engines.device_list.send_get_local_device_info_request)
+            .then(engines.device_list.process_get_local_device_info_cnf)
+            .then(engines.device_list.send_get_device_list_request)
+            .then(engines.device_list.process_get_device_list_cnf)
+            .catch(function(err) { logger.error(err); });
     });
 
     setTimeout(function() {
