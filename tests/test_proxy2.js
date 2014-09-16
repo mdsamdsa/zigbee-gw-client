@@ -4,6 +4,7 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
+var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
@@ -27,10 +28,15 @@ Profiles.on('ready', function() {
     var engines = require('../engines')(proxy, pan);
     proxy.init();
 
-    proxy.nwk_server.on('connected', function() {
-        engines.network_info.send_nwk_info_request(function (msg) {
-            console.log('z');
-        });
+    proxy.on('nwk_mgr:connected', function() {
+        when.all(
+            engines.network_info.send_nwk_info_request()
+                .then(engines.network_info.process_nwk_info_cnf)
+                .catch(function(err) { logger.error(err); }),
+            engines.network_info.send_nwk_info_request()
+                .then(engines.network_info.process_nwk_info_cnf)
+                .catch(function(err) { logger.error(err); })
+        );
     });
 
     setTimeout(function() {

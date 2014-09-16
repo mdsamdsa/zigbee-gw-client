@@ -26,7 +26,7 @@ network_info.process_nwk_ready_ind = function(msg) {
     //ui_refresh_display();
 };
 
-network_info.send_nwk_info_request = function(callback) {
+network_info.send_nwk_info_request = function() {
     var msg = new Protocol.NWKMgr.NwkZigbeeNwkInfoReq();
     var buf = msg.toBuffer();
     var len = buf.length;
@@ -39,10 +39,7 @@ network_info.send_nwk_info_request = function(callback) {
 
     logger.info('send_nwk_info_request: Sending NWK_ZIGBEE_NWK_INFO_REQ');
 
-    if (typeof callback == 'undefined')
-        callback = network_info.process_nwk_info_cnf;
-
-    return this.proxy.send_packet(pkt, callback);
+    return this.proxy.send(pkt);
 };
 
 network_info.process_nwk_info_cnf = function(msg) {

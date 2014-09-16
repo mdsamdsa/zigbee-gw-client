@@ -180,12 +180,12 @@ MainSTM.prototype._check_disconnect = function() {
 };
 
 MainSTM.prototype.init = function() {
-    this.proxy.nwk_server.on('connected', this._check_connect.bind(this));
-    this.proxy.gateway_server.on('connected', this._check_connect.bind(this));
-    this.proxy.ota_server.on('connected', this._check_connect.bind(this));
-    this.proxy.nwk_server.on('disconnected', this._check_disconnect.bind(this));
-    this.proxy.gateway_server.on('disconnected', this._check_disconnect.bind(this));
-    this.proxy.ota_server.on('disconnected', this._check_disconnect.bind(this));
+    this.proxy.on('nwk_mgr:connected', this._check_connect.bind(this));
+    this.proxy.on('gateway:connected', this._check_connect.bind(this));
+    this.proxy.on('ota_mgr:connected', this._check_connect.bind(this));
+    this.proxy.on('nwk_mgr:disconnected', this._check_disconnect.bind(this));
+    this.proxy.on('gateway:disconnected', this._check_disconnect.bind(this));
+    this.proxy.on('ota_mgr:disconnected', this._check_disconnect.bind(this));
     this.fsm.transition('offline');
 };
 
