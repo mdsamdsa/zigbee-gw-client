@@ -48,7 +48,7 @@ function GroupSTM(proxy, pan, engines, main) {
             'check': {
                 _onEnter: function() {
                     logger.info('check');
-                    logger.info('> ' + this.problemEp.length);
+                    //logger.info('> ' + this.problemEp.length);
                     var endpoint = this.getEndpoint();
                     if (typeof endpoint != 'undefined') {
                         this.problemEp.push(endpoint);
