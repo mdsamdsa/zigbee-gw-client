@@ -90,12 +90,14 @@ device_list.process_get_device_list_cnf = function(msg) {
 device_list.process_zigbee_device_ind = function(msg) {
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_DEVICE_IND) {
         logger.warn('process_zigbee_device_ind: Expected NWK_ZIGBEE_DEVICE_IND');
-        return;
+        return false;
     }
     logger.info('process_zigbee_device_ind');
 
     /* Update device info in the device list */
     device_list.pan.update_device(msg.deviceInfo);
+
+    return true;
 };
 
 module.exports = function(proxy, pan) {

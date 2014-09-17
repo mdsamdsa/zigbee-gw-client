@@ -4,13 +4,14 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
+var when = require('when');
 
 var Protocol = require('../protocol');
 var Common = require('../common');
 
 var group_scene = {};
 
-group_scene.send_get_group_membership_request = function(address, callback) {
+group_scene.send_get_group_membership_request = function(address) {
     var msg = new Protocol.GatewayMgr.GwGetGroupMembershipReq();
     msg.dstAddress = address;
     var buf = msg.toBuffer();
@@ -24,10 +25,7 @@ group_scene.send_get_group_membership_request = function(address, callback) {
 
     logger.info('send_get_group_membership_request: Sending GW_GET_GROUP_MEMBERSHIP_REQ');
 
-    if (typeof callback == 'undefined')
-        callback = group_scene.process_get_group_membership_cnf;
-
-    return this.proxy.send_packet(pkt, callback);
+    return this.proxy.send(pkt);
 };
 
 group_scene.process_get_group_membership_cnf = function(msg) {
@@ -37,7 +35,7 @@ group_scene.process_get_group_membership_cnf = function(msg) {
 group_scene.process_get_group_membership_rsp_ind = function(msg) {
     if (msg.cmdId != Protocol.GatewayMgr.gwCmdId_t.GW_GET_GROUP_MEMBERSHIP_RSP_IND) {
         logger.warn('process_get_group_membership_rsp_ind: Expected GW_GET_GROUP_MEMBERSHIP_RSP_IND');
-        return false;
+        return when.reject(new Error('process_get_group_membership_rsp_ind: Expected GW_GET_GROUP_MEMBERSHIP_RSP_IND'));
     }
 
     if (msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_SUCCESS) {
@@ -53,11 +51,10 @@ group_scene.process_get_group_membership_rsp_ind = function(msg) {
         logger.info('process_get_group_membership_rsp_ind: failure');
     }
 
-    return true;
+    return when.resolve(msg);
 };
 
-
-group_scene.send_add_group_request = function(address, groupId, groupName, callback) {
+group_scene.send_add_group_request = function(address, groupId, groupName) {
     var msg = new Protocol.GatewayMgr.GwAddGroupReq();
     msg.dstAddress = address;
     msg.groupId = groupId;
@@ -73,10 +70,7 @@ group_scene.send_add_group_request = function(address, groupId, groupName, callb
 
     logger.info('send_add_group_request: Sending GW_ADD_GROUP_REQ');
 
-    if (typeof callback == 'undefined')
-        callback = group_scene.process_add_group_cnf;
-
-    return this.proxy.send_packet(pkt, callback);
+    return this.proxy.send(pkt);
 };
 
 group_scene.process_add_group_cnf = function(msg) {
@@ -87,9 +81,10 @@ group_scene.process_add_group_rsp_ind = function(msg) {
     return Common.process_gateway_generic_rsp_ind(msg, 'process_add_group_rsp_ind', logger);
 };
 
-group_scene.send_remove_from_group_request = function(address, groupId, callback) {
+group_scene.send_remove_from_group_request = function(address, groupId) {
     var msg = new Protocol.GatewayMgr.GwRemoveFromGroupReq();
     msg.dstAddress = address;
+    msg.groupId = groupId;
     var buf = msg.toBuffer();
     var len = buf.length;
     var pkt = {};
@@ -101,10 +96,7 @@ group_scene.send_remove_from_group_request = function(address, groupId, callback
 
     logger.info('send_remove_from_group_request: Sending GW_REMOVE_FROM_GROUP_REQ');
 
-    if (typeof callback == 'undefined')
-        callback = group_scene.process_remove_from_group_cnf;
-
-    return this.proxy.send_packet(pkt, callback);
+    return this.proxy.send(pkt);
 };
 
 group_scene.process_remove_from_group_cnf = function(msg) {

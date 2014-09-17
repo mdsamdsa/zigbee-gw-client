@@ -47,7 +47,8 @@ function GatewayProxy(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, 
     this._gateway_server.on('packet', this._gateway_server_packet.bind(this));
     this._ota_server.on('packet', this._ota_server_packet.bind(this));
 
-    this._pkts = [];
+    this._pkts_to_send = [];
+    this._waits_rsp_ind = [];
 }
 util.inherits(GatewayProxy, EventEmitter);
 
@@ -374,6 +375,7 @@ GatewayProxy.prototype._server_message = function(server, msg, msg_type, msg_nam
             this._try_send();
             break;
         case MsgType.ind:
+            this._indication_receive_handler(server.name, msg);
             if (typeof msg.sequenceNumber == 'number') {
                 logger.debug('emit: ' + server.name + ':' + msg.sequenceNumber);
                 this.emit(server.name + ':' + msg.sequenceNumber, msg);
@@ -409,8 +411,8 @@ GatewayProxy.prototype.all_server_ready = function() {
 };
 
 GatewayProxy.prototype.send = function(pkt) {
-    var deferred = new when.defer();
-    this._pkts.push({
+    var deferred = when.defer();
+    this._pkts_to_send.push({
         pkt: pkt,
         deferred: deferred
     });
@@ -418,10 +420,46 @@ GatewayProxy.prototype.send = function(pkt) {
     return deferred.promise;
 };
 
+GatewayProxy.prototype._find_id_wait = function(serverName, sequenceNumber) {
+    var i;
+    if (typeof serverName != 'string') {
+        for(i = 0; i < this._waits_rsp_ind.length; i++) {
+            if (this._waits_rsp_ind[i] == serverName) {
+                return i;
+            }
+        }
+    } else {
+        for(i = 0; i < this._waits_rsp_ind.length; i++) {
+            if ((this._waits_rsp_ind[i].serverName == serverName) && (this._waits_rsp_ind[i].sequenceNumber == sequenceNumber)) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+GatewayProxy.prototype.wait = function(serverName, sequenceNumber, timeOut) {
+    var ind = serverName + ':' + sequenceNumber;
+    var obj = {
+        serverName: serverName,
+        sequenceNumber: sequenceNumber,
+        deferred: when.defer(),
+        timer: setTimeout(function() {
+            var i = this._find_id_wait(obj);
+            if (i != -1) {
+                this._waits_rsp_ind.splice(i, 1);
+                obj.deferred.reject(new when.TimeoutError('Timed out'));
+            }
+        }.bind(this), timeOut)
+    }
+    this._waits_rsp_ind.push(obj);
+    return obj.deferred.promise;
+};
+
 GatewayProxy.prototype._try_send = function() {
-    if ((!this._waiting_for_confirmation) && (this._pkts.length != 0)) {
+    if ((!this._waiting_for_confirmation) && (this._pkts_to_send.length != 0)) {
         var server,
-            packet = this._pkts.shift(),
+            packet = this._pkts_to_send.shift(),
             pkt = packet.pkt;
         if (pkt.header.subsystem == Protocol.NWKMgr.zStackNwkMgrSysId_t.RPC_SYS_PB_NWK_MGR) {
             server = this._nwk_server;
@@ -443,7 +481,7 @@ GatewayProxy.prototype._try_send = function() {
         }
 
         this._waiting_for_confirmation = true;
-        this._pkts.unshift(packet);
+        this._pkts_to_send.unshift(packet);
         server.send(pkt);
 
         this._confirmation_wait_timer = setTimeout(
@@ -461,9 +499,9 @@ GatewayProxy.prototype._confirmation_receive_handler = function(msg) {
     clearTimeout(this._confirmation_wait_timer);
     this._confirmation_wait_timer = undefined;
 
-    if (this._pkts.length > 0) {
+    if (this._pkts_to_send.length > 0) {
         logger.info('Calling confirmation callback');
-        var packet = this._pkts.shift();
+        var packet = this._pkts_to_send.shift();
         packet.deferred.resolve(msg);
     }else {
         logger.error('Callback not defined');
@@ -476,9 +514,9 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
 
     logger.warn('TIMEOUT waiting for confirmation');
 
-    if (this._pkts.length > 0) {
+    if (this._pkts_to_send.length > 0) {
         logger.info('Calling confirmation callback');
-        var pkt = this._pkts.shift();
+        var pkt = this._pkts_to_send.shift();
         pkt.deferred.reject(new when.TimeoutError('Timed out'));
     }else {
         logger.error('Callback not defined');
@@ -490,77 +528,16 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
     this._try_send();
 };
 
-/*GatewayProxy.prototype.send_packet = function(pkt, cb_cnf, arg_cnf) {
-    var server;
-    if (pkt.header.subsystem == Protocol.NWKMgr.zStackNwkMgrSysId_t.RPC_SYS_PB_NWK_MGR) {
-        server = this._nwk_server;
-    } else if (pkt.header.subsystem == Protocol.GatewayMgr.zStackGwSysId_t.RPC_SYS_PB_GW) {
-        server = this._gateway_server;
-    } else if (pkt.header.subsystem == Protocol.OTAMgr.ZStackOTASysIDs.RPC_SYS_PB_OTA_MGR) {
-        server = this._ota_server;
-    } else {
-        logger.warn('Unknown subsystem ID ' + pkt.header.subsystem + ' Following packet discarded: ');
-        Common.print_packet_to_log(logger, 'not sent: ', pkt);
-        return -1;
-    }
+GatewayProxy.prototype._indication_receive_handler = function(serverName, msg) {
+    var i = this._find_id_wait(serverName, msg.sequenceNumber);
+    while(i != -1 ) {
+        var elem = this._waits_rsp_ind[i];
+        clearTimeout(elem.timer);
+        this._waits_rsp_ind.splice(i, 1);
+        elem.deferred.resolve(msg);
 
-    if (!server.connected) {
-        logger.info('Please wait while connecting to server');
-        return -2;
-    }
-
-    if (this._waiting_for_confirmation) {
-        logger.info('BUSY - please wait for previous operation to complete');
-        return -3;
-    }
-
-    server.send(pkt);
-
-    this._confirmation_processing_cb_cnf = cb_cnf;
-    this._confirmation_processing_arg_cnf = arg_cnf;
-
-    //ui_print_status(0, "BUSY");
-    this._waiting_for_confirmation = true;
-
-    this._confirmation_wait_timer = setTimeout(
-        this._confirmation_timeout_handler.bind(this),
-        server.confirmation_timeout_interval.value);
-
-    if (server.confirmation_timeout_interval != Const.Timeouts.STANDARD_CONFIRMATION_TIMEOUT) {
-        server.confirmation_timeout_interval = Const.Timeouts.STANDARD_CONFIRMATION_TIMEOUT;
-    }
-
-    return 0;
-};
-
-GatewayProxy.prototype._confirmation_receive_handler = function(msg) {
-    this._waiting_for_confirmation = false;
-    clearTimeout(this._confirmation_wait_timer);
-    this._confirmation_wait_timer = undefined;
-    //ui_print_status(0, "");
-
-    if (!(typeof this._confirmation_processing_cb_cnf ==  'undefined')) {
-        logger.info('Calling confirmation callback');
-        this._confirmation_processing_cb_cnf(msg, this._confirmation_processing_arg_cnf);
-    } else {
-        logger.info('Callback not defined');
+        i = this._find_id_wait(serverName, msg.sequenceNumber);
     }
 };
-
-GatewayProxy.prototype._confirmation_timeout_handler = function() {
-    this._waiting_for_confirmation = false;
-    this._confirmation_wait_timer = undefined;
-
-    logger.warn('TIMEOUT waiting for confirmation');
-    //ui_print_status(UI_STATUS_NOTIFICATION_TIMEOUT, "Operation timed out");
-
-    if (!(typeof this._confirmation_processing_cb_cnf ==  'undefined')) {
-        logger.info('Calling timeout callback');
-        this._confirmation_processing_cb_cnf('timeout', this._confirmation_processing_arg_cnf);
-    }
-
-    logger.debug('emit: timeout');
-    this.emit('timeout');
-};*/
 
 module.exports = GatewayProxy;

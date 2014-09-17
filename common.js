@@ -1,5 +1,7 @@
 'use strict';
 
+var when = require('when');
+
 var Protocol = require('./protocol');
 
 var Common = {};
@@ -13,13 +15,9 @@ Common.print_packet_to_log = function(logger, str, pkt, buffer) {
 };
 
 Common.process_gateway_generic_cnf = function(msg, name, logger) {
-    if (typeof msg == 'string') {
-        logger.warn(name + ': ' + msg);
-        return false;
-    }
     if (msg.cmdId != Protocol.GatewayMgr.gwCmdId_t.ZIGBEE_GENERIC_CNF) {
         logger.warn(name +': Expected ZIGBEE_GENERIC_CNF');
-        return false;
+        return when.reject(new Error(name +': Expected ZIGBEE_GENERIC_CNF'));
     }
 
     if (msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_SUCCESS) {
@@ -30,18 +28,18 @@ Common.process_gateway_generic_cnf = function(msg, name, logger) {
         logger.info(name + ': failure');
     }
 
-    return true;
+    return when.resolve(msg);
 };
 
 
 Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
     if (msg.cmdId != Protocol.GatewayMgr.gwCmdId_t.ZIGBEE_GENERIC_RSP_IND) {
         logger.warn(name + ': Expected ZIGBEE_GENERIC_RSP_IND');
-        return false;
+        return when.reject(new Error(name +': Expected ZIGBEE_GENERIC_RSP_IND'));
     }
     logger.info(name);
 
-    return true;
+    return when.resolve(msg);
 };
 
 Common.print_list = function(arr) {

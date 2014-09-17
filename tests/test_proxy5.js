@@ -9,6 +9,8 @@ var when = require('when');
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
 var config = require('../config');
+var MainStm = require('../machines/main_stm');
+var GroupStm = require('../machines/group_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 
@@ -24,17 +26,12 @@ Profiles.on('ready', function() {
 
     var pan = new PAN(proxy);
     var engines = require('../engines')(proxy, pan);
-    proxy.init();
+    var main_stm = new MainStm(proxy, pan, engines);
+    var group_stm = new GroupStm(proxy, pan, engines, main_stm);
 
-    proxy.on('connected', function() {
-        when(engines.network_info.send_nwk_info_request())
-            .then(engines.network_info.process_nwk_info_cnf)
-            .then(engines.device_list.send_get_local_device_info_request)
-            .then(engines.device_list.process_get_local_device_info_cnf)
-            .then(engines.device_list.send_get_device_list_request)
-            .then(engines.device_list.process_get_device_list_cnf)
-            .catch(function(err) { logger.error(err); });
-    });
+    group_stm.init();
+    main_stm.init();
+    proxy.init();
 
     setTimeout(function() {
         proxy.deinit();

@@ -55,7 +55,7 @@ network_info.process_nwk_info_cnf = function(msg) {
 network_info.process_nwk_ready_ind = function(msg) {
     if (msg.cmdId != Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_READY_IND) {
         logger.warn('process_nwk_ready_ind: Expected NWK_ZIGBEE_NWK_READY_IND');
-        return;
+        return false;
     }
     logger.info('process_nwk_ready_ind');
 
@@ -64,6 +64,8 @@ network_info.process_nwk_ready_ind = function(msg) {
     network_info.pan.network.pan_id = msg.panId;
     network_info.pan.network.ext_pan_id = msg.extPanId;
     network_info.pan.network.permit_remaining_time = 0x0;
+
+    return true;
 };
 
 module.exports = function(proxy, pan) {

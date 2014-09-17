@@ -7,6 +7,7 @@ var logger = log4js.getLogger(module_name);
 var machina = require('machina');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
+var when = require('when');
 
 var Common = require('../common');
 var Const = require('../constants');
@@ -52,11 +53,8 @@ function GroupSTM(proxy, pan, engines, main) {
                     var endpoint = this.getEndpoint();
                     if (typeof endpoint != 'undefined') {
                         this.problemEp.push(endpoint);
-                        if (this.startUpdate(endpoint) == 0) {
-                            this.transition('update')
-                        } else {
-                            this.transition('delay');
-                        }
+                        this.startUpdate(endpoint);
+                        this.transition('update');
                     } else {
                         if (this.problemEp.length != 0) {
                             this.problemEp = [];
@@ -109,27 +107,20 @@ function GroupSTM(proxy, pan, engines, main) {
             address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
             address.ieeeAddr = endpoint.device.ieeeAddress;
             address.endpointId = endpoint.endpointId;
+
             //noinspection JSPotentiallyInvalidUsageOfThis
-            return this.engines.group_scene.send_get_group_membership_request(address, function(msg) {
-                if (this.engines.group_scene.process_get_group_membership_cnf(msg)) {
-                    var timer = setTimeout(
-                        function() {
-                            logger.info('GATEWAY:' + msg.sequenceNumber + ' TIMEOUT');
-                            this.proxy.removeAllListeners('GATEWAY:' + msg.sequenceNumber);
-                            this.handle('to_delay');
-                        }.bind(this), Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value);
-                    this.proxy.once('GATEWAY:' + msg.sequenceNumber, function(msg) {
-                        clearTimeout(timer);
-                        if (this.engines.group_scene.process_get_group_membership_rsp_ind(msg)) {
-                            this.problemEp.pop();
-                            logger.debug('groups: ' + Common.print_list(msg.groupList));
-                            this.handle('to_check');
-                        }
-                    }.bind(this));
-                } else {
-                    this.handle('to_delay');
-                }
-            }.bind(this));
+            when(this.engines.group_scene.send_get_group_membership_request(address))
+                .then(this.engines.group_scene.process_get_group_membership_cnf)
+                .then(function(msg) {
+                    return this.proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
+                }.bind(this))
+                .then(this.engines.group_scene.process_get_group_membership_rsp_ind)
+                .then(function(msg) {
+                    this.problemEp.pop();
+                    logger.debug('groups: ' + Common.print_list(msg.groupList));
+                    this.handle('to_check');
+                }.bind(this))
+                .catch(function() { this.handle('to_delay');}.bind(this));
         },
         getEndpoint: function() {
             //noinspection JSPotentiallyInvalidUsageOfThis
