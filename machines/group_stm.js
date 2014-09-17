@@ -44,6 +44,7 @@ function GroupSTM(proxy, pan, engines, main) {
             'done': {
                 _onEnter: function() {
                     logger.info('done');
+                    this.stm.emit('done');
                 }
             },
             'check': {

@@ -53,4 +53,12 @@ Common.print_list = function(arr) {
     return str;
 };
 
+Common.byteBuffer_toArray = function(buffer) {
+    var arr = [];
+    while(buffer.remaining()) {
+        arr.push(buffer.readByte());
+    }
+    return arr;
+};
+
 module.exports = Common;
