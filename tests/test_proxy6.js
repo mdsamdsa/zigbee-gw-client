@@ -31,33 +31,41 @@ Profiles.on('ready', function() {
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
 
+    function Test(address, groupId) {
+        var deferred = when.defer();
+        when(engines.group_scene.send_get_scene_membership_request(address, groupId))
+            .then(engines.group_scene.process_get_scene_membership_cnf)
+            .then(function(msg) {
+                return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
+            })
+            .then(engines.group_scene.process_get_scene_membership_rsp_ind)
+            .then(function(msg) {
+                logger.debug('scenes: ' + Common.print_list(msg.sceneList));
+                deferred.resolve(msg);
+            })
+            .catch(function(err) {
+                logger.error(err);
+                deferred.resolve();
+            });
+        return deferred.promise;
+    }
+
     group_stm.on('done', function() {
         //noinspection JSPotentiallyInvalidConstructorUsage
         var address = new Protocol.GatewayMgr.gwAddressStruct_t();
         address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
         address.ieeeAddr = pan.devices[1].ieeeAddress;
         address.endpointId = pan.devices[1].endpoints[0].endpointId;
-        var cicle = [];
-        for(var i = 0; i < pan.devices[1].endpoints[0].groups.length; i++) {
-            cicle.push(
-                when(engines.group_scene.send_get_scene_membership_request(address, pan.devices[1].endpoints[0].groups[i]))
-                    .then(engines.group_scene.process_get_scene_membership_cnf)
-                    .then(function(msg) {
-                        return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
-                    })
-                    .then(engines.group_scene.process_get_scene_membership_rsp_ind)
-                    .then(function(msg) {
-                        logger.debug('scenes: ' + Common.print_list(msg.sceneList));
-                        //msg.sceneList.flip();
-                        //logger.debug('scenes: ' + msg.sceneList.readByte());
-                        //engines.group_scene.send_recall_scene_request(address, 0, 0);
-                    })
-                    .catch(function(err) { logger.error(err); })
-            );
-        }
-        when.all(cicle).then(function() {
-            console.log('z');
-        });
+        when(Test(address, 0))
+            .then(function() {
+                return Test(address, 1);
+            })
+            .then(function() {
+                return Test(address, 2);
+            })
+            .then(function() {
+                return Test(address, 3);
+            });
     });
 
     group_stm.init();
@@ -67,5 +75,5 @@ Profiles.on('ready', function() {
     setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
-    }, 8000);
+    }, 10000);
 });
