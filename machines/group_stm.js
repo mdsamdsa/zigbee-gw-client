@@ -20,6 +20,7 @@ function GroupSTM(proxy, pan, engines, main) {
     this.pan = pan;
     this.engines = engines;
     this.main = main;
+    //noinspection JSUnusedGlobalSymbols
     this.fsm = new machina.Fsm({
         proxy: proxy,
         engines: engines,
@@ -129,8 +130,7 @@ function GroupSTM(proxy, pan, engines, main) {
                 //noinspection JSPotentiallyInvalidUsageOfThis
                 var device = this.pan.devices[i];
                 for(var j = 0; j < device.endpoints.length; j++) {
-                    //TODO typeof groups
-                    if (device.endpoints[j].getCluster('Groups') && (typeof device.endpoints[j].groups == 'undefined')) {
+                    if (device.endpoints[j].getCluster('Groups') && (device.endpoints[j].groups.needUpdate)) {
                         var found = false;
                         for(var k = 0; k < this.problemEp.length; k++) {
                             if (this.problemEp[k] == device.endpoints[j]) {

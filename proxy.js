@@ -431,7 +431,7 @@ GatewayProxy.prototype._find_id_wait = function(serverName, sequenceNumber) {
         }
     } else {
         for(i = 0; i < this._waits_rsp_ind.length; i++) {
-            if ((this._waits_rsp_ind[i].serverName == serverName) && (this._waits_rsp_ind[i].sequenceNumber == sequenceNumber)) {
+            if ((this._waits_rsp_ind[i].sequenceNumber == sequenceNumber) && (this._waits_rsp_ind[i].serverName == serverName)) {
                 return i;
             }
         }
@@ -442,7 +442,7 @@ GatewayProxy.prototype._find_id_wait = function(serverName, sequenceNumber) {
 GatewayProxy.prototype._find_id_ind = function(serverName, sequenceNumber) {
     var i;
     for(i = 0; i < this._pkts_rsp_ind.length; i++) {
-        if ((this._pkts_rsp_ind[i].serverName == serverName) && (this._pkts_rsp_ind[i].sequenceNumber == sequenceNumber)) {
+        if ((this._pkts_rsp_ind[i].sequenceNumber == sequenceNumber) && (this._pkts_rsp_ind[i].serverName == serverName)) {
             return i;
         }
     }
@@ -455,6 +455,7 @@ GatewayProxy.prototype.wait = function(serverName, sequenceNumber, timeOut) {
         if (ind != -1) {
             var rsp = this._pkts_rsp_ind[ind];
             this._pkts_rsp_ind.splice(ind, 1);
+            logger.info('wait: found msg in queue');
             return when.resolve(rsp.msg);
         }
     }
@@ -538,7 +539,7 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
         var pkt = this._pkts_to_send.shift();
         pkt.deferred.reject(new when.TimeoutError('Timed out'));
     }else {
-        logger.error('_confirmation_timeout_handler: Callback not defined');
+        logger.warn('_confirmation_timeout_handler: Callback not defined');
     }
 
     logger.debug('emit: timeout');
@@ -560,9 +561,10 @@ GatewayProxy.prototype._indication_receive_handler = function(serverName, msg) {
         found = true;
     }
     if (!found && (typeof msg.sequenceNumber != 'undefined') && (msg.sequenceNumber != null)) {
-        logger.error('_indication_receive_handler: Callback not defined');
+        logger.warn('_indication_receive_handler: Callback not defined');
         if (this._pkts_rsp_ind.length >= 32) {
             this._pkts_rsp_ind.shift();
+            logger.error('_indication_receive_handler: Respond indication queue is full');
         }
         this._pkts_rsp_ind.push({
             serverName: serverName,

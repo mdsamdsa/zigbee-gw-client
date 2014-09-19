@@ -44,7 +44,7 @@ group_scene.process_get_group_membership_rsp_ind = function(msg) {
         if (typeof endpoint == 'undefined') {
             logger.info('process_get_group_membership_rsp_ind: endpoint not found');
         } else {
-            endpoint.groups = msg.groupList; //TODO update to property
+            endpoint.updateGroups(msg.groupList);
         }
     }
     else {
@@ -147,7 +147,7 @@ group_scene.process_get_scene_membership_rsp_ind = function(msg) {
             if (typeof endpoint.scenes == 'undefined') {
                 endpoint.scenes = [];
             }
-            endpoint.scenes[msg.groupId] = msg.sceneList; //TODO update to property
+            endpoint.updateScenes(msg.groupId, msg.sceneList);
         }
     }
     else {
