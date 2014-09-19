@@ -65,7 +65,18 @@ Profiles.on('ready', function() {
             })
             .then(function() {
                 return Test(address, 3);
-            });
+            })
+            .then(function() {
+                console.log('');
+                setTimeout(function() {
+                    when.all([
+                        Test(address, 0),
+                        Test(address, 1),
+                        Test(address, 2),
+                        Test(address, 3)
+                    ]);
+                }, 500);
+            })
     });
 
     group_stm.init();

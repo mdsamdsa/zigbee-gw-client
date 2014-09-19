@@ -49,6 +49,7 @@ function GatewayProxy(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, 
 
     this._pkts_to_send = [];
     this._waits_rsp_ind = [];
+    this._pkts_rsp_ind = [];
 }
 util.inherits(GatewayProxy, EventEmitter);
 
@@ -436,10 +437,28 @@ GatewayProxy.prototype._find_id_wait = function(serverName, sequenceNumber) {
         }
     }
     return -1;
-}
+};
+
+GatewayProxy.prototype._find_id_ind = function(serverName, sequenceNumber) {
+    var i;
+    for(i = 0; i < this._pkts_rsp_ind.length; i++) {
+        if ((this._pkts_rsp_ind[i].serverName == serverName) && (this._pkts_rsp_ind[i].sequenceNumber == sequenceNumber)) {
+            return i;
+        }
+    }
+    return -1;
+};
 
 GatewayProxy.prototype.wait = function(serverName, sequenceNumber, timeOut) {
-    var ind = serverName + ':' + sequenceNumber;
+    if (this._pkts_rsp_ind.length > 0) {
+        var ind = this._find_id_ind(serverName, sequenceNumber);
+        if (ind != -1) {
+            var rsp = this._pkts_rsp_ind[ind];
+            this._pkts_rsp_ind.splice(ind, 1);
+            return when.resolve(rsp.msg);
+        }
+    }
+
     var obj = {
         serverName: serverName,
         sequenceNumber: sequenceNumber,
@@ -451,7 +470,7 @@ GatewayProxy.prototype.wait = function(serverName, sequenceNumber, timeOut) {
                 obj.deferred.reject(new when.TimeoutError('Timed out'));
             }
         }.bind(this), timeOut)
-    }
+    };
     this._waits_rsp_ind.push(obj);
     return obj.deferred.promise;
 };
@@ -519,7 +538,7 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
         var pkt = this._pkts_to_send.shift();
         pkt.deferred.reject(new when.TimeoutError('Timed out'));
     }else {
-        logger.error('Callback not defined');
+        logger.error('_confirmation_timeout_handler: Callback not defined');
     }
 
     logger.debug('emit: timeout');
@@ -530,6 +549,7 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
 
 GatewayProxy.prototype._indication_receive_handler = function(serverName, msg) {
     var i = this._find_id_wait(serverName, msg.sequenceNumber);
+    var found = false;
     while(i != -1 ) {
         var elem = this._waits_rsp_ind[i];
         clearTimeout(elem.timer);
@@ -537,6 +557,18 @@ GatewayProxy.prototype._indication_receive_handler = function(serverName, msg) {
         elem.deferred.resolve(msg);
 
         i = this._find_id_wait(serverName, msg.sequenceNumber);
+        found = true;
+    }
+    if (!found && (typeof msg.sequenceNumber != 'undefined') && (msg.sequenceNumber != null)) {
+        logger.error('_indication_receive_handler: Callback not defined');
+        if (this._pkts_rsp_ind.length >= 32) {
+            this._pkts_rsp_ind.shift();
+        }
+        this._pkts_rsp_ind.push({
+            serverName: serverName,
+            sequenceNumber: msg.sequenceNumber,
+            msg: msg
+        });
     }
 };
 
