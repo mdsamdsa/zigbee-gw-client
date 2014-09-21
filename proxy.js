@@ -70,7 +70,7 @@ GatewayProxy.prototype.deinit = function() {
 };
 
 GatewayProxy.prototype._tcp_server_error = function(error) {
-    logger.info(this.name + '_tcp_server_errorr: ' + error);
+    logger.info(this.name + '_tcp_server_error: ' + error);
 };
 
 GatewayProxy.prototype._nwk_server_connected = function() {
