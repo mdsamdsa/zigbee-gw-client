@@ -36,6 +36,7 @@ function GroupSTM(proxy, pan, engines, main) {
                 _onEnter: function() {
                     logger.info('start');
                     this.problemEp = [];
+                    this.resetState();
                     this.handle('to_check');
                 },
                 'to_check': function() {
@@ -103,6 +104,12 @@ function GroupSTM(proxy, pan, engines, main) {
                 }
             }
         },
+        resetState: function() {
+            for(var i = 1; i < this.pan.devices.length; i++) {
+                var device = this.pan.devices[i];
+                device.reset_exch_status();
+            }
+        },
         startUpdate: function(endpoint) {
             //noinspection JSPotentiallyInvalidConstructorUsage
             var address = new Protocol.GatewayMgr.gwAddressStruct_t();
@@ -119,10 +126,15 @@ function GroupSTM(proxy, pan, engines, main) {
                 .then(this.engines.group_scene.process_get_group_membership_rsp_ind)
                 .then(function(msg) {
                     this.problemEp.pop();
+                    endpoint.device.update_exch_status(true);
                     logger.debug('groups: ' + Common.print_list(msg.groupList));
                     this.handle('to_check');
                 }.bind(this))
-                .catch(function() { this.handle('to_delay');}.bind(this));
+                .catch(function(err) {
+                    endpoint.device.update_exch_status(false);
+                    logger.warn('err: ' + err.message);
+                    this.handle('to_delay');
+                }.bind(this));
         },
         getEndpoint: function() {
             //noinspection JSPotentiallyInvalidUsageOfThis
@@ -130,7 +142,7 @@ function GroupSTM(proxy, pan, engines, main) {
                 //noinspection JSPotentiallyInvalidUsageOfThis
                 var device = this.pan.devices[i];
                 for(var j = 0; j < device.endpoints.length; j++) {
-                    if (device.endpoints[j].getCluster('Groups') && (device.endpoints[j].groups.needUpdate)) {
+                    if (device.endpoints[j].getCluster('Groups') && (device.endpoints[j].groups.needUpdate) && (device.errExchCount < 5)) {
                         var found = false;
                         for(var k = 0; k < this.problemEp.length; k++) {
                             if (this.problemEp[k] == device.endpoints[j]) {

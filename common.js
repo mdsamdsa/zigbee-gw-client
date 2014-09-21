@@ -25,7 +25,8 @@ Common.process_gateway_generic_cnf = function(msg, name, logger) {
         logger.info('sequenceNumber: ' + msg.sequenceNumber);
     }
     else {
-        logger.info(name + ': failure');
+        logger.info(name + ': failure - status: ' + msg.status);
+        return when.reject(new Error(name + ': status - ' + msg.status));
     }
 
     return when.resolve(msg);
@@ -37,7 +38,15 @@ Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
         logger.warn(name + ': Expected ZIGBEE_GENERIC_RSP_IND');
         return when.reject(new Error(name +': Expected ZIGBEE_GENERIC_RSP_IND'));
     }
-    logger.info(name);
+
+    if (msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_SUCCESS) {
+        logger.info(name + ': success');
+        logger.info('sequenceNumber: ' + msg.sequenceNumber);
+    }
+    else {
+        logger.info(name + ': failure - status: ' + msg.status);
+        return when.reject(new Error(name + ': status - ' + msg.status));
+    }
 
     return when.resolve(msg);
 };

@@ -49,6 +49,7 @@ group_scene.process_get_group_membership_rsp_ind = function(msg) {
     }
     else {
         logger.info('process_get_group_membership_rsp_ind: failure');
+        return when.reject(new Error('process_get_group_membership_rsp_ind: status - ' + msg.status));
     }
 
     return when.resolve(msg);
@@ -152,6 +153,7 @@ group_scene.process_get_scene_membership_rsp_ind = function(msg) {
     }
     else {
         logger.info('process_get_group_membership_rsp_ind: failure');
+        return when.reject(new Error('process_get_group_membership_rsp_ind: status - ' + msg.status));
     }
 
     return when.resolve(msg);
