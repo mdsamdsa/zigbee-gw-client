@@ -68,15 +68,22 @@ Profiles.on('ready', function() {
             })
             .then(function() {
                 console.log('');
-                setTimeout(function() {
+/*                setTimeout(function() {
                     when.all([
                         Test(address, 0),
                         Test(address, 1),
                         Test(address, 2),
-                        Test(address, 3)
+                        Test(address, 3),
                     ]);
-                }, 500);
+                }, 500);*/
+                setTimeout(function() {
+                    engines.attribute.send_set_attribute_reporting_request(address, 6)
+                }, 2000);
             })
+    });
+
+    proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function(msg) {
+        logger.info(msg);
     });
 
     group_stm.init();
@@ -86,5 +93,5 @@ Profiles.on('ready', function() {
     setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
-    }, 10000);
+    }, 200000);
 });
