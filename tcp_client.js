@@ -54,6 +54,9 @@ TcpServerConnection.prototype.socket_close = function(had_error) {
     this.connected = false;
     logger.info(this.name + ' disconnected' + ((had_error)?' had error':''));
     this.emit('disconnected', this);
+    if (this.reconnect) {
+        setTimeout(this._reconnect.bind(this), this.reconnectDelay);
+    }
 };
 
 TcpServerConnection.prototype.socket_end = function() {
@@ -75,9 +78,9 @@ TcpServerConnection.prototype.socket_error = function(error) {
     logger.error(this.name + ' error: ' + error);
     if (!this.connected) {
         this.socket.destroy();
-        if (this.reconnect) {
+/*        if (this.reconnect) {
             setTimeout(this._reconnect.bind(this), this.reconnectDelay);
-        }
+        }*/
     }
     this.emit('error', error);
 };
