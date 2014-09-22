@@ -128,7 +128,7 @@ function SceneSTM(proxy, pan, engines, main) {
                 .then(function(msg) {
                     this.problemEpG.pop();
                     ePG.endpoint.device.update_exch_status(true);
-                    logger.debug('scenes: ' + Common.print_list(msg.sceneList));
+                    logger.debug('group: ' + msg.groupId + ' scenes: ' + Common.print_list(msg.sceneList));
                     this.handle('to_check');
                 }.bind(this))
                 .catch(function(err) {
@@ -155,7 +155,7 @@ function SceneSTM(proxy, pan, engines, main) {
                                         }
                                     }
                                     if (!found) {
-                                        return { endpoint: endpoint, groupId: endpoint.groups[k] };
+                                        return { endpoint: endpoint, groupId: endpoint.groups[k].groupId };
                                     }
                                 }
                             }
