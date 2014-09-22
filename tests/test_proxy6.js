@@ -44,7 +44,7 @@ Profiles.on('ready', function() {
                 deferred.resolve(msg);
             })
             .catch(function(err) {
-                logger.error(err);
+                logger.error(err.message);
                 deferred.resolve();
             });
         return deferred.promise;
