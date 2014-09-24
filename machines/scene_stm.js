@@ -52,6 +52,7 @@ function SceneSTM(proxy, pan, engines, main) {
             'check': {
                 _onEnter: function() {
                     logger.info('check');
+                    //logger.info('> ' + this.problemEpG.length);
                     var ePG = this.getEndpointGroup();
                     if (typeof ePG != 'undefined') {
                         this.problemEpG.push(ePG);
@@ -133,7 +134,7 @@ function SceneSTM(proxy, pan, engines, main) {
                 }.bind(this))
                 .catch(function(err) {
                     ePG.endpoint.device.update_exch_status(false);
-                    logger.warn('err: ' + err.message);
+                    logger.warn('error: ' + err.message);
                     this.handle('to_delay');
                 }.bind(this));
         },
@@ -150,7 +151,7 @@ function SceneSTM(proxy, pan, engines, main) {
                                 if (endpoint.groups[k].scenes.needUpdate) {
                                     var found = false;
                                     for (var m = 0; m < this.problemEpG.length; m++) {
-                                        if ((this.problemEpG[m].endpoint == endpoint) && (this.problemEpG[m].groupId == endpoint.groups[k])) {
+                                        if (this.problemEpG[m].endpoint.device == endpoint.device) {
                                             found = true;
                                         }
                                     }

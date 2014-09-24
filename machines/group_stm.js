@@ -105,7 +105,9 @@ function GroupSTM(proxy, pan, engines, main) {
             }
         },
         resetState: function() {
+            //noinspection JSPotentiallyInvalidUsageOfThis
             for(var i = 1; i < this.pan.devices.length; i++) {
+                //noinspection JSPotentiallyInvalidUsageOfThis
                 var device = this.pan.devices[i];
                 device.reset_exch_status();
             }
@@ -132,7 +134,7 @@ function GroupSTM(proxy, pan, engines, main) {
                 }.bind(this))
                 .catch(function(err) {
                     endpoint.device.update_exch_status(false);
-                    logger.warn('err: ' + err.message);
+                    logger.warn('error: ' + err.message);
                     this.handle('to_delay');
                 }.bind(this));
         },
@@ -145,7 +147,7 @@ function GroupSTM(proxy, pan, engines, main) {
                     if (device.endpoints[j].getCluster('Groups') && (device.endpoints[j].groups.needUpdate) && (device.errExchCount < 5)) {
                         var found = false;
                         for(var k = 0; k < this.problemEp.length; k++) {
-                            if (this.problemEp[k] == device.endpoints[j]) {
+                            if (this.problemEp[k].device == device) {
                                 found = true;
                             }
                         }
