@@ -8,25 +8,10 @@ var logger = log4js.getLogger(module_name);
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
 var config = require('../config');
-var MainStm = require('../machines/main_stm');
-var GroupStm = require('../machines/group_stm');
+var MainStm = require('../lib/machines/main_stm');
+var GroupStm = require('../lib/machines/group_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
-
-var Q = require('q');
-
-function waitOne(sequenceNumber, timeOut) {
-    var deferred = Q.defer();
-    var timer = setTimeout(function() {
-            deferred.reject();
-        },
-        timeOut);
-    proxy.on('GATEWAY:' + sequenceNumber, function(msg) {
-        clearTimeout(timer);
-        deferred.resolve(msg);
-    });
-    return deferred;
-}
 
 Profiles.on('ready', function() {
     var proxy = new GatewayProxy(

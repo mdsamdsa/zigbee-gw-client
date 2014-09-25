@@ -9,8 +9,8 @@ var when = require('when');
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
 var config = require('../config');
-var MainStm = require('../machines/main_stm');
-var GroupStm = require('../machines/group_stm');
+var MainStm = require('../lib/machines/main_stm');
+var GroupStm = require('../lib/machines/group_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 
