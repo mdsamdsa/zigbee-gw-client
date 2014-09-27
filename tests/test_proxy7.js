@@ -31,8 +31,16 @@ Profiles.on('ready', function() {
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
     var scene_stm = new SceneStm(proxy, pan, engines, main_stm);
 
+    var timer = setTimeout(function() {
+        proxy.deinit();
+        setTimeout(function() {}, 500);
+    }, 20000);
+
     group_stm.on('done', function() {
         scene_stm.fsm.transition('start');
+    });
+    scene_stm.on('done', function() {
+        clearTimeout(timer);
     });
 
     proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function(msg) {
@@ -42,9 +50,4 @@ Profiles.on('ready', function() {
     group_stm.init();
     main_stm.init();
     proxy.init();
-
-    setTimeout(function() {
-        proxy.deinit();
-        setTimeout(function() {}, 500);
-    }, 200000);
 });
