@@ -1,0 +1,12 @@
+{
+    "appenders": [
+        {
+            "type": "console"
+        }
+    ],
+
+    "levels": {
+        "proxy":  "WARN",
+        "tcp_client":  "WARN"
+    }
+}
