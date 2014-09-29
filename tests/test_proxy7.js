@@ -33,7 +33,6 @@ Profiles.on('ready', function() {
 
     var timer = setTimeout(function() {
         proxy.deinit();
-        setTimeout(function() {}, 500);
     }, 20000);
 
     group_stm.on('done', function() {
