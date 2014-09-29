@@ -60,7 +60,7 @@ Profiles.on('ready', function() {
         address.endpointId = pan.devices[1].endpoints[0].endpointId;
         var groupId = 10;
         var sceneId = 2;
-        sequence([
+        var tasks = [
             function(address, groupId) {
                 return when(engines.group_scene.send_add_group_request(address, groupId, ''))
                     .then(engines.group_scene.process_add_group_cnf)
@@ -117,7 +117,8 @@ Profiles.on('ready', function() {
                         logger.warn('group removed failure: ' + err);
                     });
             }
-        ], address, groupId, sceneId).then(function() {
+        ];
+        sequence(tasks, address, groupId, sceneId).then(function() {
             clearTimeout(timer);
         });
     }
