@@ -40,7 +40,7 @@ Profiles.on('ready', function() {
             })
             .then(engines.group_scene.process_get_scene_membership_rsp_ind)
             .then(function(msg) {
-                logger.debug('scenes: ' + Common.print_list(msg.sceneList));
+                logger.debug('scenes: ' + Common.list_toString(msg.sceneList));
                 deferred.resolve(msg);
             })
             .catch(function(err) {

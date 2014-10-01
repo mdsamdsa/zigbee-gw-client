@@ -42,7 +42,7 @@ Profiles.on('ready', function() {
             })
             .then(engines.group_scene.process_get_group_membership_rsp_ind)
             .then(function(msg) {
-                logger.debug('groups: ' + Common.print_list(msg.groupList));
+                logger.debug('groups: ' + Common.list_toString(msg.groupList));
             })
             .catch(function(err) { logger.error(err); });
     });
