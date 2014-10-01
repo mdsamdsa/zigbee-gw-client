@@ -14,6 +14,21 @@ Common.print_packet_to_log = function(logger, str, pkt, buffer) {
     logger.debug('Raw: ' + hex.substr(0, Common.packet_max_length * 2) + ((hex.length > Common.packet_max_length * 2)?'...':''));
 };
 
+function ZigbeeGWError (message, status) {
+    Error.call(this);
+    this.message = message;
+    this.name = ZigbeeGWError.name;
+    this.status = status;
+    if (typeof Error.captureStackTrace === 'function') {
+        Error.captureStackTrace(this, ZigbeeGWError);
+    }
+}
+
+ZigbeeGWError.prototype = Object.create(Error.prototype);
+ZigbeeGWError.prototype.constructor = ZigbeeGWError;
+
+Common.ZigbeeGWError = ZigbeeGWError;
+
 Common.process_gateway_generic_cnf = function(msg, name, logger) {
     if (msg.cmdId != Protocol.GatewayMgr.gwCmdId_t.ZIGBEE_GENERIC_CNF) {
         logger.warn(name +': Expected ZIGBEE_GENERIC_CNF');
@@ -26,7 +41,7 @@ Common.process_gateway_generic_cnf = function(msg, name, logger) {
     }
     else {
         logger.info(name + ': failure - status: ' + msg.status);
-        return when.reject(new Error(name + ': status - ' + msg.status));
+        return when.reject(new ZigbeeGWError(name + ': ' + status_to_string(msg.status), msg.status));
     }
 
     return when.resolve(msg);
@@ -45,13 +60,19 @@ Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
     }
     else {
         logger.info(name + ': failure - status: ' + msg.status);
-        return when.reject(new Error(name + ': status - ' + msg.status));
+        return when.reject(new ZigbeeGWError(name + ': ' + status_to_string(msg.status), msg.status));
     }
 
     return when.resolve(msg);
 };
 
-Common.print_list = function(arr) {
+var status_string = ['SUCCESS', 'FAILURE', 'BUSY', 'INVALID_PARAMETER', 'TIMEOUT'];
+
+Common.status_toString = function(status) {
+    return status_string[status];
+};
+
+Common.list_toString = function(arr) {
     var str = '';
     for(var i=0; i<arr.length; i++) {
         if (i > 0) {
