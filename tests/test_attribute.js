@@ -88,7 +88,10 @@ Profiles.on('ready', function() {
                     .catch(function(err) {
                         logger.warn('get attribute value failure: ' + err);
                     });
-            }
+            }/*,
+            function() {
+                return pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].read();
+            }*/
         ];
         sequence(tasks).then(function() {
             clearTimeout(timer);
