@@ -9,6 +9,7 @@ var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
+var Engines = require('../engines');
 var config = require('../config');
 var MainStm = require('../lib/machines/main_stm');
 var GroupStm = require('../lib/machines/group_stm');
@@ -16,6 +17,32 @@ var SceneStm = require('../lib/machines/scene_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 var Const = require('../constants');
+
+function Gen(pan) {
+    var tasks = [];
+    var device = pan.devices[1];
+    for(var i = 0; i < device.endpoints.length; i++) {
+        var endpoint = device.endpoints[i];
+        for(var j = 0; j < endpoint.clusters.length; j++) {
+            var cluster = endpoint.clusters[j];
+            for (var key in cluster.attributes) {
+                if (cluster.attributes.hasOwnProperty(key) && !isNaN(parseInt(key))) {
+                    var attribute = cluster.attributes[key];
+                    tasks.push(function () {
+                        return when(this.attribute.read())
+                            .then(function (val) {
+                                logger.debug('device: ', this.id, ' endpoint: ', this.endpoint.endpointId, ' cluster: ', this.cluster.name, 'attribute: ', this.attribute.name, ' value: ', val);
+                            }.bind(this))
+                            .catch(function (err) {
+                                logger.warn('device: ', this.id, ' endpoint: ', this.endpoint.endpointId, ' cluster: ', this.cluster.name, 'attribute: ', this.attribute.name, 'error: ' + err);
+                            }.bind(this))
+                    }.bind({id: i, device: device, endpoint: endpoint, cluster: cluster, attribute: attribute}));
+                }
+            }
+        }
+    }
+    return tasks;
+}
 
 Profiles.on('ready', function() {
     var proxy = new GatewayProxy(
@@ -28,7 +55,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = require('../engines')(proxy, pan);
+    var engines = Engines.initEngine(proxy, pan);
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
     var scene_stm = new SceneStm(proxy, pan, engines, main_stm);
@@ -83,16 +110,24 @@ Profiles.on('ready', function() {
                     }.bind(this))
                     .then(engines.attribute.process_read_device_attribute_rsp_ind)
                     .then(function() {
-                        logger.debug('get attribute value succesfull');
+                        logger.debug('get attribute value successful');
                     })
                     .catch(function(err) {
                         logger.warn('get attribute value failure: ' + err);
                     });
-            }/*,
+            },
             function() {
-                return pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].read();
-            }*/
+                return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].read())
+                    .then(function(val) {
+                        logger.debug('get OnOff attribute of On/Off cluster successful: ' + val);
+                    })
+                    .catch(function(err) {
+                        logger.warn('get OnOff attribute of On/Off cluster failure: ' + err);
+                    });
+            }
         ];
+
+        tasks = tasks.concat(Gen(pan));
         sequence(tasks).then(function() {
             clearTimeout(timer);
         });
