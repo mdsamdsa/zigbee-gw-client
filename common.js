@@ -14,11 +14,12 @@ Common.print_packet_to_log = function(logger, str, pkt, buffer) {
     logger.debug('Raw: ' + hex.substr(0, Common.packet_max_length * 2) + ((hex.length > Common.packet_max_length * 2)?'...':''));
 };
 
-function ZigbeeGWError (message, status) {
+function ZigbeeGWError (message, status, msg) {
     Error.call(this);
     this.message = message;
     this.name = ZigbeeGWError.name;
     this.status = status;
+    this.msg = msg;
     if (typeof Error.captureStackTrace === 'function') {
         Error.captureStackTrace(this, ZigbeeGWError);
     }

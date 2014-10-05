@@ -8,6 +8,7 @@
     "levels": {
         "proxy":  "WARN",
         "tcp_client":  "WARN",
-        "attribute_engine": "WARN"
+        "attribute_engine": "WARN",
+        "group_scene_engine": "WARN"
     }
 }
