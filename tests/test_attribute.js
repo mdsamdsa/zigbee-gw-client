@@ -95,7 +95,7 @@ Profiles.on('ready', function() {
         config.get('servers:ota:port')
     );
 
-    var pan = new PAN(proxy);
+    var pan = new PAN();
     var engines = Engines.initEngine(proxy, pan);
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
