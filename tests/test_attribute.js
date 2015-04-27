@@ -116,7 +116,7 @@ Profiles.on('ready', function() {
         return deferred.promise;
     }
 
-    function test_group_scene() {
+    function test_attribute() {
         if (pan.devices.length == 1) {
             logger.error('Device for test not found');
             return;
@@ -183,7 +183,7 @@ Profiles.on('ready', function() {
         scene_stm.fsm.transition('start');
     });
     scene_stm.on('done', function() {
-        test_group_scene();
+        test_attribute();
     });
 
     proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function(msg) {
