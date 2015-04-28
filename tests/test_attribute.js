@@ -68,18 +68,38 @@ function Gen2(pan) {
             if (attributeList.length != 0) {
                 tasks.push(function () {
                     var engines = Engines.getEngine();
+                    logger.debug('get attributes value for cluster ' + this.cluster.name + ' count: ' + this.attributeList.length);
                     return when(engines.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
                         .then(engines.attribute.process_read_device_attribute_cnf)
                         .then(engines.wait_gateway.bind(engines))
                         .then(engines.attribute.process_read_device_attribute_rsp_ind)
-                        .then(function () {
-                            logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful');
+                        .then(function (msg) {
+                            logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + msg.attributeRecordList.length);
                         }.bind(this))
                         .catch(function (err) {
                             logger.warn('get attributes value for cluster ' + this.cluster.name + ' failure: ' + err);
                         }.bind(this));
                 }.bind({address: address, clusterId: clusterId, attributeList: attributeList, cluster: cluster}));
             }
+        }
+
+        if (i == 0) {
+            var clusterId1 = 6;
+            var attributeList1 = [1];
+            tasks.push(function () {
+                var engines = Engines.getEngine();
+                logger.debug('get attributes value for cluster ' + 'Test' + ' count: ' + this.attributeList.length);
+                return when(engines.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
+                    .then(engines.attribute.process_read_device_attribute_cnf)
+                    .then(engines.wait_gateway.bind(engines))
+                    .then(engines.attribute.process_read_device_attribute_rsp_ind)
+                    .then(function (msg) {
+                        logger.debug('get attributes value for cluster ' + 'Test' + ' successful' + ' count: ' + msg.attributeRecordList.length);
+                    }.bind(this))
+                    .catch(function (err) {
+                        logger.warn('get attributes value for cluster ' + 'Test' + ' failure: ' + err);
+                    }.bind(this));
+            }.bind({address: address, clusterId: clusterId1, attributeList: attributeList1}));
         }
     }
     return tasks;
