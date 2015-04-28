@@ -42,7 +42,7 @@ Common.process_gateway_generic_cnf = function(msg, name, logger) {
     }
     else {
         logger.info(name + ': failure - status: ' + msg.status);
-        return when.reject(new ZigbeeGWError(name + ': ' + status_to_string(msg.status), msg.status));
+        return when.reject(new ZigbeeGWError(name + ': ' + status_toString(msg.status), msg.status));
     }
 
     return when.resolve(msg);
@@ -61,7 +61,7 @@ Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
     }
     else {
         logger.info(name + ': failure - status: ' + msg.status);
-        return when.reject(new ZigbeeGWError(name + ': ' + status_to_string(msg.status), msg.status));
+        return when.reject(new ZigbeeGWError(name + ': ' + status_toString(msg.status), msg.status));
     }
 
     return when.resolve(msg);
