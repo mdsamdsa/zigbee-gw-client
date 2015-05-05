@@ -30,6 +30,22 @@ ZigbeeGWError.prototype.constructor = ZigbeeGWError;
 
 Common.ZigbeeGWError = ZigbeeGWError;
 
+function ZigbeeAttributeError (message, status, msg) {
+    Error.call(this);
+    this.message = message;
+    this.name = ZigbeeAttributeError.name;
+    this.status = status;
+    this.msg = msg;
+    if (typeof Error.captureStackTrace === 'function') {
+        Error.captureStackTrace(this, ZigbeeAttributeError);
+    }
+}
+
+ZigbeeAttributeError.prototype = Object.create(Error.prototype);
+ZigbeeAttributeError.prototype.constructor = ZigbeeAttributeError;
+
+Common.ZigbeeAttributeError = ZigbeeAttributeError;
+
 Common.process_gateway_generic_cnf = function(msg, name, logger) {
     if (msg.cmdId != Protocol.GatewayMgr.gwCmdId_t.ZIGBEE_GENERIC_CNF) {
         logger.warn(name +': Expected ZIGBEE_GENERIC_CNF');
@@ -72,6 +88,13 @@ var status_string = ['SUCCESS', 'FAILURE', 'BUSY', 'INVALID_PARAMETER', 'TIMEOUT
 Common.status_toString = function(status) {
     return status_string[status];
 };
+
+Common.statusAttribute_toString = function(status) {
+    switch(status) {
+        case 0x88: return 'READ_ONLY';
+        default: throw new Error('TODO: statusAttribute_toString - Unknown status 0x' + dataType.toString(16));
+    }
+}
 
 Common.list_toString = function(arr) {
     var str = '';
