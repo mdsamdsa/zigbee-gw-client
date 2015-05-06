@@ -99,6 +99,9 @@
             <attribute id="0x0013" name="AlarmMask" type="bitmap8" access="rw" default="0x00" mandatory="false">
                 <Range from="0x00" to="0x03"/>
             </attribute>
+            <attribute id="0x0014" name="DisableLocalConfig" type="bitmap8" access="rw" default="0x00" mandatory="false">
+                <Range from="0x00" to="0x03"/>
+            </attribute>
         </cluster>
 
         <!-- End Basic Cluster -->
@@ -107,17 +110,17 @@
 
         <cluster id="0x0002" name="Device Temperature Configuration">
             <!-- Device Temperature Information Attribute Set -->
-            <attribute id="0x0000" name="CurrentTemperature" type="int16" >
+            <attribute id="0x0000" name="CurrentTemperature" type="int16" access="r" mandatory="true">
                 <Range from="-200" to="200"/>
             </attribute>
-            <attribute id="0x0001" name="MinTempExperienced" type="int16" mandatory="false">
+            <attribute id="0x0001" name="MinTempExperienced" type="int16" access="r" mandatory="false">
                 <Range from="-200" to="200"/>
             </attribute>
-            <attribute id="0x0003" name="MaxTempExperienced" type="int16" mandatory="false">
+            <attribute id="0x0003" name="MaxTempExperienced" type="int16" access="r" mandatory="false">
                 <Range from="-200" to="200"/>
             </attribute>
-            <attribute id="0x0004" name="OverTempTotalDwell" type="uint16" default="0" mandatory="false">
-                <Range from="0x0000" to="0xFFFF"/>
+            <attribute id="0x0004" name="OverTempTotalDwell" type="uint16" access="r" default="0" mandatory="false">
+                <Range from="0x0000" to="0xffff"/>
             </attribute>
 
             <!-- Device Temperature Settings Attribute Set -->
@@ -131,16 +134,16 @@
                 <Range from="-200" to="200"/>
             </attribute>
             <attribute id="0x0011" name="LowTempDwellTripPoint" type="uint24" access="rw" mandatory="false">
-                <Range from="0x000000" to="0xFFFFFF"/>
+                <Range from="0x000000" to="0xffffff"/>
             </attribute>
             <attribute id="0x0011" name="HighTempDwellTripPoint" type="uint24" access="rw" mandatory="false">
-                <Range from="0x000000" to="0xFFFFFF"/>
+                <Range from="0x000000" to="0xffffff"/>
             </attribute>
         </cluster>
 
         <cluster id="0x0003" name="Identify">
             <attribute id="0x000" name="IdentifyTime" type="uint16" access="rw" default="0x0000" mandatory="true">
-                <Range from="0x0000" to="0xFFFF"/>
+                <Range from="0x0000" to="0xffff"/>
             </attribute>
 
             <command id="0x00" name="Identify" mandatory="true"/>
@@ -148,6 +151,7 @@
         </cluster>
 
         <cluster id="0x0004" name="Groups"/>
+
         <cluster id="0x0005" name="Scenes"/>
 
         <cluster id="0x0006" name="On/Off">
@@ -159,43 +163,40 @@
         </cluster>
 
         <cluster id="0x0007" name="On/Off Switch Configuration">
-            <attribute id="0x0000" name="SwitchType" type="enum" access="r">
+            <attribute id="0x0000" name="SwitchType" type="enum" access="r" mandatory="true">
                 <Range from="0x00" to="0x01"/>
             </attribute>
-            <attribute id="0x0010" name="SwitchActions" type="enum8" access="rw" default="0x00">
+            <attribute id="0x0010" name="SwitchActions" type="enum8" access="rw" default="0x00" mandatory="true">
                 <Range from="0x00" to="0x02"/>
             </attribute>
         </cluster>
 
         <!--  Cluster fully Specified -->
         <cluster id="0x0008" name="Level Control">
-            <attribute id="0x0000" name="CurrentLevel" type="uint8" default="0x00" >
+            <attribute id="0x0000" name="CurrentLevel" type="uint8" access="r" default="0x00" mandatory="true">
                 <Range from="0x00" to="0xff"/>
             </attribute>
-            <attribute id="0x0001" name="RemainingTime" type="uint16" default="0x0000" mandatory="false">
+            <attribute id="0x0001" name="RemainingTime" type="uint16" access="r" default="0x0000" mandatory="false">
                 <Range from="0x0000" to="0xffff"/>
             </attribute>
-
-            <attribute id="0x0010" name="OnOffTransitionTime" type="uint16" default="0x0000" mandatory="false">
+            <attribute id="0x0010" name="OnOffTransitionTime" type="uint16" access="rw" default="0x0000" mandatory="false">
                 <Range from="0x0000" to="0xffff"/>
             </attribute>
-
-            <attribute id="0x0011" name="OnLevel" type="uint8" default="0x00" mandatory="false">
+            <attribute id="0x0011" name="OnLevel" type="uint8" access="rw" default="0xff" mandatory="false">
                 <Range from="0x00" to="0xff"/>
             </attribute>
-
-            <command id="0x00" name="Move to Level">
+            <command id="0x00" name="Move to Level" mandatory="true">
             	<param name="Level" type="uint8"/>
             	<param name="TransitionTime" type="uint16"/>
             </command>
-            <command id="0x01" name="Move">
+            <command id="0x01" name="Move" mandatory="true">
     			<param name="MoveMode" type="enum8">
     				<value id="0x00" name="Up"/>
     				<value id="0x01" name="Down"/>
     			</param>
             	<param name="Rate" type="uint8"/>
             </command>
-            <command id="0x02" name="Step">
+            <command id="0x02" name="Step" mandatory="true">
     			<param name="StepMode" type="enum8">
     				<value id="0x00" name="Up"/>
     				<value id="0x01" name="Down"/>
@@ -203,21 +204,19 @@
             	<param name="StepSize" type="uint8"/>
             	<param name="TransitionTime" type="uint16"/>
             </command>
-            <command id="0x03" name="Stop"/>
-
-            <command id="0x04" name="Move to Level (with On/Off)">
+            <command id="0x03" name="Stop" mandatory="true"/>
+            <command id="0x04" name="Move to Level (with On/Off)" mandatory="true">
             	<param name="Level" type="uint8"/>
             	<param name="TransitionTime" type="uint16"/>
             </command>
-
-            <command id="0x05" name="Move (with On/Off)">
+            <command id="0x05" name="Move (with On/Off)" mandatory="true">
     			<param name="MoveMode" type="enum8">
     				<value id="0x00" name="Up"/>
     				<value id="0x01" name="Down"/>
     			</param>
             	<param name="Rate" type="uint8"/>
             </command>
-            <command id="0x06" name="Step (with On/Off)">
+            <command id="0x06" name="Step (with On/Off)" mandatory="true">
     			<param name="StepMode" type="enum8">
     				<value id="0x00" name="Up"/>
     				<value id="0x01" name="Down"/>
@@ -225,19 +224,33 @@
             	<param name="StepSize" type="uint8"/>
             	<param name="TransitionTime" type="uint16"/>
             </command>
-            <command id="0x07" name="Stop (with On/Off)"/>
+            <command id="0x07" name="Stop (with On/Off)" mandatory="true"/>
         </cluster>
 
-
         <cluster id="0x0009" name="Alarms"/>
+
         <cluster id="0x000A" name="Time"/>
+
         <cluster id="0x000B" name="RSSI Location"/>
 
         <cluster id="0x0015" name="Commissioning">
-            <command id="0x00" name="Restart Device"/>
-            <command id="0x01" name="Save Startup Parameters"/>
-            <command id="0x02" name="Restore Startup Parameters"/>
-            <command id="0x03" name="Reset Startup Parameters"/>
+            <command id="0x00" name="Restart Device" mandatory="true">
+                <param name="Options" type="bmp8"/>
+                <param name="Delay" type="uint8"/>
+                <param name="Jitter" type="uint8"/>
+            </command>
+            <command id="0x01" name="Save Startup Parameters" mandatory="false">
+                <param name="Options" type="bmp8"/>
+                <param name="Index" type="uint8"/>
+            </command>
+            <command id="0x02" name="Restore Startup Parameters" mandatory="false">
+                <param name="Options" type="bmp8"/>
+                <param name="Index" type="uint8"/>
+            </command>
+            <command id="0x03" name="Reset Startup Parameters" mandatory="true">
+                <param name="Options" type="bmp8"/>
+                <param name="Index" type="uint8"/>
+            </command>
         </cluster>
 
         <cluster id="0x0702" name="Simple Metering">
@@ -296,18 +309,34 @@
 
         <!-- HVAC functional domain -->
         <cluster id="0x0200" name="Pump Configuration and Control"/>
+
         <cluster id="0x0201" name="Thermostat"/>
+
         <cluster id="0x0202" name="Fan Control"/>
         <cluster id="0x0203" name="Dehumidification Control"/>
+
         <cluster id="0x0204" name="Thermostat User Interface Configuration"/>
 
         <!-- Lighting functional domain -->
         <cluster id="0x0300" name="Color Control">
-            <command id="0x07" name="Move to Color"/>
+            <attribute id="0x0000" name="CurrentHue" type="uint8" access="r" default="0x00" mandatory="false">
+                <Range from="0x00" to="0xff"/>
+            </attribute>
+            <attribute id="0x0001" name="CurrentSaturation" type="uint8" access="r" default="0x00" mandatory="false">
+                <Range from="0x00" to="0xff"/>
+            </attribute>
+            <attribute id="0x0002" name="RemainingTime" type="uint16" access="r" default="0x0000" mandatory="false">
+                <Range from="0x00" to="0xfffe"/>
+            </attribute>
+            <attribute id="0x0003" name="CurrentX" type="uint16" access="r" default="0x616b" mandatory="true">
+                <Range from="0x00" to="0xfeff"/>
+            </attribute>
+            <attribute id="0x0004" name="CurrentY" type="uint16" access="r" default="0x607d" mandatory="true">
+                <Range from="0x00" to="0xfeff"/>
+            </attribute>
+            <!-- ... -->
 
-            <attribute id="0x0000" name="CurrentHue"/>
-            <attribute id="0x0001" name="CurrentSaturation"/>
-            <attribute id="0x0002" name="RemainingTime"/>
+            <command id="0x07" name="Move to Color"/>
         </cluster>
 
         <cluster id="0x0301" name="Ballast Configuration"/>
@@ -356,8 +385,11 @@
         </cluster>
 
         <cluster id="0x0403" name="Pressure measurement"/>
+
         <cluster id="0x0404" name="Flow measurement"/>
+
         <cluster id="0x0405" name="Relative humidity measurement"/>
+
         <cluster id="0x0406" name="Occupancy sensing">
 
             <!-- 4.8.2.2.1 Occupancy Sensor Information Set -->
@@ -402,7 +434,9 @@
         </cluster>
 
         <cluster id="0x0501" name="IAS ACE"/>
+
         <cluster id="0x0502" name="IAS WD"/>
+
         <cluster id="0x0503" name="IAS WD"/>
 
         <cluster id="0x0A01" name="Appliance Control">
