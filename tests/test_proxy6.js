@@ -36,9 +36,7 @@ Profiles.on('ready', function() {
         var deferred = when.defer();
         when(engines.group_scene.send_get_scene_membership_request(address, groupId))
             .then(engines.group_scene.process_get_scene_membership_cnf)
-            .then(function(msg) {
-                return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
-            })
+            .then(engines.wait_gateway.bind(engines))
             .then(engines.group_scene.process_get_scene_membership_rsp_ind)
             .then(function(msg) {
                 logger.debug('scenes: ' + Common.list_toString(msg.sceneList));
@@ -55,9 +53,7 @@ Profiles.on('ready', function() {
         var deferred = when.defer();
         when(engines.attribute.send_set_attribute_reporting_request(address, clusterId))
             .then(engines.attribute.process_set_attribute_reporting_cnf)
-            .then(function(msg) {
-                return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
-            })
+            .then(engines.wait_gateway.bind(engines))
             .then(engines.attribute.process_set_attribute_reporting_rsp_ind)
             .then(function(msg) {
                 logger.debug('set attribute reporting success');

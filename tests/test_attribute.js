@@ -156,9 +156,7 @@ Profiles.on('ready', function() {
             function() {
                 return when(engines.attribute.send_get_device_attribute_list_request(address))
                     .then(engines.attribute.process_get_device_attribute_list_cnf)
-                    .then(function(msg) {
-                        return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
-                    }.bind(this))
+                    .then(engines.wait_gateway.bind(engines))
                     .then(engines.attribute.process_get_device_attribute_list_rsp_ind)
                     .then(function() {
                         logger.debug('get attribute list succesfull');
@@ -170,9 +168,7 @@ Profiles.on('ready', function() {
             function() {
                 return when(engines.attribute.send_read_device_attribute_request(address, clusterId, attributeList))
                     .then(engines.attribute.process_read_device_attribute_cnf)
-                    .then(function(msg) {
-                        return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
-                    }.bind(this))
+                    .then(engines.wait_gateway.bind(engines))
                     .then(engines.attribute.process_read_device_attribute_rsp_ind)
                     .then(function() {
                         logger.debug('get attribute value successful');

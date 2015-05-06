@@ -8,6 +8,7 @@ var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
+var Engines = require('../engines');
 var config = require('../config');
 var MainStm = require('../lib/machines/main_stm');
 var PAN = require('../lib/profile/Pan');
@@ -26,7 +27,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = require('../engines')(proxy, pan);
+    var engines = Engines.initEngine(proxy, pan);
     var main_stm = new MainStm(proxy, pan, engines);
 
     main_stm.on('online', function() {
@@ -37,9 +38,7 @@ Profiles.on('ready', function() {
         address.endpointId = pan.devices[1].endpoints[0].endpointId;
         when(engines.group_scene.send_get_group_membership_request(address))
             .then(engines.group_scene.process_get_group_membership_cnf)
-            .then(function(msg) {
-                return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
-            })
+            .then(engines.wait_gateway.bind(engines))
             .then(engines.group_scene.process_get_group_membership_rsp_ind)
             .then(function(msg) {
                 logger.debug('groups: ' + Common.list_toString(msg.groupList));
