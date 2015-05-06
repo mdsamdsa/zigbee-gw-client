@@ -77,7 +77,11 @@ function Gen2(pan) {
                             logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + msg.attributeRecordList.length);
                         }.bind(this))
                         .catch(function (err) {
-                            logger.warn('get attributes value for cluster ' + this.cluster.name + ' failure: ' + err);
+                            if (err.constructor.name == 'ZigbeeGWError' && err.msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_FAILURE && err.msg.attributeRecordList.length != 0) {
+                                logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + err.msg.attributeRecordList.length);
+                            } else {
+                                logger.warn('get attributes value for cluster ' + this.cluster.name + ' failure: ' + err);
+                            }
                         }.bind(this));
                 }.bind({address: address, clusterId: clusterId, attributeList: attributeList, cluster: cluster}));
             }
@@ -185,6 +189,15 @@ Profiles.on('ready', function() {
                     .catch(function(err) {
                         logger.warn('get OnOff attribute of On/Off cluster failure: ' + err);
                     });
+            },
+            function() {
+                return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].write(true))
+                    .then(function(val) {
+                        logger.debug('set OnOff attribute of On/Off cluster successful: ' + val);
+                    })
+                    .catch(function(err) {
+                        logger.warn('set OnOff attribute of On/Off cluster failure: ' + err);
+                    });
             }
         ];
 
@@ -192,6 +205,7 @@ Profiles.on('ready', function() {
         tasks = tasks.concat(Gen2(pan));
         sequence(tasks).then(function() {
             clearTimeout(timer);
+            proxy.deinit();
         });
     }
 

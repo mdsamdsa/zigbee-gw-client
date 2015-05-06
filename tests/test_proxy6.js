@@ -8,6 +8,7 @@ var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
+var Engines = require('../engines');
 var config = require('../config');
 var MainStm = require('../lib/machines/main_stm');
 var GroupStm = require('../lib/machines/group_stm');
@@ -27,7 +28,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = require('../engines')(proxy, pan);
+    var engines = Engines.initEngine(proxy, pan);
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
 
@@ -41,6 +42,25 @@ Profiles.on('ready', function() {
             .then(engines.group_scene.process_get_scene_membership_rsp_ind)
             .then(function(msg) {
                 logger.debug('scenes: ' + Common.list_toString(msg.sceneList));
+                deferred.resolve(msg);
+            })
+            .catch(function(err) {
+                logger.error(err.message);
+                deferred.resolve();
+            });
+        return deferred.promise;
+    }
+
+    function TestRpt(address, clusterId) {
+        var deferred = when.defer();
+        when(engines.attribute.send_set_attribute_reporting_request(address, clusterId))
+            .then(engines.attribute.process_set_attribute_reporting_cnf)
+            .then(function(msg) {
+                return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value)
+            })
+            .then(engines.attribute.process_set_attribute_reporting_rsp_ind)
+            .then(function(msg) {
+                logger.debug('set attribute reporting success');
                 deferred.resolve(msg);
             })
             .catch(function(err) {
@@ -67,19 +87,12 @@ Profiles.on('ready', function() {
                 return Test(address, 3);
             })
             .then(function() {
-                console.log('');
-/*                setTimeout(function() {
-                    when.all([
-                        Test(address, 0),
-                        Test(address, 1),
-                        Test(address, 2),
-                        Test(address, 3),
-                    ]);
-                }, 500);*/
-                setTimeout(function() {
-                    engines.attribute.send_set_attribute_reporting_request(address, 6)
-                }, 2000);
+                return TestRpt(address, 6);
             })
+            .then(function() {
+                clearTimeout(exit);
+                proxy.deinit();
+            });
     });
 
     proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function(msg) {
@@ -90,8 +103,8 @@ Profiles.on('ready', function() {
     main_stm.init();
     proxy.init();
 
-    setTimeout(function() {
+    var exit = setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
-    }, 200000);
+    }, 20000);
 });
