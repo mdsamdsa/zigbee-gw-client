@@ -38,18 +38,22 @@ Profiles.on('ready', function() {
         address.endpointId = pan.devices[1].endpoints[0].endpointId;
         when(engines.group_scene.send_get_group_membership_request(address))
             .then(engines.group_scene.process_get_group_membership_cnf)
-            .then(engines.wait_gateway.bind(engines))
+            .then(engines.wait_gateway)
             .then(engines.group_scene.process_get_group_membership_rsp_ind)
             .then(function(msg) {
                 logger.debug('groups: ' + Common.list_toString(msg.groupList));
             })
-            .catch(function(err) { logger.error(err); });
+            .catch(function(err) { logger.error(err); })
+            .finally(function() {
+                clearTimeout(timeout);
+                proxy.deinit();
+            });
     });
 
     main_stm.init();
     proxy.init();
 
-    setTimeout(function() {
+    var timeout = setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
     }, 10000);

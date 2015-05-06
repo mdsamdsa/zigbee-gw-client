@@ -6,7 +6,12 @@ function Engine() {
     
 }
 
+var _proxy;
+var _pan;
+
 Engine.prototype._init = function(proxy, pan) {
+    _proxy = proxy;
+    _pan = pan;
     this.proxy = proxy;
     this.pan = pan;
     this.network_info    = require('./lib/engines/network_info_engine')(proxy, pan);
@@ -17,7 +22,7 @@ Engine.prototype._init = function(proxy, pan) {
 };
 
 Engine.prototype.wait_gateway = function(msg) {
-    return this.proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value);
+    return _proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value);
 };
 
 var engine = new Engine();

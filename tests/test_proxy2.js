@@ -8,6 +8,7 @@ var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
+var Engines = require('../engines');
 var config = require('../config');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
@@ -23,7 +24,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = require('../engines')(proxy, pan);
+    var engines = Engines.initEngine(proxy, pan);
     proxy.init();
 
     proxy.on('connected', function() {
@@ -33,10 +34,14 @@ Profiles.on('ready', function() {
             .then(engines.device_list.process_get_local_device_info_cnf)
             .then(engines.device_list.send_get_device_list_request)
             .then(engines.device_list.process_get_device_list_cnf)
-            .catch(function(err) { logger.error(err); });
+            .catch(function(err) { logger.error(err); })
+            .finally(function() {
+                clearTimeout(timeout);
+                proxy.deinit();
+            });
     });
 
-    setTimeout(function() {
+    var timeout = setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
     }, 10000);
