@@ -11,9 +11,9 @@
         "sprintfjs": "*",
         "machina": "*",
         "xml2js": "*",
-        "underscore": "*",
         "async": "*",
         "when": "*",
-        "long": "*"
+        "long": "*",
+        "lodash": "*"
     }
 }
