@@ -86,7 +86,7 @@ Profiles.on('ready', function() {
                 return TestRpt(address, 6);
             })
             .then(function() {
-                clearTimeout(exit);
+                clearTimeout(timeout);
                 proxy.deinit();
             });
     });
@@ -99,7 +99,7 @@ Profiles.on('ready', function() {
     main_stm.init();
     proxy.init();
 
-    var exit = setTimeout(function() {
+    var timeout = setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
     }, 20000);

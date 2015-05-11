@@ -8,6 +8,7 @@ var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
+var Engines = require('../engines');
 var config = require('../config');
 var MainStm = require('../lib/machines/main_stm');
 var GroupStm = require('../lib/machines/group_stm');
@@ -25,15 +26,19 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = require('../engines')(proxy, pan);
+    var engines = Engines.initEngine(proxy, pan);
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
+    group_stm.on('done', function() {
+        clearTimeout(timeout);
+        proxy.deinit();
+    });
 
     group_stm.init();
     main_stm.init();
     proxy.init();
 
-    setTimeout(function() {
+    var timeout = setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
     }, 10000);

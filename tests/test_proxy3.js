@@ -27,11 +27,15 @@ Profiles.on('ready', function() {
     var pan = new PAN(proxy);
     var engines = Engines.initEngine(proxy, pan);
     var main_stm = new MainStm(proxy, pan, engines);
+    main_stm.on('online', function() {
+        clearTimeout(timeout);
+        proxy.deinit();
+    });
 
     main_stm.init();
     proxy.init();
 
-    setTimeout(function() {
+    var timeout = setTimeout(function() {
         proxy.deinit();
         setTimeout(function() {}, 500);
     }, 10000);
