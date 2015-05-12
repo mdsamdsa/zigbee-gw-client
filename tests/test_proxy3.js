@@ -37,6 +37,5 @@ Profiles.on('ready', function() {
 
     var timeout = setTimeout(function() {
         proxy.deinit();
-        setTimeout(function() {}, 500);
     }, 10000);
 });

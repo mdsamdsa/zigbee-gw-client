@@ -10,8 +10,8 @@ function Engine() {
 Engine.prototype._init = function(proxy, pan) {
     this.proxy = proxy;
     this.pan = pan;
-    this.network_info    = require('./lib/engines/network_info_engine')(proxy, pan);
-    this.device_list     = require('./lib/engines/device_list_engine')(proxy, pan);
+    this.network_info    = require('./lib/engines/network_info_engine')(proxy);
+    this.device_list     = require('./lib/engines/device_list_engine')(proxy);
     this.group_scene     = require('./lib/engines/group_scene_engine')(proxy, pan);
     this.attribute       = require('./lib/engines/attribute_engine')(proxy, pan);
     return this;

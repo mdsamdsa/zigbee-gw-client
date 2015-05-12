@@ -30,10 +30,22 @@ Profiles.on('ready', function() {
     proxy.on('connected', function() {
         when(engines.network_info.send_nwk_info_request())
             .then(engines.network_info.process_nwk_info_cnf)
+            .then(function(msg) {
+                pan.update_network(msg);
+            })
             .then(engines.device_list.send_get_local_device_info_request)
             .then(engines.device_list.process_get_local_device_info_cnf)
+            .then(function(msg) {
+                pan.update_device(msg.deviceInfo);
+            })
             .then(engines.device_list.send_get_device_list_request)
             .then(engines.device_list.process_get_device_list_cnf)
+            .then(function(msg) {
+                logger.info('Total Devices: ' + msg.deviceList.length);
+                for (var i = 0; i < msg.deviceList.length; i++) {
+                    pan.update_device(msg.deviceList[i]);
+                }
+            })
             .catch(function(err) { logger.error(err); })
             .finally(function() {
                 clearTimeout(timeout);
