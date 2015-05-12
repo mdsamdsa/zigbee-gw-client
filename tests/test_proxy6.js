@@ -28,7 +28,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = Engines.initEngine(proxy, pan);
+    var engines = Engines.initEngine(proxy);
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
 

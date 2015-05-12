@@ -7,13 +7,12 @@ function Engine() {
     
 }
 
-Engine.prototype._init = function(proxy, pan) {
+Engine.prototype._init = function(proxy) {
     this.proxy = proxy;
-    this.pan = pan;
     this.network_info    = require('./lib/engines/network_info_engine')(proxy);
     this.device_list     = require('./lib/engines/device_list_engine')(proxy);
-    this.group_scene     = require('./lib/engines/group_scene_engine')(proxy, pan);
-    this.attribute       = require('./lib/engines/attribute_engine')(proxy, pan);
+    this.group_scene     = require('./lib/engines/group_scene_engine')(proxy);
+    this.attribute       = require('./lib/engines/attribute_engine')(proxy);
     return this;
 };
 
@@ -28,8 +27,8 @@ module.exports = {
     getEngine: function() {
         return engine;
     },
-    initEngine: function(proxy, pan) {
-        engine._init(proxy, pan);
+    initEngine: function(proxy) {
+        engine._init(proxy);
         return engine;
     }
 };

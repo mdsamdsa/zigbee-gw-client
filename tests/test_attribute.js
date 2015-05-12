@@ -120,7 +120,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN();
-    var engines = Engines.initEngine(proxy, pan);
+    var engines = Engines.initEngine(proxy);
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
     var scene_stm = new SceneStm(proxy, pan, engines, main_stm);
@@ -158,6 +158,14 @@ Profiles.on('ready', function() {
                     .then(engines.attribute.process_get_device_attribute_list_cnf)
                     .then(engines.wait_gateway)
                     .then(engines.attribute.process_get_device_attribute_list_rsp_ind)
+                    .then(function(msg) {
+                        var endpoint = pan.get_endpoint(msg.srcAddress);
+                        if (typeof endpoint == 'undefined') {
+                            logger.info('endpoint not found');
+                        } else {
+                            //TODO Update attribute list
+                        }
+                    })
                     .then(function() {
                         logger.debug('get attribute list succesfull');
                     })

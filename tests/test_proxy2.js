@@ -24,7 +24,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = Engines.initEngine(proxy, pan);
+    var engines = Engines.initEngine(proxy);
     proxy.init();
 
     proxy.on('connected', function() {

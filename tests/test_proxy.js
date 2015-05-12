@@ -7,6 +7,7 @@ var logger = log4js.getLogger(module_name);
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
+var Engines = require('../engines');
 var config = require('../config');
 var MainStm = require('../lib/machines/main_stm');
 var GroupStm = require('../lib/machines/group_stm');
@@ -24,7 +25,7 @@ Profiles.on('ready', function() {
     );
 
     var pan = new PAN(proxy);
-    var engines = require('../engines')(proxy, pan);
+    var engines = Engines.initEngine(proxy);
     var main_stm = new MainStm(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
 
