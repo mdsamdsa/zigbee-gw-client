@@ -11,7 +11,7 @@ var GatewayProxy = require('../proxy');
 var Engines = require('../engines');
 var config = require('../config');
 var mainStmFactory = require('../lib/machines/main_stm');
-var GroupStm = require('../lib/machines/group_stm');
+var groupStmFactory = require('../lib/machines/group_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 
@@ -28,7 +28,7 @@ Profiles.on('ready', function() {
     var pan = new PAN(proxy);
     var engines = Engines.initEngine(proxy);
     var main_stm = mainStmFactory.create(proxy, pan, engines);
-    var group_stm = new GroupStm(proxy, pan, engines, main_stm);
+    var group_stm = groupStmFactory.create(pan, engines, main_stm);
     group_stm.on('done', function() {
         clearTimeout(timeout);
         proxy.deInit();
