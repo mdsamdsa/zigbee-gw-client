@@ -11,7 +11,7 @@ var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
 var Engines = require('../engines');
 var config = require('../config');
-var MainStm = require('../lib/machines/main_stm');
+var mainStmFactory = require('../lib/machines/main_stm');
 var GroupStm = require('../lib/machines/group_stm');
 var SceneStm = require('../lib/machines/scene_stm');
 var PAN = require('../lib/profile/Pan');
@@ -30,7 +30,7 @@ Profiles.on('ready', function() {
 
     var pan = new PAN(proxy);
     var engines = Engines.initEngine(proxy);
-    var main_stm = new MainStm(proxy, pan, engines);
+    var main_stm = mainStmFactory.create(proxy, pan, engines);
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
     var scene_stm = new SceneStm(proxy, pan, engines, main_stm);
 
