@@ -490,13 +490,13 @@ GatewayProxy.prototype._try_send = function() {
         } else {
             logger.warn('Unknown subsystem ID ' + pkt.header.subsystem + ' Following packet discarded: ');
             Common.print_packet_to_log(logger, 'not sent: ', pkt);
-            pkt.deferred.reject(new Error('Unknown subsystem ID'));
+            packet.deferred.reject(new Error('Unknown subsystem ID'));
             return;
         }
 
         if (!server.connected) {
             logger.info('Please wait while connecting to server');
-            pkt.deferred.reject(new Error('Not connecting to server'));
+            packet.deferred.reject(new Error('Not connecting to server'));
             return;
         }
 
@@ -536,8 +536,8 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
 
     if (this._pkts_to_send.length > 0) {
         logger.info('Calling confirmation callback');
-        var pkt = this._pkts_to_send.shift();
-        pkt.deferred.reject(new when.TimeoutError('Timed out'));
+        var packet = this._pkts_to_send.shift();
+        packet.deferred.reject(new when.TimeoutError('Timed out'));
     }else {
         logger.warn('_confirmation_timeout_handler: Callback not defined');
     }
