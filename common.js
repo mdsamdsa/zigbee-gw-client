@@ -94,7 +94,7 @@ Common.statusAttribute_toString = function(status) {
         case 0x88: return 'READ_ONLY';
         default: throw new Error('TODO: statusAttribute_toString - Unknown status 0x' + dataType.toString(16));
     }
-}
+};
 
 Common.list_toString = function(arr) {
     var str = '';
