@@ -31,7 +31,7 @@ Profiles.on('ready', function() {
     var group_stm = new GroupStm(proxy, pan, engines, main_stm);
     group_stm.on('done', function() {
         clearTimeout(timeout);
-        proxy.deinit();
+        proxy.deInit();
     });
 
     group_stm.init();
@@ -39,7 +39,7 @@ Profiles.on('ready', function() {
     proxy.init();
 
     var timeout = setTimeout(function() {
-        proxy.deinit();
+        proxy.deInit();
         setTimeout(function() {}, 500);
     }, 10000);
 });

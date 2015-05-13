@@ -33,7 +33,7 @@ Profiles.on('ready', function() {
     var scene_stm = new SceneStm(proxy, pan, engines, main_stm);
 
     var timeout = setTimeout(function() {
-        proxy.deinit();
+        proxy.deInit();
     }, 20000);
 
     group_stm.on('done', function() {

@@ -154,8 +154,8 @@ Profiles.on('ready', function() {
     proxy.init();
 
     setTimeout(function() {
-        proxy.deinit();
-        main_stm.deinit();
+        proxy.deInit();
+        main_stm.deInit();
         setTimeout(function() {}, 500);
     }, 10000);
 });

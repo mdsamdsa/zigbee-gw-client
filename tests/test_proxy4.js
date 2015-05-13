@@ -41,7 +41,7 @@ Profiles.on('ready', function() {
             .then(engines.wait_gateway)
             .then(engines.group_scene.process_get_group_membership_rsp_ind)
             .then(function(msg) {
-                var endpoint = pan.get_endpoint(msg.srcAddress);
+                var endpoint = pan.getEndpoint(msg.srcAddress);
                 if (typeof endpoint == 'undefined') {
                     logger.warn('endpoint not found');
                 } else {
@@ -55,7 +55,7 @@ Profiles.on('ready', function() {
             .catch(function(err) { logger.error(err); })
             .finally(function() {
                 clearTimeout(timeout);
-                proxy.deinit();
+                proxy.deInit();
             });
     });
 
@@ -63,6 +63,6 @@ Profiles.on('ready', function() {
     proxy.init();
 
     var timeout = setTimeout(function() {
-        proxy.deinit();
+        proxy.deInit();
     }, 10000);
 });

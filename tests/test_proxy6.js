@@ -87,7 +87,7 @@ Profiles.on('ready', function() {
             })
             .then(function() {
                 clearTimeout(timeout);
-                proxy.deinit();
+                proxy.deInit();
             });
     });
 
@@ -100,7 +100,7 @@ Profiles.on('ready', function() {
     proxy.init();
 
     var timeout = setTimeout(function() {
-        proxy.deinit();
+        proxy.deInit();
         setTimeout(function() {}, 500);
     }, 20000);
 });

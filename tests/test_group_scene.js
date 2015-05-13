@@ -117,7 +117,7 @@ Profiles.on('ready', function() {
     }
 
     var timer = setTimeout(function() {
-        proxy.deinit();
+        proxy.deInit();
     }, 40000);
 
     group_stm.on('done', function() {

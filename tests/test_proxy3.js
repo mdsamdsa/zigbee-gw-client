@@ -29,13 +29,13 @@ Profiles.on('ready', function() {
     var main_stm = new MainStm(proxy, pan, engines);
     main_stm.on('online', function() {
         clearTimeout(timeout);
-        proxy.deinit();
+        proxy.deInit();
     });
 
     main_stm.init();
     proxy.init();
 
     var timeout = setTimeout(function() {
-        proxy.deinit();
+        proxy.deInit();
     }, 10000);
 });

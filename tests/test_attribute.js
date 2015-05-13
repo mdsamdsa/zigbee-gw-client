@@ -159,7 +159,7 @@ Profiles.on('ready', function() {
                     .then(engines.wait_gateway)
                     .then(engines.attribute.process_get_device_attribute_list_rsp_ind)
                     .then(function(msg) {
-                        var endpoint = pan.get_endpoint(msg.srcAddress);
+                        var endpoint = pan.getEndpoint(msg.srcAddress);
                         if (typeof endpoint == 'undefined') {
                             logger.info('endpoint not found');
                         } else {
@@ -209,12 +209,12 @@ Profiles.on('ready', function() {
         tasks = tasks.concat(Gen2(pan));
         sequence(tasks).then(function() {
             clearTimeout(timer);
-            proxy.deinit();
+            proxy.deInit();
         });
     }
 
     var timer = setTimeout(function() {
-        proxy.deinit();
+        proxy.deInit();
     }, 40000);
 
     group_stm.on('done', function() {

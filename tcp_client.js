@@ -31,26 +31,26 @@ TcpServerConnection.prototype.connect = function() {
     this.socket.unref();
     this.reconnect = true;
 
-    this.socket.on('connect', this.socket_connect.bind(this));
-    this.socket.on('close', this.socket_close.bind(this));
-    this.socket.on('end', this.socket_end.bind(this));
-    this.socket.on('timeout', this.socket_timeout.bind(this));
-    this.socket.on('error', this.socket_error.bind(this));
-    this.socket.on('data', this.socket_data.bind(this));
+    this.socket.on('connect', this._socket_connect.bind(this));
+    this.socket.on('close', this._socket_close.bind(this));
+    this.socket.on('end', this._socket_end.bind(this));
+    this.socket.on('timeout', this._socket_timeout.bind(this));
+    this.socket.on('error', this._socket_error.bind(this));
+    this.socket.on('data', this._socket_data.bind(this));
 
     this.parser = this._create_parser();
 
     process.nextTick(function(){});
 };
 
-TcpServerConnection.prototype.socket_connect = function() {
+TcpServerConnection.prototype._socket_connect = function() {
     this.connected = true;
     this.socket.setTimeout(0);
     logger.info(this.name + ' connected');
     this.emit('connected', this);
 };
 
-TcpServerConnection.prototype.socket_close = function(had_error) {
+TcpServerConnection.prototype._socket_close = function(had_error) {
     this.connected = false;
     logger.info(this.name + ' disconnected' + ((had_error)?' had error':''));
     this.emit('disconnected', this);
@@ -59,11 +59,11 @@ TcpServerConnection.prototype.socket_close = function(had_error) {
     }
 };
 
-TcpServerConnection.prototype.socket_end = function() {
+TcpServerConnection.prototype._socket_end = function() {
     logger.info(this.name + ' end');
 };
 
-TcpServerConnection.prototype.socket_timeout = function() {
+TcpServerConnection.prototype._socket_timeout = function() {
     logger.info(this.name + ' timeout');
     if (!this.connected) {
         this.socket.destroy();
@@ -74,7 +74,7 @@ TcpServerConnection.prototype.socket_timeout = function() {
     }
 };
 
-TcpServerConnection.prototype.socket_error = function(error) {
+TcpServerConnection.prototype._socket_error = function(error) {
     logger.error(this.name + ' error: ' + error);
     if (!this.connected) {
         this.socket.destroy();
@@ -85,7 +85,7 @@ TcpServerConnection.prototype.socket_error = function(error) {
     this.emit('error', error);
 };
 
-TcpServerConnection.prototype.socket_data =  function(chunk) {
+TcpServerConnection.prototype._socket_data =  function(chunk) {
     this.parser.write(chunk);
 };
 

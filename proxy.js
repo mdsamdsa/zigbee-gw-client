@@ -60,8 +60,8 @@ GatewayProxy.prototype.init = function() {
     this._ota_server.connect();
 };
 
-GatewayProxy.prototype.deinit = function() {
-    logger.info('deinit');
+GatewayProxy.prototype.deInit = function() {
+    logger.info('deInit');
     this._nwk_server.disconnect();
     this._gateway_server.disconnect();
     this._ota_server.disconnect();
@@ -77,7 +77,7 @@ GatewayProxy.prototype._nwk_server_connected = function() {
     logger.info('_nwk_server_connected');
     this._nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('nwk_mgr:connected');
-    if (this.all_server_ready()) {
+    if (this.allServerReady()) {
         this.emit('connected');
     }
 };
@@ -92,7 +92,7 @@ GatewayProxy.prototype._gateway_server_connected = function() {
     logger.info('_gateway_server_connected');
     this._gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('gateway:connected');
-    if (this.all_server_ready()) {
+    if (this.allServerReady()) {
         this.emit('connected');
     }
 };
@@ -107,7 +107,7 @@ GatewayProxy.prototype._ota_server_connected = function() {
     logger.info('_ota_server_connected');
     this._ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('ota_mgr:connected');
-    if (this.all_server_ready()) {
+    if (this.allServerReady()) {
         this.emit('connected');
     }
 };
@@ -407,7 +407,7 @@ GatewayProxy.prototype.is_server_ready = function(index) {
     return server.connected;
 };*/
 
-GatewayProxy.prototype.all_server_ready = function() {
+GatewayProxy.prototype.allServerReady = function() {
   return this._nwk_server.connected && this._gateway_server.connected && this._ota_server.connected;
 };
 
