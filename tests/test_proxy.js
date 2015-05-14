@@ -149,6 +149,11 @@ Profiles.on('ready', function() {
             .fail(function(err) { logger.info('err2: ' + err); })
             .then(function() { logger.info('done2');}));*/
     });
+
+    main_stm.on('online', function() {
+        group_stm.transition('start');
+    });
+
     group_stm.init();
     main_stm.init();
     proxy.init();

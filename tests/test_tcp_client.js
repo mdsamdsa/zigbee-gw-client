@@ -5,22 +5,10 @@ var module_name = module.filename.slice(module.filename.lastIndexOf(require('pat
 var log4js = require('log4js');
 var logger = log4js.getLogger(module_name);
 var TcpServerClient = require('../tcp_client');
+var config = require('../config');
 
-var nwk_server = new TcpServerClient('NWK_MGR', '192.168.90.28', 2540);
-
-nwk_server.on('error', function(error) {
-    //logger.error(error);
-});
+var nwk_server = new TcpServerClient('NWK_MGR', config.get('servers:nwk:host'), config.get('servers:nwk:port'));
 
 nwk_server.connect();
 
 setTimeout(nwk_server.disconnect.bind(nwk_server), 6000);
-
-//setTimeout(function() {}, 8000);
-
-/*setTimeout(function() {
-    nwk_server.port = 2540
-    nwk_server.connect(nwk_server);
-}, 6000);
-
-setTimeout(nwk_server.disconnect.bind(nwk_server), 11000);*/

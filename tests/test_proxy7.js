@@ -12,7 +12,7 @@ var Engines = require('../engines');
 var config = require('../config');
 var mainStmFactory = require('../lib/machines/main_stm');
 var groupStmFactory = require('../lib/machines/group_stm');
-var SceneStm = require('../lib/machines/scene_stm');
+var sceneStmFactory = require('../lib/machines/scene_stm');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 
@@ -30,14 +30,17 @@ Profiles.on('ready', function() {
     var engines = Engines.initEngine(proxy);
     var main_stm = mainStmFactory.create(proxy, pan, engines);
     var group_stm = groupStmFactory.create(pan, engines, main_stm);
-    var scene_stm = new SceneStm(proxy, pan, engines, main_stm);
+    var scene_stm = sceneStmFactory.create(pan, engines, main_stm);
 
     var timeout = setTimeout(function() {
         proxy.deInit();
     }, 20000);
 
+    main_stm.on('online', function() {
+        group_stm.transition('start');
+    });
     group_stm.on('done', function() {
-        scene_stm.fsm.transition('start');
+        scene_stm.transition('start');
     });
     scene_stm.on('done', function() {
         clearTimeout(timeout);

@@ -29,6 +29,10 @@ Profiles.on('ready', function() {
     var engines = Engines.initEngine(proxy);
     var main_stm = mainStmFactory.create(proxy, pan, engines);
     var group_stm = groupStmFactory.create(pan, engines, main_stm);
+
+    main_stm.on('online', function() {
+        group_stm.transition('start');
+    });
     group_stm.on('done', function() {
         clearTimeout(timeout);
         proxy.deInit();
