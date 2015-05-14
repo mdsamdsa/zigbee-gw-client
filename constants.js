@@ -24,7 +24,9 @@ Const.Timeouts = new Enum({
     GROUP_STM_NEXT_DELAY:               100,
     GROUP_STM_CICLE_WAIT:               2000,
     SCENE_STM_NEXT_DELAY:               100,
-    SCENE_STM_CICLE_WAIT:               2000
+    SCENE_STM_CICLE_WAIT:               2000,
+    ATTRIBUTE_STM_NEXT_DELAY:           100,
+    ATTRIBUTE_STM_CICLE_WAIT:           2000
 });
 
 module.exports = Const;

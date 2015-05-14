@@ -15,6 +15,7 @@
         "engine/attribute": "WARN",
         "machine/main": "INFO",
         "machine/group": "INFO",
-        "machine/scene": "INFO"
+        "machine/scene": "INFO",
+        "machine/attribute": "INFO"
     }
 }
