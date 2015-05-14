@@ -83,11 +83,7 @@ function Gen2(pan) {
                             logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + msg.attributeRecordList.length);
                         }.bind(this))
                         .catch(function (err) {
-                            if (err.constructor.name == 'ZigbeeGWError' && err.msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_FAILURE && err.msg.attributeRecordList.length != 0) {
-                                logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + err.msg.attributeRecordList.length);
-                            } else {
-                                logger.warn('get attributes value for cluster ' + this.cluster.name + ' failure: ' + err);
-                            }
+                            logger.warn('get attributes value for cluster ' + this.cluster.name + ' failure: ' + err);
                         }.bind(this));
                 }.bind({address: address, clusterId: clusterId, attributeList: attributeList, cluster: cluster}));
             }
