@@ -74,13 +74,13 @@
             <attribute id="0x0003" name="HWVersion" type="uint8" access="r" default="0x00" mandatory="false">
                 <Range from="0x00" to="0xFF"/>
             </attribute>
-            <attribute id="0x0004" name="ManufacturerName" type="string" default="0x00" mandatory="false">
+            <attribute id="0x0004" name="ManufacturerName" type="cstring" default="0x00" mandatory="false">
                 <Range from="0" to="32"/>
             </attribute>
-            <attribute id="0x0005" name="ModelIdentifier" type="string" mandatory="false">
+            <attribute id="0x0005" name="ModelIdentifier" type="cstring" mandatory="false">
                 <Range from="0" to="32"/>
             </attribute>
-            <attribute id="0x0006" name="DateCode" type="string" mandatory="false">
+            <attribute id="0x0006" name="DateCode" type="cstring" mandatory="false">
                 <Range from="0" to="32"/>
             </attribute>
             <attribute id="0x0007" name="PowerSource" type="enum8" mandatory="false">
