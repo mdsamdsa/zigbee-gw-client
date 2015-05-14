@@ -69,10 +69,10 @@ function Gen2(pan) {
                 tasks.push(function () {
                     var engines = Engines.getEngine();
                     logger.debug('get attributes value for cluster ' + this.cluster.name + ' count: ' + this.attributeList.length);
-                    return when(engines.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
-                        .then(engines.attribute.process_read_device_attribute_cnf)
+                    return when(engines.gw.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
+                        .then(engines.gw.attribute.process_read_device_attribute_cnf)
                         .then(engines.wait_gateway)
-                        .then(engines.attribute.process_read_device_attribute_rsp_ind)
+                        .then(engines.gw.attribute.process_read_device_attribute_rsp_ind)
                         .then(function (msg) {
                             logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + msg.attributeRecordList.length);
                         }.bind(this))
@@ -93,10 +93,10 @@ function Gen2(pan) {
             tasks.push(function () {
                 var engines = Engines.getEngine();
                 logger.debug('get attributes value for cluster ' + 'Test' + ' count: ' + this.attributeList.length);
-                return when(engines.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
-                    .then(engines.attribute.process_read_device_attribute_cnf)
+                return when(engines.gw.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
+                    .then(engines.gw.attribute.process_read_device_attribute_cnf)
                     .then(engines.wait_gateway)
-                    .then(engines.attribute.process_read_device_attribute_rsp_ind)
+                    .then(engines.gw.attribute.process_read_device_attribute_rsp_ind)
                     .then(function (msg) {
                         logger.debug('get attributes value for cluster ' + 'Test' + ' successful' + ' count: ' + msg.attributeRecordList.length);
                     }.bind(this))
@@ -154,10 +154,10 @@ Profiles.on('ready', function() {
         var attributeList = [0];
         var tasks = [
             function() {
-                return when(engines.attribute.send_get_device_attribute_list_request(address))
-                    .then(engines.attribute.process_get_device_attribute_list_cnf)
+                return when(engines.gw.attribute.send_get_device_attribute_list_request(address))
+                    .then(engines.gw.attribute.process_get_device_attribute_list_cnf)
                     .then(engines.wait_gateway)
-                    .then(engines.attribute.process_get_device_attribute_list_rsp_ind)
+                    .then(engines.gw.attribute.process_get_device_attribute_list_rsp_ind)
                     .then(function(msg) {
                         var endpoint = pan.getEndpoint(msg.srcAddress);
                         if (typeof endpoint == 'undefined') {
@@ -174,10 +174,10 @@ Profiles.on('ready', function() {
                     });
             },
             function() {
-                return when(engines.attribute.send_read_device_attribute_request(address, clusterId, attributeList))
-                    .then(engines.attribute.process_read_device_attribute_cnf)
+                return when(engines.gw.attribute.send_read_device_attribute_request(address, clusterId, attributeList))
+                    .then(engines.gw.attribute.process_read_device_attribute_cnf)
                     .then(engines.wait_gateway)
-                    .then(engines.attribute.process_read_device_attribute_rsp_ind)
+                    .then(engines.gw.attribute.process_read_device_attribute_rsp_ind)
                     .then(function() {
                         logger.debug('get attribute value successful');
                     })

@@ -34,10 +34,10 @@ Profiles.on('ready', function() {
 
     function Test(address, groupId) {
         var deferred = when.defer();
-        when(engines.group_scene.send_get_scene_membership_request(address, groupId))
-            .then(engines.group_scene.process_get_scene_membership_cnf)
+        when(engines.gw.group_scene.send_get_scene_membership_request(address, groupId))
+            .then(engines.gw.group_scene.process_get_scene_membership_cnf)
             .then(engines.wait_gateway)
-            .then(engines.group_scene.process_get_scene_membership_rsp_ind)
+            .then(engines.gw.group_scene.process_get_scene_membership_rsp_ind)
             .then(function(msg) {
                 logger.debug('scenes: ' + Common.list_toString(msg.sceneList));
                 deferred.resolve(msg);
@@ -51,10 +51,10 @@ Profiles.on('ready', function() {
 
     function TestRpt(address, clusterId) {
         var deferred = when.defer();
-        when(engines.attribute.send_set_attribute_reporting_request(address, clusterId))
-            .then(engines.attribute.process_set_attribute_reporting_cnf)
+        when(engines.gw.attribute.send_set_attribute_reporting_request(address, clusterId))
+            .then(engines.gw.attribute.process_set_attribute_reporting_cnf)
             .then(engines.wait_gateway)
-            .then(engines.attribute.process_set_attribute_reporting_rsp_ind)
+            .then(engines.gw.attribute.process_set_attribute_reporting_rsp_ind)
             .then(function(msg) {
                 logger.debug('set attribute reporting success');
                 deferred.resolve(msg);

@@ -9,10 +9,13 @@ function Engine() {
 
 Engine.prototype._init = function(proxy) {
     this.proxy = proxy;
-    this.network_info    = require('./lib/engines/network_info_engine')(proxy);
-    this.device_list     = require('./lib/engines/device_list_engine')(proxy);
-    this.group_scene     = require('./lib/engines/group_scene_engine')(proxy);
-    this.attribute       = require('./lib/engines/attribute_engine')(proxy);
+    this.nwk = {};
+    this.nwk.local_device = require('./lib/engines/network/local_device')(proxy);
+    this.nwk.network      = require('./lib/engines/network/network')(proxy);
+    this.nwk.device       = require('./lib/engines/network/device')(proxy);
+    this.gw = {};
+    this.gw.group_scene   = require('./lib/engines/gateway/group_scene')(proxy);
+    this.gw.attribute     = require('./lib/engines/gateway/attribute')(proxy);
     return this;
 };
 

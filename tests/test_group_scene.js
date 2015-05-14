@@ -63,10 +63,10 @@ Profiles.on('ready', function() {
         var sceneId = 2;
         var tasks = [
             function(address, groupId) {
-                return when(engines.group_scene.send_add_group_request(address, groupId, ''))
-                    .then(engines.group_scene.process_add_group_cnf)
+                return when(engines.gw.group_scene.send_add_group_request(address, groupId, ''))
+                    .then(engines.gw.group_scene.process_add_group_cnf)
                     .then(engines.wait_gateway)
-                    .then(engines.group_scene.process_add_group_rsp_ind)
+                    .then(engines.gw.group_scene.process_add_group_rsp_ind)
                     .then(function() {
                         logger.debug('group added succesfull');
                     })
@@ -75,10 +75,10 @@ Profiles.on('ready', function() {
                     });
             },
             function(address, groupId, sceneId) {
-                return when(engines.group_scene.send_store_scene_request(address, groupId, sceneId))
-                    .then(engines.group_scene.process_store_scene_cnf)
+                return when(engines.gw.group_scene.send_store_scene_request(address, groupId, sceneId))
+                    .then(engines.gw.group_scene.process_store_scene_cnf)
                     .then(engines.wait_gateway)
-                    .then(engines.group_scene.process_store_scene_rsp_ind)
+                    .then(engines.gw.group_scene.process_store_scene_rsp_ind)
                     .then(function() {
                         logger.debug('scene stored succesfull');
                     })
@@ -87,10 +87,10 @@ Profiles.on('ready', function() {
                     });
             },
             function(address, groupId, sceneId) {
-                return when(engines.group_scene.send_remove_scene_request(address, groupId, sceneId))
-                    .then(engines.group_scene.process_remove_scene_cnf)
+                return when(engines.gw.group_scene.send_remove_scene_request(address, groupId, sceneId))
+                    .then(engines.gw.group_scene.process_remove_scene_cnf)
                     .then(engines.wait_gateway)
-                    .then(engines.group_scene.process_remove_scene_rsp_ind)
+                    .then(engines.gw.group_scene.process_remove_scene_rsp_ind)
                     .then(function() {
                         logger.debug('scene removed succesfull');
                     })
@@ -99,10 +99,10 @@ Profiles.on('ready', function() {
                     });
             },
             function(address, groupId) {
-                return when(engines.group_scene.send_remove_from_group_request(address, groupId))
-                    .then(engines.group_scene.process_remove_from_group_cnf)
+                return when(engines.gw.group_scene.send_remove_from_group_request(address, groupId))
+                    .then(engines.gw.group_scene.process_remove_from_group_cnf)
                     .then(engines.wait_gateway)
-                    .then(engines.group_scene.process_remove_from_group_rsp_ind)
+                    .then(engines.gw.group_scene.process_remove_from_group_rsp_ind)
                     .then(function() {
                         logger.debug('group removed succesfull');
                     })

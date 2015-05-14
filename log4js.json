@@ -8,9 +8,10 @@
     "levels": {
         "proxy":  "WARN",
         "tcp_client":  "WARN",
-        "network_info_engine": "WARN",
-        "device_list_engine": "WARN",
-        "attribute_engine": "WARN",
-        "group_scene_engine": "WARN"
+        "engine/local_device": "WARN",
+        "engine/network": "WARN",
+        "engine/device": "WARN",
+        "engine/group_scene": "WARN",
+        "engine/attribute": "WARN"
     }
 }

@@ -36,10 +36,10 @@ Profiles.on('ready', function() {
         address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
         address.ieeeAddr = pan.devices[1].ieeeAddress;
         address.endpointId = pan.devices[1].endpoints[0].endpointId;
-        when(engines.group_scene.send_get_group_membership_request(address))
-            .then(engines.group_scene.process_get_group_membership_cnf)
+        when(engines.gw.group_scene.send_get_group_membership_request(address))
+            .then(engines.gw.group_scene.process_get_group_membership_cnf)
             .then(engines.wait_gateway)
-            .then(engines.group_scene.process_get_group_membership_rsp_ind)
+            .then(engines.gw.group_scene.process_get_group_membership_rsp_ind)
             .then(function(msg) {
                 var endpoint = pan.getEndpoint(msg.srcAddress);
                 if (typeof endpoint == 'undefined') {
