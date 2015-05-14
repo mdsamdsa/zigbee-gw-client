@@ -12,6 +12,9 @@
         "engine/network": "WARN",
         "engine/device": "WARN",
         "engine/group_scene": "WARN",
-        "engine/attribute": "WARN"
+        "engine/attribute": "WARN",
+        "machine/main": "INFO",
+        "machine/group": "INFO",
+        "machine/scene": "INFO"
     }
 }

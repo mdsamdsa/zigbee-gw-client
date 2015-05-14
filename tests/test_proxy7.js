@@ -10,9 +10,9 @@ var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
 var Engines = require('../engines');
 var config = require('../config');
-var mainStmFactory = require('../lib/machines/main_stm');
-var groupStmFactory = require('../lib/machines/group_stm');
-var sceneStmFactory = require('../lib/machines/scene_stm');
+var mainStmFactory = require('../lib/machines/main');
+var groupStmFactory = require('../lib/machines/group');
+var sceneStmFactory = require('../lib/machines/scene');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 

@@ -11,15 +11,18 @@ var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
 var Engines = require('../engines');
 var config = require('../config');
-var mainStmFactory = require('../lib/machines/main_stm');
-var groupStmFactory = require('../lib/machines/group_stm');
-var sceneStmFactory = require('../lib/machines/scene_stm');
+var mainStmFactory = require('../lib/machines/main');
+var groupStmFactory = require('../lib/machines/group');
+var sceneStmFactory = require('../lib/machines/scene');
 var PAN = require('../lib/profile/Pan');
 var Protocol = require('../protocol');
 var Const = require('../constants');
 
 function Gen(pan) {
     var tasks = [];
+    tasks.push(function() {
+        logger.info('> Gen');
+    });
     var device = pan.devices[1];
     for(var i = 0; i < device.endpoints.length; i++) {
         var endpoint = device.endpoints[i];
@@ -46,6 +49,9 @@ function Gen(pan) {
 
 function Gen2(pan) {
     var tasks = [];
+    tasks.push(function() {
+        logger.info('> Gen2');
+    });
     var device = pan.devices[1];
     for(var i = 0; i < device.endpoints.length; i++) {
         var endpoint = device.endpoints[i];
@@ -154,6 +160,7 @@ Profiles.on('ready', function() {
         var attributeList = [0];
         var tasks = [
             function() {
+                logger.info('> get attribute list');
                 return when(engines.gw.attribute.send_get_device_attribute_list_request(address))
                     .then(engines.gw.attribute.process_get_device_attribute_list_cnf)
                     .then(engines.wait_gateway)
@@ -174,6 +181,7 @@ Profiles.on('ready', function() {
                     });
             },
             function() {
+                logger.info('> get attribute value');
                 return when(engines.gw.attribute.send_read_device_attribute_request(address, clusterId, attributeList))
                     .then(engines.gw.attribute.process_read_device_attribute_cnf)
                     .then(engines.wait_gateway)
@@ -186,6 +194,7 @@ Profiles.on('ready', function() {
                     });
             },
             function() {
+                logger.info('> read attribute');
                 return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].read())
                     .then(function(val) {
                         logger.debug('get OnOff attribute of On/Off cluster successful: ' + val);
@@ -195,6 +204,7 @@ Profiles.on('ready', function() {
                     });
             },
             function() {
+                logger.info('> write attribute');
                 return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].write(true))
                     .then(function(val) {
                         logger.debug('set OnOff attribute of On/Off cluster successful: ' + val);
