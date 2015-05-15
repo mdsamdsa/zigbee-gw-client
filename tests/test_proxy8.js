@@ -48,7 +48,14 @@ Profiles.on('ready', function() {
         attr_stm.transition('start');
     });
     attr_stm.on('done', function() {
-        clearTimeout(timeout);
+        when(engines.nwk.network.send_set_permit_join_request(Protocol.NWKMgr.nwkPermitJoinType_t.PERMIT_NETWORK, 60)
+            .then(engines.nwk.network.process_set_permit_join_cnf)
+            .tap(function(msg) {
+
+            }))
+            .finally(function() {
+                clearTimeout(timeout);
+            });
     });
 
     attr_stm.init();
