@@ -36,7 +36,7 @@ Profiles.on('ready', function() {
 
     var timeout = setTimeout(function() {
         proxy.deInit();
-    }, 20000);
+    }, 60000);
 
     main_stm.on('online', function() {
         group_stm.transition('start');
@@ -58,9 +58,34 @@ Profiles.on('ready', function() {
             .tap(function(msg) {
 
             })
+/*            .then(function() {
+                var address = new Protocol.GatewayMgr.gwAddressStruct_t();
+                address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
+                address.ieeeAddr = pan.devices[1].ieeeAddress;
+                engines.nwk.device.send_remove_device_request(address, Protocol.NWKMgr.nwkLeaveMode_t.LEAVE)
+            })*/
+            .then(engines.nwk.network.process_remove_device_cnf)
+            .tap(function(msg) {
+
+            })
             .finally(function() {
                 //clearTimeout(timeout);
             });
+    });
+
+    proxy.on("NWK_MGR:NWK_ZIGBEE_DEVICE_IND", function(msg) {
+        var str;
+        switch (msg.deviceInfo.deviceStatus) {
+            case Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_OFF_LINE: str = "offline"; break;
+            case Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_ON_LINE:  str = "online"; break;
+            case Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_REMOVED:  str = "removed"; break;
+            default: str = "" + msg.deviceInfo.deviceStatus; break;
+        }
+        logger.info("device ind status: " + str);
+        pan.updateDevice(msg.deviceInfo);
+        if (msg.deviceInfo.deviceStatus != Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_REMOVED) {
+            group_stm.transition('start');
+        }
     });
 
     attr_stm.init();
