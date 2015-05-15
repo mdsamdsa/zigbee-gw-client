@@ -48,13 +48,18 @@ Profiles.on('ready', function() {
         attr_stm.transition('start');
     });
     attr_stm.on('done', function() {
-        when(engines.nwk.network.send_set_permit_join_request(Protocol.NWKMgr.nwkPermitJoinType_t.PERMIT_NETWORK, 60)
+        when(engines.nwk.device.send_device_list_maintenance_request())
+            .then(engines.nwk.device.process_device_list_maintenance_cnf)
+            .tap(function(msg) {
+
+            })
+            .then(engines.nwk.network.send_set_permit_join_request(Protocol.NWKMgr.nwkPermitJoinType_t.PERMIT_NETWORK, 60))
             .then(engines.nwk.network.process_set_permit_join_cnf)
             .tap(function(msg) {
 
-            }))
+            })
             .finally(function() {
-                clearTimeout(timeout);
+                //clearTimeout(timeout);
             });
     });
 
