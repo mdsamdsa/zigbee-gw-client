@@ -92,7 +92,7 @@ Profiles.on('ready', function() {
     });
 
     main_stm.on('online', function() {
-        group_stm.transition('start');
+        group_stm.start();
     });
 
     proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function(msg) {

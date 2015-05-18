@@ -37,10 +37,10 @@ Profiles.on('ready', function() {
     }, 20000);
 
     main_stm.on('online', function() {
-        group_stm.transition('start');
+        group_stm.start();
     });
     group_stm.on('done', function() {
-        scene_stm.transition('start');
+        scene_stm.start();
     });
     scene_stm.on('done', function() {
         clearTimeout(timeout);
@@ -50,6 +50,7 @@ Profiles.on('ready', function() {
         logger.info(msg);
     });
 
+    scene_stm.init();
     group_stm.init();
     main_stm.init();
     proxy.init();
