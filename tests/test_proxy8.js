@@ -34,42 +34,59 @@ Profiles.on('ready', function() {
     var scene_stm = sceneStmFactory.create(pan, engines, main_stm);
     var attr_stm = attributeStmFactory.create(pan, engines, main_stm);
 
-    var timeout = setTimeout(function() {
+/*    var timeout = setTimeout(function() {
         proxy.deInit();
-    }, 60000);
+    }, 60000);*/
 
     main_stm.on('online', function() {
-        group_stm.transition('start');
+        group_stm.start();
     });
     group_stm.on('done', function() {
-        scene_stm.transition('start');
+        scene_stm.start();
     });
     scene_stm.on('done', function() {
-        attr_stm.transition('start');
+        attr_stm.start();
     });
     attr_stm.on('done', function() {
-        when(engines.nwk.device.send_device_list_maintenance_request())
-            .then(engines.nwk.device.process_device_list_maintenance_cnf)
-            .tap(function(msg) {
-
-            })
-            .then(engines.nwk.network.send_set_permit_join_request(Protocol.NWKMgr.nwkPermitJoinType_t.PERMIT_NETWORK, 60))
+        when(engines.nwk.network.send_set_permit_join_request(Protocol.NWKMgr.nwkPermitJoinType_t.PERMIT_NETWORK, 60))
             .then(engines.nwk.network.process_set_permit_join_cnf)
             .tap(function(msg) {
 
             })
-/*            .then(function() {
-                var address = new Protocol.GatewayMgr.gwAddressStruct_t();
-                address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
-                address.ieeeAddr = pan.devices[1].ieeeAddress;
-                engines.nwk.device.send_remove_device_request(address, Protocol.NWKMgr.nwkLeaveMode_t.LEAVE)
+            /*.then(engines.nwk.device.send_device_list_maintenance_request())
+            .then(engines.nwk.device.process_device_list_maintenance_cnf)
+            .tap(function(msg) {
+
             })*/
+            .then(function() {
+                if (pan.devices.length >= 3) {
+                    var address = new Protocol.GatewayMgr.gwAddressStruct_t();
+                    address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
+                    address.ieeeAddr = pan.devices[1].ieeeAddress;
+                    return engines.nwk.device.send_remove_device_request(address, Protocol.NWKMgr.nwkLeaveMode_t.LEAVE)
+                }
+            })
             .then(engines.nwk.network.process_remove_device_cnf)
             .tap(function(msg) {
 
             })
+            .catch(function(err) {
+                logger.error(err.message);
+            })
             .finally(function() {
                 //clearTimeout(timeout);
+                setTimeout(function() {
+                    var device = pan.devices[1];
+                    for (var i = 0; i < device.endpoints.length; i++) {
+                        for (var j = 0; j < device.endpoints[i].groups.length; j++) {
+                            device.endpoints[i].groups[j].needUpdate = true;
+                        }
+                        for (var k = 0; k < device.endpoints[i].clusters.length; k++) {
+                            device.endpoints[i].clusters[k].needUpdate = true;
+                        }
+                    }
+                    group_stm.start();
+                }, 5000)
             });
     });
 
@@ -84,11 +101,12 @@ Profiles.on('ready', function() {
         logger.info("device ind status: " + str);
         pan.updateDevice(msg.deviceInfo);
         if (msg.deviceInfo.deviceStatus != Protocol.NWKMgr.nwkDeviceStatus_t.DEVICE_REMOVED) {
-            group_stm.transition('start');
+            group_stm.start();
         }
     });
 
     attr_stm.init();
+    scene_stm.init();
     group_stm.init();
     main_stm.init();
     proxy.init();
