@@ -76,13 +76,15 @@ Profiles.on('ready', function() {
             .finally(function() {
                 //clearTimeout(timeout);
                 setTimeout(function() {
-                    var device = pan.devices[1];
-                    for (var i = 0; i < device.endpoints.length; i++) {
-                        for (var j = 0; j < device.endpoints[i].groups.length; j++) {
-                            device.endpoints[i].groups[j].needUpdate = true;
-                        }
-                        for (var k = 0; k < device.endpoints[i].clusters.length; k++) {
-                            device.endpoints[i].clusters[k].needUpdate = true;
+                    if (pan.devices.length >= 2) {
+                        var device = pan.devices[1];
+                        for (var i = 0; i < device.endpoints.length; i++) {
+                            for (var j = 0; j < device.endpoints[i].groups.length; j++) {
+                                device.endpoints[i].groups[j].needUpdate = true;
+                            }
+                            for (var k = 0; k < device.endpoints[i].clusters.length; k++) {
+                                device.endpoints[i].clusters[k].needUpdate = true;
+                            }
                         }
                     }
                     group_stm.start();
