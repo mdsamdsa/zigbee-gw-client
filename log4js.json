@@ -10,7 +10,7 @@
         "tcp_client":  "WARN",
         "engine/local_device": "WARN",
         "engine/network": "WARN",
-        "engine/device": "WARN",
+        "engine/network_device": "WARN",
         "engine/group_scene": "WARN",
         "engine/attribute": "WARN",
         "machine/main": "INFO",
