@@ -58,7 +58,7 @@ Profiles.on('ready', function() {
     proxy.init();
 
     function test_command() {
-        var cluster = pan.devices[1].endpoints[0].getCluster('On/Off');
+        var cluster = pan.devices[1].endpoints[0].clusters['On/Off'];
         when(cluster.commands['Toggle']())
             .then(function(msg) {
                 logger.info(msg);
