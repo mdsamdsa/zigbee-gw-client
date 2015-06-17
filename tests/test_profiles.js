@@ -1,7 +1,5 @@
 'use strict';
 
-var profiles = require('../lib/profile/ProfileStore');
+var Profiles = require('../lib/profile/ProfileStore');
 
-profiles.on('ready', function() {
-    console.log('ready');
-});
+Profiles.init(__dirname + '/../data/profiles', ['ha', 'zll']);

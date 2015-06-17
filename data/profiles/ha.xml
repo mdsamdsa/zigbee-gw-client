@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<profiles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ha.xsd">
+<profiles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="zigbee.xsd">
     <profile id="0x0104" name="Home Automation Profile">
         <xi:include href="zcl.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
         <device id="0x0000" name="On/Off Switch">

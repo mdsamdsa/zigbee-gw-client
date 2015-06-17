@@ -111,134 +111,134 @@ function Gen2(pan) {
     return tasks;
 }
 
-Profiles.on('ready', function() {
-    var proxy = new GatewayProxy(
-        config.get('servers:nwk:host'),
-        config.get('servers:nwk:port'),
-        config.get('servers:gateway:host'),
-        config.get('servers:gateway:port'),
-        config.get('servers:ota:host'),
-        config.get('servers:ota:port')
-    );
+Profiles.init(__dirname + '/../data/profiles', ['ha', 'zll']);
 
-    var pan = new PAN();
-    var engines = Engines.initEngine(proxy);
-    var main_stm = mainStmFactory.create(proxy, pan, engines);
-    var group_stm = groupStmFactory.create(pan, engines, main_stm);
-    var scene_stm = sceneStmFactory.create(pan, engines, main_stm);
+var proxy = new GatewayProxy(
+    config.get('servers:nwk:host'),
+    config.get('servers:nwk:port'),
+    config.get('servers:gateway:host'),
+    config.get('servers:gateway:port'),
+    config.get('servers:ota:host'),
+    config.get('servers:ota:port')
+);
 
-    function sequence(arr) {
-        var deferred = when.defer();
-        function _sequence() {
-            if (arr.length != 0) {
-                var task = arr.shift();
-                var promise = task.call(this);
-                when(promise).finally(_sequence);
-            } else {
-                deferred.resolve(true);
-            }
+var pan = new PAN();
+var engines = Engines.initEngine(proxy);
+var main_stm = mainStmFactory.create(proxy, pan, engines);
+var group_stm = groupStmFactory.create(pan, engines, main_stm);
+var scene_stm = sceneStmFactory.create(pan, engines, main_stm);
+
+function sequence(arr) {
+    var deferred = when.defer();
+    function _sequence() {
+        if (arr.length != 0) {
+            var task = arr.shift();
+            var promise = task.call(this);
+            when(promise).finally(_sequence);
+        } else {
+            deferred.resolve(true);
         }
-        _sequence();
-        return deferred.promise;
     }
+    _sequence();
+    return deferred.promise;
+}
 
-    function test_attribute() {
-        if (pan.devices.length == 1) {
-            logger.error('Device for test not found');
-            return;
+function test_attribute() {
+    if (pan.devices.length == 1) {
+        logger.error('Device for test not found');
+        return;
+    }
+    //noinspection JSPotentiallyInvalidConstructorUsage
+    var address = new Protocol.GatewayMgr.gwAddressStruct_t();
+    address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
+    address.ieeeAddr = pan.devices[1].ieeeAddress;
+    address.endpointId = pan.devices[1].endpoints[0].endpointId;
+    var clusterId = pan.devices[1].endpoints[0].getCluster('On/Off').clusterId;
+    var attributeList = [0];
+    var tasks = [
+        function() {
+            logger.info('> get attribute list');
+            return when(engines.gw.attribute.send_get_device_attribute_list_request(address))
+                .then(engines.gw.attribute.process_get_device_attribute_list_cnf)
+                .then(engines.wait_gateway)
+                .then(engines.gw.attribute.process_get_device_attribute_list_rsp_ind)
+                .then(function(msg) {
+                    var endpoint = pan.getEndpoint(msg.srcAddress);
+                    if (typeof endpoint == 'undefined') {
+                        logger.info('endpoint not found');
+                    } else {
+                        //TODO Update attribute list
+                    }
+                })
+                .then(function() {
+                    logger.debug('get attribute list succesfull');
+                })
+                .catch(function(err) {
+                    logger.warn('get attribute list failure: ' + err);
+                });
+        },
+        function() {
+            logger.info('> get attribute value');
+            return when(engines.gw.attribute.send_read_device_attribute_request(address, clusterId, attributeList))
+                .then(engines.gw.attribute.process_read_device_attribute_cnf)
+                .then(engines.wait_gateway)
+                .then(engines.gw.attribute.process_read_device_attribute_rsp_ind)
+                .then(function() {
+                    logger.debug('get attribute value successful');
+                })
+                .catch(function(err) {
+                    logger.warn('get attribute value failure: ' + err);
+                });
+        },
+        function() {
+            logger.info('> read attribute');
+            return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].read())
+                .then(function(val) {
+                    logger.debug('get OnOff attribute of On/Off cluster successful: ' + val);
+                })
+                .catch(function(err) {
+                    logger.warn('get OnOff attribute of On/Off cluster failure: ' + err);
+                });
+        },
+        function() {
+            logger.info('> write attribute');
+            return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].write(true))
+                .then(function(val) {
+                    logger.debug('set OnOff attribute of On/Off cluster successful: ' + val);
+                })
+                .catch(function(err) {
+                    logger.warn('set OnOff attribute of On/Off cluster failure: ' + err);
+                });
         }
-        //noinspection JSPotentiallyInvalidConstructorUsage
-        var address = new Protocol.GatewayMgr.gwAddressStruct_t();
-        address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
-        address.ieeeAddr = pan.devices[1].ieeeAddress;
-        address.endpointId = pan.devices[1].endpoints[0].endpointId;
-        var clusterId = pan.devices[1].endpoints[0].getCluster('On/Off').clusterId;
-        var attributeList = [0];
-        var tasks = [
-            function() {
-                logger.info('> get attribute list');
-                return when(engines.gw.attribute.send_get_device_attribute_list_request(address))
-                    .then(engines.gw.attribute.process_get_device_attribute_list_cnf)
-                    .then(engines.wait_gateway)
-                    .then(engines.gw.attribute.process_get_device_attribute_list_rsp_ind)
-                    .then(function(msg) {
-                        var endpoint = pan.getEndpoint(msg.srcAddress);
-                        if (typeof endpoint == 'undefined') {
-                            logger.info('endpoint not found');
-                        } else {
-                            //TODO Update attribute list
-                        }
-                    })
-                    .then(function() {
-                        logger.debug('get attribute list succesfull');
-                    })
-                    .catch(function(err) {
-                        logger.warn('get attribute list failure: ' + err);
-                    });
-            },
-            function() {
-                logger.info('> get attribute value');
-                return when(engines.gw.attribute.send_read_device_attribute_request(address, clusterId, attributeList))
-                    .then(engines.gw.attribute.process_read_device_attribute_cnf)
-                    .then(engines.wait_gateway)
-                    .then(engines.gw.attribute.process_read_device_attribute_rsp_ind)
-                    .then(function() {
-                        logger.debug('get attribute value successful');
-                    })
-                    .catch(function(err) {
-                        logger.warn('get attribute value failure: ' + err);
-                    });
-            },
-            function() {
-                logger.info('> read attribute');
-                return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].read())
-                    .then(function(val) {
-                        logger.debug('get OnOff attribute of On/Off cluster successful: ' + val);
-                    })
-                    .catch(function(err) {
-                        logger.warn('get OnOff attribute of On/Off cluster failure: ' + err);
-                    });
-            },
-            function() {
-                logger.info('> write attribute');
-                return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].write(true))
-                    .then(function(val) {
-                        logger.debug('set OnOff attribute of On/Off cluster successful: ' + val);
-                    })
-                    .catch(function(err) {
-                        logger.warn('set OnOff attribute of On/Off cluster failure: ' + err);
-                    });
-            }
-        ];
+    ];
 
-        tasks = tasks.concat(Gen(pan));
-        tasks = tasks.concat(Gen2(pan));
-        sequence(tasks).then(function() {
-            clearTimeout(timer);
-            proxy.deInit();
-        });
-    }
-
-    var timer = setTimeout(function() {
+    tasks = tasks.concat(Gen(pan));
+    tasks = tasks.concat(Gen2(pan));
+    sequence(tasks).then(function() {
+        clearTimeout(timer);
         proxy.deInit();
-    }, 40000);
+    });
+}
 
-    main_stm.on('online', function() {
-        group_stm.start();
-    });
-    group_stm.on('done', function() {
-        scene_stm.start();
-    });
-    scene_stm.on('done', function() {
-        test_attribute();
-    });
+var timer = setTimeout(function() {
+    proxy.deInit();
+}, 40000);
 
-    proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function(msg) {
-        logger.info(msg);
-    });
-
-    scene_stm.init();
-    group_stm.init();
-    main_stm.init();
-    proxy.init();
+main_stm.on('online', function() {
+    group_stm.start();
 });
+group_stm.on('done', function() {
+    scene_stm.start();
+});
+scene_stm.on('done', function() {
+    test_attribute();
+});
+
+proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function(msg) {
+    logger.info(msg);
+});
+
+scene_stm.init();
+group_stm.init();
+main_stm.init();
+proxy.init();

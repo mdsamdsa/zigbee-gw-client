@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<datatypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="zigbee.xsd">
+    <datatype id="0x00" name="nodata" description="No data" length="0"/>
+    <datatype id="0x08" name="data8" description="8-bit data" length="1"/>
+    <datatype id="0x09" name="data16" description="16-bit data" length="2"/>
+    <datatype id="0x0a" name="data24" description="24-bit data" length="3"/>
+    <datatype id="0x0b" name="data32" description="32-bit data" length="4"/>
+    <datatype id="0x0c" name="data40" description="40-bit data" length="5"/>
+    <datatype id="0x0d" name="data48" description="48-bit data" length="6"/>
+    <datatype id="0x0e" name="data56" description="56-bit data" length="7"/>
+    <datatype id="0x0f" name="data64" description="64-bit data" length="8"/>
+    <datatype id="0x10" name="boolean" description="Boolean" length="1" invalid="0xff"/>
+    <datatype id="0x18" name="bmp8" description="8-bit bitmap" length="1"/>
+    <datatype id="0x19" name="bmp16" description="16-bit bitmap" length="2"/>
+    <datatype id="0x1a" name="bmp24" description="24-bit bitmap" length="3"/>
+    <datatype id="0x1b" name="bmp32" description="32-bit bitmap" length="4"/>
+    <datatype id="0x1c" name="bmp40" description="40-bit bitmap" length="5"/>
+    <datatype id="0x1d" name="bmp48" description="48-bit bitmap" length="6"/>
+    <datatype id="0x1e" name="bmp56" description="56-bit bitmap" length="7"/>
+    <datatype id="0x1f" name="bmp64" description="64-bit bitmap" length="8"/>
+    <datatype id="0x20" name="uint8" description="Unsigned 8-bit integer" length="1" invalid="0xff"/>
+    <datatype id="0x21" name="uint16" description="Unsigned 16-bit integer" length="2" invalid="0xffff"/>
+    <datatype id="0x22" name="uint24" description="Unsigned 24-bit integer" length="3" invalid="0xffffff"/>
+    <datatype id="0x23" name="uint32" description="Unsigned 32-bit integer" length="4" invalid="0xffffffff"/>
+    <datatype id="0x24" name="uint40" description="Unsigned 40-bit integer" length="5" invalid="0xffffffffff"/>
+    <datatype id="0x25" name="uint48" description="Unsigned 48-bit integer" length="6" invalid="0xffffffffffff"/>
+    <datatype id="0x26" name="uint56" description="Unsigned 56-bit integer" length="7" invalid="0xffffffffffffff"/>
+    <datatype id="0x27" name="uint64" description="Unsigned 64-bit integer" length="8" invalid="0xffffffffffffffff"/>
+    <datatype id="0x28" name="int8" description="Signed 8-bit integer" length="1" invalid="0x80"/>
+    <datatype id="0x29" name="int16" description="Signed 16-bit integer" length="2" invalid="0x8000"/>
+    <datatype id="0x2a" name="int24" description="Signed 24-bit integer" length="3" invalid="0x800000"/>
+    <datatype id="0x2b" name="int32" description="Signed 32-bit integer" length="4" invalid="0x80000000"/>
+    <datatype id="0x2c" name="int40" description="Signed 40-bit integer" length="5" invalid="0x8000000000"/>
+    <datatype id="0x2d" name="int48" description="Signed 48-bit integer" length="6" invalid="0x800000000000"/>
+    <datatype id="0x2e" name="int56" description="Signed 56-bit integer" length="7" invalid="0x80000000000000"/>
+    <datatype id="0x2f" name="int64" description="Signed 64-bit integer" length="8" invalid="0x8000000000000000"/>
+    <datatype id="0x30" name="enum8" description="8-bit enumeration" length="1" invalid="0xff"/>
+    <datatype id="0x31" name="enum16" description="16-bit enumeration" length="2" invalid="0xffff"/>
+    <datatype id="0x38" name="semi" description="Semi-precision" length="2"/>
+    <datatype id="0x39" name="float" description="Single precision" length="4"/>
+    <datatype id="0x3a" name="double" description="Double precision" length="8"/>
+    <datatype id="0x41" name="ostring" description="Octet string" invalid="0xff"/>
+    <datatype id="0x42" name="cstring" description="Character string" invalid="0xff"/>
+    <datatype id="0x43" name="lostring" description="Long octet string" invalid="0xffff"/>
+    <datatype id="0x44" name="lcstring" description="Long character string" invalid="0xffff"/>
+    <datatype id="0x48" name="array" description="Array" invalid="0xffff"/>
+    <datatype id="0x4c" name="struct" description="Structure" invalid="0xffff"/>
+    <datatype id="0x50" name="set" description="Set" invalid="0xffff"/>
+    <datatype id="0x51" name="bag" description="Bag" invalid="0xffff"/>
+    <datatype id="0xe0" name="time" description="Time of day" length="4" invalid="0xffffffff"/>
+    <datatype id="0xe1" name="date" description="Date" length="4" invalid="0xffffffff"/>
+    <datatype id="0xe2" name="utc" description="UTCTime" length="4" invalid="0xffffffff"/>
+    <datatype id="0xe8" name="cid" description="Cluster ID" length="2" invalid="0xffff"/>
+    <datatype id="0xe9" name="aid" description="Attribute ID" length="2" invalid="0xffff"/>
+    <datatype id="0xea" name="oid" description="BACnet OID" length="4" invalid="0xffffffff"/>
+    <datatype id="0xf0" name="ieee" description="IEEE address" length="8" invalid="0xffffffffffffffff"/>
+    <datatype id="0xf1" name="seckey" description="128-bit security key" length="16"/>
+</datatypes>
