@@ -38,7 +38,7 @@
 
 	<xs:complexType name="clusterRefType">
 		<xs:attribute name="name" type="xs:string" />
-		<xs:attribute name="mandatory" type="xs:string" />
+		<xs:attribute name="mandatory" type="xs:boolean" />
 	</xs:complexType>
 
 	<xs:complexType name="rangeType">
@@ -66,9 +66,17 @@
 		<xs:attribute name="id" type="xs:string" />
 		<xs:attribute name="name" type="xs:string" />
 		<xs:attribute name="type" type="xs:string" />
-		<xs:attribute name="access" type="xs:string" />
+		<xs:attribute name="access">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="r" />
+					<xs:enumeration value="w" />
+					<xs:enumeration value="rw" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
 		<xs:attribute name="default" type="xs:string" />
-		<xs:attribute name="mandatory" type="xs:string" />
+		<xs:attribute name="mandatory" type="xs:boolean" />
 	</xs:complexType>
 
 	<xs:complexType name="commandType">
@@ -77,8 +85,7 @@
 		</xs:sequence>
 		<xs:attribute name="id" type="xs:string" />
 		<xs:attribute name="name" type="xs:string" />
-		<xs:attribute name="mandatory" type="xs:string" />
-		<xs:attribute name="payload" type="xs:string" />
+		<xs:attribute name="mandatory" type="xs:boolean" />
 	</xs:complexType>
 
 	<xs:complexType name="profileType">
