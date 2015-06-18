@@ -168,7 +168,7 @@
         <device id="0x0301" name="Thermostat"/>
         <device id="0x0302" name="Temperature Sensor">
             <server>
-                <clusterRef name="Temperature Measurement"/>
+                <clusterRef name="Temperature Measurement" mandatory="true"/>
             </server>
         </device>
         <device id="0x0303" name="Pump"/>

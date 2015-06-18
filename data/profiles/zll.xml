@@ -5,35 +5,43 @@
         <xi:include href="zcl.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
         <device id="0x0000" name="On/Off Light">
             <server>
-                <clusterRef name="Basic"/>
-                <clusterRef name="On/Off Switch Configuration"/>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
             </server>
         </device>
         <device id="0x0100" name="Dimmable Light">
             <server>
-                <clusterRef name="Basic"/>
-                <clusterRef name="On/Off Switch Configuration"/>
-                <clusterRef name="Level Control"/>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
             </server>
         </device>
         <device id="0x0200" name="Color Light">
             <server>
-                <clusterRef name="Basic"/>
-                <clusterRef name="On/Off Switch Configuration"/>
-                <clusterRef name="Level Control"/>
-                <clusterRef name="Color Control"/>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Color Control" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
             </server>
         </device>
         <device id="0x0210" name="Ext Color Light">
             <server>
-                <clusterRef name="Basic"/>
-                <clusterRef name="Identify"/>
-                <clusterRef name="Groups"/>
-                <clusterRef name="Scenes"/>
-                <clusterRef name="On/Off"/>
-                <clusterRef name="Level Control"/>
-                <clusterRef name="Color Control"/>
-                <clusterRef name="ZLL Commissioning"/>
+                <clusterRef name="Basic" mandatory="true"/>
+                <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
+                <clusterRef name="Color Control" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
             </server>
         </device>
     </profile>
