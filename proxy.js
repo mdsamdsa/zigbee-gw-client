@@ -75,49 +75,51 @@ GatewayProxy.prototype._tcp_server_error = function(error) {
 
 GatewayProxy.prototype._check_connected = function() {
     if (this.allServerReady()) {
+        logger.info('connected');
         this.emit('connected');
     }
 };
 
 GatewayProxy.prototype._check_disconnected = function() {
+    logger.info('connected');
     this.emit('disconnected');
 };
 
 GatewayProxy.prototype._nwk_server_connected = function() {
-    logger.info('_nwk_server_connected');
+    logger.debug('_nwk_server_connected');
     this._nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('nwk_mgr:connected');
     this._check_connected();
 };
 
 GatewayProxy.prototype._nwk_server_disconnected = function() {
-    logger.info('_nwk_server_disconnected');
+    logger.debug('_nwk_server_disconnected');
     this.emit('nwk_mgr:disconnected');
     this._check_disconnected();
 };
 
 GatewayProxy.prototype._gateway_server_connected = function() {
-    logger.info('_gateway_server_connected');
+    logger.debug('_gateway_server_connected');
     this._gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('gateway:connected');
     this._check_connected();
 };
 
 GatewayProxy.prototype._gateway_server_disconnected = function() {
-    logger.info('_gateway_server_disconnected');
+    logger.debug('_gateway_server_disconnected');
     this.emit('gateway:disconnected');
     this._check_disconnected();
 };
 
 GatewayProxy.prototype._ota_server_connected = function() {
-    logger.info('_ota_server_connected');
+    logger.debug('_ota_server_connected');
     this._ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('ota_mgr:connected');
     this._check_connected();
 };
 
 GatewayProxy.prototype._ota_server_disconnected = function() {
-    logger.info('_ota_server_disconnected');
+    logger.debug('_ota_server_disconnected');
     this.emit('ota_mgr:disconnected');
     this._check_disconnected();
 };
