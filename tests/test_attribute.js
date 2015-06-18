@@ -26,20 +26,22 @@ function Gen(pan) {
     var device = pan.devices[1];
     for(var i = 0; i < device.endpoints.length; i++) {
         var endpoint = device.endpoints[i];
-        for(var j = 0; j < endpoint.clusters.length; j++) {
-            var cluster = endpoint.clusters[j];
-            for (var key in cluster.attributes) {
-                if (cluster.attributes.hasOwnProperty(key) && !isNaN(parseInt(key))) {
-                    var attribute = cluster.attributes[key];
-                    tasks.push(function () {
-                        return when(this.attribute.read())
-                            .then(function (val) {
-                                logger.debug('device: ', this.id, ' endpoint: ', this.endpoint.endpointId, ' cluster: ', this.cluster.name, 'attribute: ', this.attribute.name, ' value: ', val);
-                            }.bind(this))
-                            .catch(function (err) {
-                                logger.warn('device: ', this.id, ' endpoint: ', this.endpoint.endpointId, ' cluster: ', this.cluster.name, 'attribute: ', this.attribute.name, 'error: ' + err);
-                            }.bind(this))
-                    }.bind({id: 1, device: device, endpoint: endpoint, cluster: cluster, attribute: attribute}));
+        for (var key in endpoint.clusters) {
+            if (endpoint.clusters.hasOwnProperty(key) && !isNaN(parseInt(key))) {
+                var cluster = endpoint.clusters[key];
+                for (var keyAttr in cluster.attributes) {
+                    if (cluster.attributes.hasOwnProperty(keyAttr) && !isNaN(parseInt(keyAttr))) {
+                        var attribute = cluster.attributes[keyAttr];
+                        tasks.push(function () {
+                            return when(this.attribute.read())
+                                .then(function (val) {
+                                    logger.debug('device: ', this.id, ' endpoint: ', this.endpoint.endpointId, ' cluster: ', this.cluster.name, 'attribute: ', this.attribute.name, ' value: ', val);
+                                }.bind(this))
+                                .catch(function (err) {
+                                    logger.warn('device: ', this.id, ' endpoint: ', this.endpoint.endpointId, ' cluster: ', this.cluster.name, 'attribute: ', this.attribute.name, 'error: ' + err);
+                                }.bind(this))
+                        }.bind({id: 1, device: device, endpoint: endpoint, cluster: cluster, attribute: attribute}));
+                    }
                 }
             }
         }
@@ -61,31 +63,33 @@ function Gen2(pan) {
         address.ieeeAddr = device.ieeeAddress;
         address.endpointId = endpoint.endpointId;
 
-        for(var j = 0; j < endpoint.clusters.length; j++) {
-            var cluster = endpoint.clusters[j];
-            var clusterId = cluster.clusterId;
-            var attributeList = [];
-            for (var key in cluster.attributes) {
-                if (cluster.attributes.hasOwnProperty(key) && !isNaN(parseInt(key))) {
-                    var attribute = cluster.attributes[key];
-                    attributeList.push(attribute.id)
+        for (var key in endpoint.clusters) {
+            if (endpoint.clusters.hasOwnProperty(key) && !isNaN(parseInt(key))) {
+                var cluster = endpoint.clusters[key];
+                var clusterId = cluster.clusterId;
+                var attributeList = [];
+                for (var keyAttr in cluster.attributes) {
+                    if (cluster.attributes.hasOwnProperty(keyAttr) && !isNaN(parseInt(keyAttr))) {
+                        var attribute = cluster.attributes[keyAttr];
+                        attributeList.push(attribute.id)
+                    }
                 }
-            }
-            if (attributeList.length != 0) {
-                tasks.push(function () {
-                    var engines = Engines.getEngine();
-                    logger.debug('get attributes value for cluster ' + this.cluster.name + ' count: ' + this.attributeList.length);
-                    return when(engines.gw.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
-                        .then(engines.gw.attribute.process_read_device_attribute_cnf)
-                        .then(engines.wait_gateway)
-                        .then(engines.gw.attribute.process_read_device_attribute_rsp_ind)
-                        .then(function (msg) {
-                            logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + msg.attributeRecordList.length);
-                        }.bind(this))
-                        .catch(function (err) {
-                            logger.warn('get attributes value for cluster ' + this.cluster.name + ' failure: ' + err);
-                        }.bind(this));
-                }.bind({address: address, clusterId: clusterId, attributeList: attributeList, cluster: cluster}));
+                if (attributeList.length != 0) {
+                    tasks.push(function () {
+                        var engines = Engines.getEngine();
+                        logger.debug('get attributes value for cluster ' + this.cluster.name + ' count: ' + this.attributeList.length);
+                        return when(engines.gw.attribute.send_read_device_attribute_request(this.address, this.clusterId, this.attributeList))
+                            .then(engines.gw.attribute.process_read_device_attribute_cnf)
+                            .then(engines.wait_gateway)
+                            .then(engines.gw.attribute.process_read_device_attribute_rsp_ind)
+                            .then(function (msg) {
+                                logger.debug('get attributes value for cluster ' + this.cluster.name + ' successful' + ' count: ' + msg.attributeRecordList.length);
+                            }.bind(this))
+                            .catch(function (err) {
+                                logger.warn('get attributes value for cluster ' + this.cluster.name + ' failure: ' + err);
+                            }.bind(this));
+                    }.bind({address: address, clusterId: clusterId, attributeList: attributeList, cluster: cluster}));
+                }
             }
         }
 
