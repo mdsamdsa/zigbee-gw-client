@@ -73,49 +73,53 @@ GatewayProxy.prototype._tcp_server_error = function(error) {
     logger.info(this.name + '_tcp_server_error: ' + error);
 };
 
-GatewayProxy.prototype._nwk_server_connected = function() {
-    logger.info('_nwk_server_connected');
-    this._nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
-    this.emit('nwk_mgr:connected');
+GatewayProxy.prototype._check_connected = function() {
     if (this.allServerReady()) {
         this.emit('connected');
     }
 };
 
+GatewayProxy.prototype._check_disconnected = function() {
+    this.emit('disconnected');
+};
+
+GatewayProxy.prototype._nwk_server_connected = function() {
+    logger.info('_nwk_server_connected');
+    this._nwk_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
+    this.emit('nwk_mgr:connected');
+    this._check_connected();
+};
+
 GatewayProxy.prototype._nwk_server_disconnected = function() {
     logger.info('_nwk_server_disconnected');
     this.emit('nwk_mgr:disconnected');
-    this.emit('disconnected');
+    this._check_disconnected();
 };
 
 GatewayProxy.prototype._gateway_server_connected = function() {
     logger.info('_gateway_server_connected');
     this._gateway_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('gateway:connected');
-    if (this.allServerReady()) {
-        this.emit('connected');
-    }
+    this._check_connected();
 };
 
 GatewayProxy.prototype._gateway_server_disconnected = function() {
     logger.info('_gateway_server_disconnected');
     this.emit('gateway:disconnected');
-    this.emit('disconnected');
+    this._check_disconnected();
 };
 
 GatewayProxy.prototype._ota_server_connected = function() {
     logger.info('_ota_server_connected');
     this._ota_server.confirmation_timeout_interval = Const.Timeouts.INITIAL_CONFIRMATION_TIMEOUT;
     this.emit('ota_mgr:connected');
-    if (this.allServerReady()) {
-        this.emit('connected');
-    }
+    this._check_connected();
 };
 
 GatewayProxy.prototype._ota_server_disconnected = function() {
     logger.info('_ota_server_disconnected');
     this.emit('ota_mgr:disconnected');
-    this.emit('disconnected');
+    this._check_disconnected();
 };
 
 GatewayProxy.prototype._nwk_server_packet = function(pkt) {
@@ -386,26 +390,6 @@ GatewayProxy.prototype._server_message = function(server, msg, msg_type, msg_nam
             break;
     }
 };
-
-/*GatewayProxy.prototype.get_server = function(index) {
-    switch(index) {
-        case Const.ServerID.SERVER_ID_NWK_MGR:
-            return this.nwk_server;
-        case Const.ServerID.SERVER_ID_GATEWAY:
-            return this.gateway_server;
-        case Const.ServerID.SERVER_ID_OTA_MGR:
-            return this.ota_server;
-        default:
-            return undefined;
-    }
-};
-
-GatewayProxy.prototype.is_server_ready = function(index) {
-    var server = this.get_server(index);
-    if (typeof server == "undefined")
-        return false;
-    return server.connected;
-};*/
 
 GatewayProxy.prototype.allServerReady = function() {
   return this._nwk_server.connected && this._gateway_server.connected && this._ota_server.connected;
