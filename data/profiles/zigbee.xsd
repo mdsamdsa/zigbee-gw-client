@@ -2,33 +2,9 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xml="http://www.w3.org/XML/1998/namespace">
 	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
 
-	<xs:complexType name="clusterType">
-		<xs:sequence>
-			<xs:element name="attribute" type="attributeType" maxOccurs="30" minOccurs="0"/>
-			<xs:element name="command" type="commandType" maxOccurs="30" minOccurs="0"/>
-		</xs:sequence>
+	<xs:complexType name="valueType">
 		<xs:attribute name="id" type="xs:string" use="required"/>
 		<xs:attribute name="name" type="xs:string" use="required"/>
-	</xs:complexType>
-
-	<xs:complexType name="sideType">
-		<xs:sequence>
-			<xs:element name="clusterRef" type="clusterRefType" maxOccurs="30" minOccurs="0"/>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="deviceType">
-		<xs:sequence>
-			<xs:element name="server" type="sideType" maxOccurs="1" minOccurs="0"/>
-			<xs:element name="client" type="sideType" maxOccurs="1" minOccurs="0"/>
-		</xs:sequence>
-		<xs:attribute name="id" type="xs:string" use="required"/>
-		<xs:attribute name="name" type="xs:string" use="required"/>
-	</xs:complexType>
-
-	<xs:complexType name="clusterRefType">
-		<xs:attribute name="name" type="xs:string" use="required"/>
-		<xs:attribute name="mandatory" type="xs:boolean" use="required"/>
 	</xs:complexType>
 
 	<xs:complexType name="rangeType">
@@ -40,20 +16,6 @@
 		<xs:sequence>
 			<xs:element name="value" type="valueType" maxOccurs="30" minOccurs="0"/>
 		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="paramType">
-		<xs:sequence>
-			<xs:element name="range" type="rangeType" maxOccurs="30" minOccurs="0"/>
-			<xs:element name="enum" type="enumType" maxOccurs="1" minOccurs="0"/>
-		</xs:sequence>
-		<xs:attribute name="name" type="xs:string" use="required"/>
-		<xs:attribute name="type" type="xs:string" use="required"/>
-	</xs:complexType>
-
-	<xs:complexType name="valueType">
-		<xs:attribute name="id" type="xs:string" use="required"/>
-		<xs:attribute name="name" type="xs:string" use="required"/>
 	</xs:complexType>
 
 	<xs:complexType name="attributeType">
@@ -77,6 +39,15 @@
 		<xs:attribute name="mandatory" type="xs:boolean" use="required"/>
 	</xs:complexType>
 
+	<xs:complexType name="paramType">
+		<xs:sequence>
+			<xs:element name="range" type="rangeType" maxOccurs="30" minOccurs="0"/>
+			<xs:element name="enum" type="enumType" maxOccurs="1" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="type" type="xs:string" use="required"/>
+	</xs:complexType>
+
 	<xs:complexType name="commandType">
 		<xs:sequence>
 			<xs:element name="param" type="paramType" maxOccurs="30" minOccurs="0"/>
@@ -84,6 +55,35 @@
 		<xs:attribute name="id" type="xs:string" use="required"/>
 		<xs:attribute name="name" type="xs:string" use="required"/>
 		<xs:attribute name="mandatory" type="xs:boolean" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="clusterType">
+		<xs:sequence>
+			<xs:element name="attribute" type="attributeType" maxOccurs="30" minOccurs="0"/>
+			<xs:element name="command" type="commandType" maxOccurs="30" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="clusterRefType">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="mandatory" type="xs:boolean" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="sideType">
+		<xs:sequence>
+			<xs:element name="clusterRef" type="clusterRefType" maxOccurs="30" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="deviceType">
+		<xs:sequence>
+			<xs:element name="server" type="sideType" maxOccurs="1" minOccurs="0"/>
+			<xs:element name="client" type="sideType" maxOccurs="1" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="name" type="xs:string" use="required"/>
 	</xs:complexType>
 
 	<xs:complexType name="profileType">
