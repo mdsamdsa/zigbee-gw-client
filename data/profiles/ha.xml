@@ -28,19 +28,19 @@
             <server>
                 <clusterRef name="Basic" mandatory="true"/>
                 <clusterRef name="Identify" mandatory="true"/>
-                <clusterRef name="On/Off" mandatory="true"/>
                 <clusterRef name="Scenes" mandatory="true"/>
                 <clusterRef name="Groups" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
             </server>
         </device>
         <device id="0x0003" name="Level Controllable Output">
             <server>
                 <clusterRef name="Basic" mandatory="true"/>
                 <clusterRef name="Identify" mandatory="true"/>
-                <clusterRef name="On/Off" mandatory="true"/>
-                <clusterRef name="Level Control" mandatory="true"/>
                 <clusterRef name="Scenes" mandatory="true"/>
                 <clusterRef name="Groups" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
             </server>
         </device>
         <device id="0x0004" name="Scene Selector">
@@ -57,9 +57,9 @@
             <server>
                 <clusterRef name="Basic" mandatory="true"/>
                 <clusterRef name="Identify" mandatory="true"/>
-                <clusterRef name="On/Off" mandatory="true"/>
                 <clusterRef name="Scenes" mandatory="true"/>
                 <clusterRef name="Groups" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
             </server>
         </device>
         <device id="0x000A" name="Door Lock"/>
@@ -69,9 +69,9 @@
             <server>
                 <clusterRef name="Basic" mandatory="true"/>
                 <clusterRef name="Identify" mandatory="true"/>
-                <clusterRef name="On/Off" mandatory="true"/>
                 <clusterRef name="Scenes" mandatory="true"/>
                 <clusterRef name="Groups" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
             </server>
             <client>
                 <clusterRef name="Occupancy sensing" mandatory="false"/>
@@ -81,21 +81,21 @@
             <server>
                 <clusterRef name="Basic" mandatory="true"/>
                 <clusterRef name="Identify" mandatory="true"/>
-                <clusterRef name="On/Off" mandatory="true"/>
-                <clusterRef name="Level Control" mandatory="true"/>
                 <clusterRef name="Scenes" mandatory="true"/>
                 <clusterRef name="Groups" mandatory="true"/>
+                <clusterRef name="On/Off" mandatory="true"/>
+                <clusterRef name="Level Control" mandatory="true"/>
             </server>
         </device>
         <device id="0x0102" name="Color Dimmable Light">
             <server>
                 <clusterRef name="Basic" mandatory="true"/>
                 <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
                 <clusterRef name="On/Off" mandatory="true"/>
                 <clusterRef name="Level Control" mandatory="true"/>
                 <clusterRef name="Color Control" mandatory="true"/>
-                <clusterRef name="Scenes" mandatory="true"/>
-                <clusterRef name="Groups" mandatory="true"/>
             </server>
         </device>
         <device id="0x0103" name="On/Off Light Switch">
@@ -149,11 +149,11 @@
             <server>
                 <clusterRef name="Basic" mandatory="true"/>
                 <clusterRef name="Identify" mandatory="true"/>
+                <clusterRef name="Scenes" mandatory="true"/>
+                <clusterRef name="Groups" mandatory="true"/>
                 <clusterRef name="Shade Configuration" mandatory="true"/>
                 <clusterRef name="On/Off" mandatory="true"/>
                 <clusterRef name="Level Control" mandatory="true"/>
-                <clusterRef name="Scenes" mandatory="true"/>
-                <clusterRef name="Groups" mandatory="true"/>
             </server>
         </device>
         <device id="0x0201" name="Shade Controller">
