@@ -1,6 +1,12 @@
 {
     "name": "application-name",
-    "version": "0.0.1",
+    "version": "0.0.2",
+    "description": "Zigbee gateway TI client.",
+    "main": "client.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mdsamdsa/zigbee-gw-client.git"
+    },
     "dependencies": {
         "protobufjs": "*",
         "bytebuffer": "*",
