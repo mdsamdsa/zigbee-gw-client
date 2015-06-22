@@ -71,7 +71,7 @@ function Gen2(pan) {
                 for (var keyAttr in cluster.attributes) {
                     if (cluster.attributes.hasOwnProperty(keyAttr) && !isNaN(parseInt(keyAttr))) {
                         var attribute = cluster.attributes[keyAttr];
-                        attributeList.push(attribute.id)
+                        attributeList.push(attribute.attributeId)
                     }
                 }
                 if (attributeList.length != 0) {
@@ -157,7 +157,7 @@ function test_attribute() {
     address.addressType = Protocol.GatewayMgr.gwAddressType_t.UNICAST;
     address.ieeeAddr = pan.devices[1].ieeeAddress;
     address.endpointId = pan.devices[1].endpoints[0].endpointId;
-    var clusterId = pan.devices[1].endpoints[0].getCluster('On/Off').clusterId;
+    var clusterId = pan.devices[1].endpoints[0].clusters['On/Off'].clusterId;
     var attributeList = [0];
     var tasks = [
         function() {
@@ -196,7 +196,7 @@ function test_attribute() {
         },
         function() {
             logger.info('> read attribute');
-            return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].read())
+            return when(pan.devices[1].endpoints[0].clusters['On/Off'].attributes['OnOff'].read())
                 .then(function(val) {
                     logger.debug('get OnOff attribute of On/Off cluster successful: ' + val);
                 })
@@ -206,7 +206,7 @@ function test_attribute() {
         },
         function() {
             logger.info('> write attribute');
-            return when(pan.devices[1].endpoints[0].getCluster('On/Off').attributes['OnOff'].write(true))
+            return when(pan.devices[1].endpoints[0].clusters['On/Off'].attributes['OnOff'].write(true))
                 .then(function(val) {
                     logger.debug('set OnOff attribute of On/Off cluster successful: ' + val);
                 })
