@@ -206,7 +206,7 @@ GatewayProxy.prototype._nwk_server_packet = function(pkt) {
     }
     logger.info('_nwk_server_packet: ' + msg_name);
 
-    this._server_message(this._nwk_server, msg, msg_type, msg_name);
+    this._server_message(this._nwk_server, pkt, msg, msg_type, msg_name);
 };
 
 GatewayProxy.prototype._gateway_server_packet = function(pkt) {
@@ -330,7 +330,7 @@ GatewayProxy.prototype._gateway_server_packet = function(pkt) {
     }
     logger.info('_gateway_server_packet: ' + msg_name);
 
-    this._server_message(this._gateway_server, msg, msg_type, msg_name);
+    this._server_message(this._gateway_server, pkt, msg, msg_type, msg_name);
 };
 
 GatewayProxy.prototype._ota_server_packet = function(pkt) {
@@ -370,19 +370,19 @@ GatewayProxy.prototype._ota_server_packet = function(pkt) {
     }
     logger.info('_ota_server_packet: ' + msg_name);
 
-    this._server_message(this._ota_server, msg, msg_type, msg_name);
+    this._server_message(this._ota_server, pkt, msg, msg_type, msg_name);
 };
 
-GatewayProxy.prototype._server_message = function(server, msg, msg_type, msg_name) {
+GatewayProxy.prototype._server_message = function(server, pkt, msg, msg_type, msg_name) {
     switch (msg_type) {
         case MsgType.cnf:
-            this._confirmation_receive_handler(msg);
+            this._confirmation_receive_handler(server, pkt, msg);
             logger.debug('emit: ' + server.name + ':' + msg_name);
             this.emit(server.name + ':' + msg_name, msg);
             this._try_send();
             break;
         case MsgType.ind:
-            this._indication_receive_handler(server.name, msg);
+            this._indication_receive_handler(server, pkt, msg);
             if (typeof msg.sequenceNumber == 'number') {
                 logger.debug('emit: ' + server.name + ':' + msg.sequenceNumber);
                 this.emit(server.name + ':' + msg.sequenceNumber, msg);
@@ -500,14 +500,58 @@ GatewayProxy.prototype._try_send = function() {
     }
 };
 
-GatewayProxy.prototype._confirmation_receive_handler = function(msg) {
+var cmdIdCnf = {};
+var cmdIdCnfNwk = {};
+var cmdIdCnfGw  = {};
+var cmdIdCnfOta  = {};
+cmdIdCnf[Protocol.NWKMgr.zStackNwkMgrSysId_t.RPC_SYS_PB_NWK_MGR] = cmdIdCnfNwk;
+cmdIdCnf[Protocol.GatewayMgr.zStackGwSysId_t.RPC_SYS_PB_GW] = cmdIdCnfGw;
+cmdIdCnf[Protocol.OTAMgr.ZStackOTASysIDs.RPC_SYS_PB_OTA_MGR] = cmdIdCnfOta;
+
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_SYSTEM_RESET_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_SYSTEM_RESET_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_ZIGBEE_POWER_MODE_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_ZIGBEE_POWER_MODE_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_LOCAL_DEVICE_INFO_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_LOCAL_DEVICE_INFO_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_NWK_INFO_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_PERMIT_JOIN_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_MANAGE_PERIODIC_MTO_ROUTE_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_NEIGHBOR_TABLE_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_ROUTING_TABLE_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_CHANGE_NWK_KEY_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_NWK_KEY_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_NWK_KEY_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.NWK_GET_DEVICE_LIST_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_DEVICE_LIST_MAINTENANCE_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_REMOVE_DEVICE_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+cmdIdCnfNwk[Protocol.NWKMgr.nwkMgrCmdId_t.NWK_SET_BINDING_ENTRY_REQ] = Protocol.NWKMgr.nwkMgrCmdId_t.ZIGBEE_GENERIC_CNF;
+
+cmdIdCnfOta[Protocol.OTAMgr.otaMgrCmdId_t.OTA_UPDATE_ENABLE_REQ] = Protocol.OTAMgr.otaMgrCmdId_t.OTA_UPDATE_ENABLE_CNF;
+
+function getCnfCmdId(subsystemId, cmdId) {
+    var subsystem = cmdIdCnf[subsystemId];
+    if (subsystem) {
+        var res = subsystem[cmdId];
+        if (res) {
+            return res;
+        }
+    }
+    return 0;
+}
+
+GatewayProxy.prototype._confirmation_receive_handler = function(server, pkt, msg) {
+    if (this._pkts_to_send.length > 0) {
+        var packet = this._pkts_to_send[0];
+        if (!(pkt.header.subsystem == packet.pkt.header.subsystem + 96 && msg.cmdId == getCnfCmdId(packet.pkt.header.subsystem, packet.pkt.header.cmdId))) {
+            logger.warn('Unexpected type of message');
+            return;
+        }
+    }
+
     this._waiting_for_confirmation = false;
     clearTimeout(this._confirmation_wait_timer);
     this._confirmation_wait_timer = undefined;
 
     if (this._pkts_to_send.length > 0) {
         logger.info('Calling confirmation callback');
-        var packet = this._pkts_to_send.shift();
+        packet = this._pkts_to_send.shift();
         packet.deferred.resolve(msg);
     }else {
         logger.error('Callback not defined');
@@ -534,8 +578,8 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
     this._try_send();
 };
 
-GatewayProxy.prototype._indication_receive_handler = function(serverName, msg) {
-    var i = this._find_id_wait(serverName, msg.sequenceNumber);
+GatewayProxy.prototype._indication_receive_handler = function(server, pkt, msg) {
+    var i = this._find_id_wait(server.name, msg.sequenceNumber);
     var found = false;
     while(i != -1 ) {
         var elem = this._waits_rsp_ind[i];
@@ -543,7 +587,7 @@ GatewayProxy.prototype._indication_receive_handler = function(serverName, msg) {
         this._waits_rsp_ind.splice(i, 1);
         elem.deferred.resolve(msg);
 
-        i = this._find_id_wait(serverName, msg.sequenceNumber);
+        i = this._find_id_wait(server.name, msg.sequenceNumber);
         found = true;
     }
     if (!found && (typeof msg.sequenceNumber != 'undefined') && (msg.sequenceNumber != null)) {
@@ -553,7 +597,7 @@ GatewayProxy.prototype._indication_receive_handler = function(serverName, msg) {
             logger.error('_indication_receive_handler: Respond indication queue is full');
         }
         this._pkts_rsp_ind.push({
-            serverName: serverName,
+            serverName: server.name,
             sequenceNumber: msg.sequenceNumber,
             msg: msg
         });
