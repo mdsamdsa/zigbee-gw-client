@@ -1,11 +1,14 @@
 'use strict';
 
-var log = require('log4js');
+var log4js = require('log4js');
 
-var getLogger = log.getLogger;
+function Logger() {
+    this.__proto__ = log4js;
+    this.getLogger = function(category) {
+        return this.__proto__.getLogger.call(log, "zgwc:" + category);
+    };
+}
 
-log.getLogger = function(category) {
-    return getLogger.call(log, "zgwc:" + category);
-};
+var log = new Logger();
 
 module.exports = log;
