@@ -6,16 +6,16 @@
     ],
 
     "levels": {
-        "proxy":  "WARN",
-        "tcp_client":  "WARN",
-        "engine/local_device": "WARN",
-        "engine/network": "WARN",
-        "engine/network_device": "WARN",
-        "engine/group_scene": "WARN",
-        "engine/attribute": "WARN",
-        "machine/main": "INFO",
-        "machine/group": "INFO",
-        "machine/scene": "INFO",
-        "machine/attribute": "INFO"
+        "zgwc:proxy":  "WARN",
+        "zgwc:tcp_client":  "WARN",
+        "zgwc:engine:local_device": "WARN",
+        "zgwc:engine:network": "WARN",
+        "zgwc:engine:network_device": "WARN",
+        "zgwc:engine:group_scene": "WARN",
+        "zgwc:engine:attribute": "WARN",
+        "zgwc:machine:main": "INFO",
+        "zgwc:machine:group": "INFO",
+        "zgwc:machine:scene": "INFO",
+        "zgwc:machine:attribute": "INFO"
     }
 }
