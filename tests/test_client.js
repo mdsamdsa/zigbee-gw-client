@@ -1,7 +1,7 @@
 'use strict';
 
-var log4js = require('log4js');
-log4js.configure('./log4js.json', {});
+var Logger = require('../logger');
+Logger.configure('./log4js.json', {});
 
 var client = require('../client');
 

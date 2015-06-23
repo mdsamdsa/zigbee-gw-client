@@ -2,8 +2,9 @@
 
 var module_name = module.filename.slice(module.filename.lastIndexOf(require('path').sep)+1, module.filename.length -3);
 
-var log4js = require('log4js');
-var logger = log4js.getLogger(module_name);
+var Logger = require('./logger');
+var logger = Logger.getLogger(module_name);
+
 var util = require('util');
 var net = require('net');
 var EventEmitter = require('events').EventEmitter;

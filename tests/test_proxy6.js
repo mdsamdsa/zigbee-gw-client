@@ -2,9 +2,10 @@
 
 var module_name = module.filename.slice(module.filename.lastIndexOf(require('path').sep)+1, module.filename.length -3);
 
-var log4js = require('log4js');
-log4js.configure('./log4js.json', {});
-var logger = log4js.getLogger(module_name);
+var Logger = require('../logger');
+Logger.configure('./log4js.json', {});
+var logger = Logger.getLogger(module_name);
+
 var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
