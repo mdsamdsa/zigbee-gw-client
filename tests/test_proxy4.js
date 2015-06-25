@@ -48,7 +48,7 @@ main_stm.on('online', function() {
             if (typeof endpoint == 'undefined') {
                 logger.warn('endpoint not found');
             } else {
-                endpoint.updateGroups(msg.groupList);
+                endpoint.intUpdateGroups(msg.groupList);
             }
             return when.resolve(msg);
         })
