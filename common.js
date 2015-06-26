@@ -64,7 +64,6 @@ Common.process_gateway_generic_cnf = function(msg, name, logger) {
     return when.resolve(msg);
 };
 
-
 Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
     if (msg.cmdId != Protocol.GatewayMgr.gwCmdId_t.ZIGBEE_GENERIC_RSP_IND) {
         logger.warn(name + ': Expected ZIGBEE_GENERIC_RSP_IND');
@@ -78,6 +77,33 @@ Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
     else {
         logger.info(name + ': failure - status: ' + msg.status);
         return when.reject(new ZigbeeGWError(name + ': ' + Common.status_toString(msg.status), msg.status));
+    }
+
+    return when.resolve(msg);
+};
+
+Common.process_gateway_custom_cnf = function(msg, cmdId, cmdName, name, logger, func) {
+    if (msg.cmdId != cmdId) {
+        var str = name +': Expected ' + cmdName;
+        logger.warn(str);
+        return when.reject(new Error(str));
+    }
+
+    if (msg.status) {
+        if (msg.status == Protocol.GatewayMgr.gwStatus_t.STATUS_SUCCESS) {
+            logger.info(name + ': success');
+        }
+        else {
+            logger.info(name + ': failure - status: ' + msg.status);
+            return when.reject(new ZigbeeGWError(name + ': ' + Common.status_toString(msg.status), msg.status));
+        }
+    }
+
+    if (func) {
+        var res = func();
+        if (res) {
+            return res;
+        }
     }
 
     return when.resolve(msg);

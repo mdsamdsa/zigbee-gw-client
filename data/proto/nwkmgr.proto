@@ -436,7 +436,7 @@ message NwkZigbeeNwkInfoCnf
   // Sent as a response to NwkZigbeeNwkInfoReq
 
   required nwkMgrCmdId_t cmdId = 1 [default = NWK_ZIGBEE_NWK_INFO_CNF];  // don't change this field
-  required nwkNetworkStatus_t status = 2;   // Network down/up
+  required nwkNetworkStatus_t networkStatus = 2;   // Network down/up
   required uint32 nwkChannel = 3;           // (uint8)  MAC Channel ID
   required uint32 panId = 4;                // (uint16) Network PAN ID
   required fixed64 extPanId = 5;            // (uint64) extended PAN ID
