@@ -30,8 +30,8 @@ var pan = new PAN(proxy);
 var engines = Engines.initEngine(proxy);
 
 proxy.on('connected', function() {
-    when(engines.nwk.network.send_nwk_info_request())
-        .then(engines.nwk.network.process_nwk_info_cnf)
+    when(engines.nwk.network.send_zigbee_nwk_info_request())
+        .then(engines.nwk.network.process_zigbee_nwk_info_cnf)
         .then(function(msg) {
             pan.updateNetwork(msg);
         })
