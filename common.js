@@ -82,7 +82,7 @@ Common.process_gateway_generic_rsp_ind = function(msg, name, logger) {
     return when.resolve(msg);
 };
 
-Common.process_gateway_custom_cnf = function(msg, cmdId, cmdName, name, logger, func) {
+Common.process_gateway_custom = function(msg, cmdId, cmdName, name, logger, func) {
     if (msg.cmdId != cmdId) {
         var str = name +': Expected ' + cmdName;
         logger.warn(str);
@@ -111,20 +111,15 @@ Common.process_gateway_custom_cnf = function(msg, cmdId, cmdName, name, logger, 
     return when.resolve(msg);
 };
 
+Common.process_gateway_custom_cnf = function(msg, cmdId, cmdName, name, logger, func) {
+    return this.process_gateway_custom(msg, cmdId, cmdName, name, logger, func);
+};
+
+Common.process_gateway_custom_rsp_ind = function(msg, cmdId, cmdName, name, logger, func) {
+    return this.process_gateway_custom(msg, cmdId, cmdName, name, logger, func);
+};
 Common.process_gateway_custom_ind = function(msg, cmdId, cmdName, name, logger, func) {
-    if (msg.cmdId != cmdId) {
-        var str = name +': Expected ' + cmdName;
-        logger.warn(str);
-        return when.reject(new Error(str));
-    }
-    logger.info(name);
-    if (func) {
-        var res = func();
-        if (res) {
-            return res;
-        }
-    }
-    return when.resolve(msg);
+    return this.process_gateway_custom(msg, cmdId, cmdName, name, logger, func);
 };
 
 var status_string = ['SUCCESS', 'FAILURE', 'BUSY', 'INVALID_PARAMETER', 'TIMEOUT'];
