@@ -51,6 +51,8 @@ function GatewayProxy(nwk_host, nwk_port, gateway_host, gateway_port, ota_host, 
     this._pkts_to_send = [];
     this._waits_rsp_ind = [];
     this._pkts_rsp_ind = [];
+
+    this._connected = false;
 }
 util.inherits(GatewayProxy, EventEmitter);
 
@@ -66,24 +68,28 @@ GatewayProxy.prototype.deInit = function() {
     this._nwk_server.disconnect();
     this._gateway_server.disconnect();
     this._ota_server.disconnect();
-    clearTimeout(this._confirmation_wait_timer);
-    this._confirmation_wait_timer = undefined;
+    /*clearTimeout(this._confirmation_wait_timer);
+    this._confirmation_wait_timer = undefined;*/
 };
 
 GatewayProxy.prototype._tcp_server_error = function(error) {
-    logger.info(this.name + '_tcp_server_error: ' + error);
+    logger.error(this.name + '_tcp_server_error: ' + error);
 };
 
 GatewayProxy.prototype._check_connected = function() {
     if (this.allServerReady()) {
         logger.info('connected');
         this.emit('connected');
+        this._connected = true;
     }
 };
 
 GatewayProxy.prototype._check_disconnected = function() {
-    logger.info('connected');
-    this.emit('disconnected');
+    if (this._connected) {
+        logger.info('disconnected');
+        this.emit('disconnected');
+        this._connected = false;
+    }
 };
 
 GatewayProxy.prototype._nwk_server_connected = function() {
@@ -205,7 +211,7 @@ GatewayProxy.prototype._nwk_server_packet = function(pkt) {
         logger.warn('_nwk_server_packet: Error: Could not unpack msg (cmdId: ' + msg_name +')');
         return;
     }
-    logger.info('_nwk_server_packet: ' + msg_name);
+    logger.debug('_nwk_server_packet: ' + msg_name);
 
     this._server_message(this._nwk_server, pkt, msg, msg_type, msg_name);
 };
@@ -329,7 +335,7 @@ GatewayProxy.prototype._gateway_server_packet = function(pkt) {
         logger.warn('_gateway_server_packet: Error: Could not unpack msg (cmdId: ' + msg_name +')');
         return;
     }
-    logger.info('_gateway_server_packet: ' + msg_name);
+    logger.debug('_gateway_server_packet: ' + msg_name);
 
     this._server_message(this._gateway_server, pkt, msg, msg_type, msg_name);
 };
@@ -369,7 +375,7 @@ GatewayProxy.prototype._ota_server_packet = function(pkt) {
         logger.warn('_ota_server_packet: Error: Could not unpack msg (cmdId: ' + msg_name +')');
         return;
     }
-    logger.info('_ota_server_packet: ' + msg_name);
+    logger.debug('_ota_server_packet: ' + msg_name);
 
     this._server_message(this._ota_server, pkt, msg, msg_type, msg_name);
 };
@@ -442,7 +448,7 @@ GatewayProxy.prototype.wait = function(serverName, sequenceNumber, timeOut) {
         if (ind != -1) {
             var rsp = this._pkts_rsp_ind[ind];
             this._pkts_rsp_ind.splice(ind, 1);
-            logger.info('wait: found msg in queue');
+            logger.debug('wait: found msg in queue');
             return when.resolve(rsp.msg);
         }
     }
@@ -482,9 +488,13 @@ GatewayProxy.prototype._try_send = function() {
         }
 
         if (!server.connected) {
-            logger.info('Please wait while connecting to server');
+            logger.warn('Please wait while connecting to server');
             packet.deferred.reject(new Error('Not connecting to server'));
             return;
+        }
+
+        if (pkt.header.subsystem == Protocol.NWKMgr.zStackNwkMgrSysId_t.RPC_SYS_PB_NWK_MGR && pkt.header.cmdId == Protocol.NWKMgr.nwkMgrCmdId_t.NWK_ZIGBEE_SYSTEM_RESET_REQ) {
+            server.confirmation_timeout_interval = Const.Timeouts.RESET_CONFIRMATION_TIMEOUT;
         }
 
         this._waiting_for_confirmation = true;
@@ -540,7 +550,7 @@ function getCnfCmdId(subsystemId, cmdId) {
 GatewayProxy.prototype._confirmation_receive_handler = function(server, pkt, msg) {
     if (this._pkts_to_send.length > 0) {
         var packet = this._pkts_to_send[0];
-        if (!(pkt.header.subsystem == packet.pkt.header.subsystem + 96 && msg.cmdId == getCnfCmdId(packet.pkt.header.subsystem, packet.pkt.header.cmdId))) {
+        if (!((pkt.header.subsystem & 31) == packet.pkt.header.subsystem && msg.cmdId == getCnfCmdId(packet.pkt.header.subsystem, packet.pkt.header.cmdId))) {
             logger.warn('Unexpected type of message');
             return;
         }
@@ -551,7 +561,7 @@ GatewayProxy.prototype._confirmation_receive_handler = function(server, pkt, msg
     this._confirmation_wait_timer = undefined;
 
     if (this._pkts_to_send.length > 0) {
-        logger.info('Calling confirmation callback');
+        logger.debug('Calling confirmation callback');
         packet = this._pkts_to_send.shift();
         packet.deferred.resolve(msg);
     }else {
@@ -566,7 +576,7 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
     logger.warn('TIMEOUT waiting for confirmation');
 
     if (this._pkts_to_send.length > 0) {
-        logger.info('Calling confirmation callback');
+        logger.debug('Calling confirmation callback');
         var packet = this._pkts_to_send.shift();
         packet.deferred.reject(new when.TimeoutError('Timed out'));
     }else {
