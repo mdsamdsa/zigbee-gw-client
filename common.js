@@ -97,6 +97,8 @@ Common.process_gateway_custom_cnf = function(msg, cmdId, cmdName, name, logger, 
             logger.info(name + ': failure - status: ' + msg.status);
             return when.reject(new ZigbeeGWError(name + ': ' + Common.status_toString(msg.status), msg.status));
         }
+    } else {
+        logger.info(name);
     }
 
     if (func) {
@@ -106,6 +108,22 @@ Common.process_gateway_custom_cnf = function(msg, cmdId, cmdName, name, logger, 
         }
     }
 
+    return when.resolve(msg);
+};
+
+Common.process_gateway_custom_ind = function(msg, cmdId, cmdName, name, logger, func) {
+    if (msg.cmdId != cmdId) {
+        var str = name +': Expected ' + cmdName;
+        logger.warn(str);
+        return when.reject(new Error(str));
+    }
+    logger.info(name);
+    if (func) {
+        var res = func();
+        if (res) {
+            return res;
+        }
+    }
     return when.resolve(msg);
 };
 
