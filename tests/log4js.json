@@ -6,8 +6,8 @@
     ],
 
     "levels": {
-        "zgwc:proxy":  "WARN",
-        "zgwc:tcp_client":  "WARN",
+        "zgwc:tcp_client": "FATAL",
+        "zgwc:proxy": "WARN",
         "zgwc:engine:local_device": "WARN",
         "zgwc:engine:network": "WARN",
         "zgwc:engine:network_device": "WARN",

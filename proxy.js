@@ -565,7 +565,7 @@ GatewayProxy.prototype._confirmation_receive_handler = function(server, pkt, msg
         packet = this._pkts_to_send.shift();
         packet.deferred.resolve(msg);
     }else {
-        logger.error('Callback not defined');
+        logger.error('Callback not defined for ' + msg.$type.name);
     }
 };
 
@@ -580,7 +580,7 @@ GatewayProxy.prototype._confirmation_timeout_handler = function() {
         var packet = this._pkts_to_send.shift();
         packet.deferred.reject(new when.TimeoutError('Timed out'));
     }else {
-        logger.warn('_confirmation_timeout_handler: Callback not defined');
+        logger.warn('_confirmation_timeout_handler: Callback not defined for ' + msg.$type.name);
     }
 
     logger.debug('emit: timeout');
