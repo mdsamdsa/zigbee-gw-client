@@ -29,6 +29,7 @@ client.attr_stm.on('done', function() {
                 logger.error(err);
             })
             .finally(function () {
+                client.pan.clear();
                 clearTimeout(timeout);
                 setTimeout(function() {
                     client.stop();
