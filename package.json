@@ -19,6 +19,7 @@
         "xml2js": "*",
         "async": "*",
         "when": "*",
+        "msgs": "*",
         "long": "*",
         "lodash": "*"
     }
