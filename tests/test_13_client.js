@@ -9,6 +9,6 @@ var client = require('../client');
 
 var timeout = setTimeout(function() {
     client.stop();
-}, 20 * 1000);
+}, 120 * 1000);
 
 client.start();
