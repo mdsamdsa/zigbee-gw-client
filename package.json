@@ -1,5 +1,5 @@
 {
-    "name": "application-name",
+    "name": "zigbee-gw-client",
     "version": "0.0.2",
     "description": "Zigbee gateway TI client.",
     "main": "client.js",
