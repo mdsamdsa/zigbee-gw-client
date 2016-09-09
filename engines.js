@@ -3,30 +3,34 @@
 var Const = require('./constants');
 var _ = require('lodash');
 
-function Engine() {
-    
+function Engines()
+{
 }
 
-Engine.prototype._init = function(proxy) {
-    this.proxy = proxy;
-    this.nwk = {};
-    this.nwk.local_device = require('./lib/engines/network/local_device')(proxy);
-    this.nwk.network      = require('./lib/engines/network/network')(proxy);
-    this.nwk.device       = require('./lib/engines/network/network_device')(proxy);
-    this.gw = {};
-    this.gw.group_scene   = require('./lib/engines/gateway/group_scene')(proxy);
-    this.gw.attribute     = require('./lib/engines/gateway/attribute')(proxy);
-    return this;
+var factory = function(proxy) {
+    var engines = new Engines();
+
+    engines.nwk = {};
+    engines.nwk.local_device = require('./lib/engines/network/local_device')(proxy);
+    engines.nwk.network      = require('./lib/engines/network/network')(proxy);
+    engines.nwk.device       = require('./lib/engines/network/network_device')(proxy);
+
+    engines.gw = {};
+    engines.gw.group_scene   = require('./lib/engines/gateway/group_scene')(proxy);
+    engines.gw.attribute     = require('./lib/engines/gateway/attribute')(proxy);
+
+    engines.wait_gateway = function(msg) {
+        return this.proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value);
+    };
+
+    _.bindAll(engines, "wait_gateway");
+
+    return engines;
 };
 
-Engine.prototype.wait_gateway = function(msg) {
-    return this.proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value);
-};
+module.exports = factory;
 
-var engine = new Engine();
-_.bindAll(engine, "wait_gateway");
-
-module.exports = {
+/*module.exports = {
     getEngine: function() {
         return engine;
     },
@@ -34,4 +38,4 @@ module.exports = {
         engine._init(proxy);
         return engine;
     }
-};
+};*/

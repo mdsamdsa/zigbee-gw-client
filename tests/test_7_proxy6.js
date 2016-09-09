@@ -10,7 +10,7 @@ var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
-var Engines = require('../engines');
+var factoryEngines = require('../engines');
 var config = require('../config');
 var mainStmFactory = require('../lib/machines/main');
 var groupStmFactory = require('../lib/machines/group');
@@ -30,8 +30,8 @@ var proxy = new GatewayProxy(
     config.get('servers:ota:port')
 );
 
-var pan = new PAN(proxy);
-var engines = Engines.initEngine(proxy);
+var engines = factoryEngines(proxy);
+var pan = new PAN(engines);
 var main_stm = mainStmFactory.create(proxy, pan, engines);
 var group_stm = groupStmFactory.create(pan, engines, main_stm);
 

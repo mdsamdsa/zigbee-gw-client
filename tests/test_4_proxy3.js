@@ -10,7 +10,7 @@ var when = require('when');
 
 var Profiles = require('../lib/profile/ProfileStore');
 var GatewayProxy = require('../proxy');
-var Engines = require('../engines');
+var factoryEngines = require('../engines');
 var config = require('../config');
 var mainStmFactory = require('../lib/machines/main');
 var PAN = require('../lib/profile/Pan');
@@ -27,8 +27,8 @@ var proxy = new GatewayProxy(
     config.get('servers:ota:port')
 );
 
-var pan = new PAN(proxy);
-var engines = Engines.initEngine(proxy);
+var engines = factoryEngines(proxy);
+var pan = new PAN(engines);
 var main_stm = mainStmFactory.create(proxy, pan, engines);
 main_stm.on('online', function() {
     clearTimeout(timeout);

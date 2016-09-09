@@ -9,7 +9,7 @@ var when = require('when');
 
 var Profiles = require('./lib/profile/ProfileStore');
 var GatewayProxy = require('./proxy');
-var Engines = require('./engines');
+var factoryEngines = require('./engines');
 var config = require('./config');
 var mainStmFactory = require('./lib/machines/main');
 var groupStmFactory = require('./lib/machines/group');
@@ -32,8 +32,8 @@ function ZigbeeGWClient() {
         config.get('servers:ota:port')
     );
 
-    this.pan = new PAN();
-    this.engines = Engines.initEngine(this.proxy);
+    this.engines = factoryEngines(this.proxy);
+    this.pan = new PAN(this.engines);
     this.main_stm = mainStmFactory.create(this.proxy, this.pan, this.engines);
     this.group_stm = groupStmFactory.create(this.pan, this.engines, this.main_stm);
     this.scene_stm = sceneStmFactory.create(this.pan, this.engines, this.main_stm);
