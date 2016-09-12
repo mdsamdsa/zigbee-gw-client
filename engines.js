@@ -14,6 +14,7 @@ var factory = function(proxy) {
     engines.nwk.local_device = require('./lib/engines/network/local_device')(proxy);
     engines.nwk.network      = require('./lib/engines/network/network')(proxy);
     engines.nwk.device       = require('./lib/engines/network/network_device')(proxy);
+    engines.nwk.pairing      = require('./lib/engines/network/pairing')(proxy);
 
     engines.gw = {};
     engines.gw.group_scene   = require('./lib/engines/gateway/group_scene')(proxy);
