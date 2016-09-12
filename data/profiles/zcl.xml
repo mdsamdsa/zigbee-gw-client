@@ -244,7 +244,36 @@
         </attribute>
         <!-- ... -->
 
-        <command id="0x07" name="Move to Color" mandatory="true"/>
+        <command id="0x00" name="Move to Hue" mandatory="false">
+            <param name="Hue" type="uint8"/>
+            <param name="Direction" type="enum8">
+                <enum>
+                    <value id="0x00" name="Shortest Distance"/>
+                    <value id="0x01" name="Longest Distance"/>
+                    <value id="0x02" name="Up"/>
+                    <value id="0x03" name="Down"/>
+                </enum>
+            </param>
+            <param name="TransitionTime" type="uint16"/>
+        </command>
+        <command id="0x03" name="Move to Saturation" mandatory="false">
+            <param name="Saturation" type="uint8"/>
+            <param name="TransitionTime" type="uint16"/>
+        </command>
+        <command id="0x06" name="Move to Hue and Saturation" mandatory="true">
+            <param name="Hue" type="uint8"/>
+            <param name="Saturation" type="uint8"/>
+            <param name="TransitionTime" type="uint16"/>
+        </command>
+        <command id="0x07" name="Move to Color" mandatory="true">
+            <param name="ColorX" type="uint16"/>
+            <param name="ColorY" type="uint16"/>
+            <param name="TransitionTime" type="uint16"/>
+        </command>
+        <command id="0x0a" name="Move to Color Temperature" mandatory="true">
+            <param name="Color Temperature" type="uint16"/>
+            <param name="TransitionTime" type="uint16"/>
+        </command>
     </cluster>
 
     <cluster id="0x0301" name="Ballast Configuration"/>
