@@ -49,6 +49,12 @@ function ZigbeeGWClient() {
         this.attr_stm.start();
     }.bind(this));
 
+    this.proxy.on('NWK_MGR:NWK_ZIGBEE_DEVICE_IND', function (msg) {
+        logger.debug('nwk_mgr:nwk_zigbee_device_ind');
+        this.pan.updateDevice(msg.deviceInfo);
+        this.group_stm.start();
+    }.bind(this));
+    
     this.proxy.on('GATEWAY:GW_SET_ATTRIBUTE_REPORTING_RSP_IND', function (msg) {
         logger.info(msg);
     });
