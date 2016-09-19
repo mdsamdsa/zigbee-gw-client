@@ -21,7 +21,7 @@ var factory = function(proxy) {
     engines.gw.attribute     = require('./lib/engines/gateway/attribute')(proxy);
 
     engines.wait_gateway = function(msg) {
-        return this.proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value);
+        return proxy.wait('GATEWAY', msg.sequenceNumber, Const.Timeouts.ZIGBEE_RESPOND_TIMEOUT.value);
     };
 
     _.bindAll(engines, "wait_gateway");
@@ -30,13 +30,3 @@ var factory = function(proxy) {
 };
 
 module.exports = factory;
-
-/*module.exports = {
-    getEngine: function() {
-        return engine;
-    },
-    initEngine: function(proxy) {
-        engine._init(proxy);
-        return engine;
-    }
-};*/
